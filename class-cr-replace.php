@@ -167,29 +167,16 @@ class CR_Replace {
 	 * @return void
 	 */
 	public function __action_publish_post( $new_status, $old_status, $post ) {
-		error_log( "Status changed for {$post->ID}: {$old_status} to {$new_status}" );
 		if ( 'publish' == $new_status && 'publish' != $old_status ) {
 			add_action( 'save_post', array( &$this, 'replacement_action' ), 20, 2 );
-			// header( 'Content-type: text/plain' );
-			// print_r( debug_backtrace() );
-			// exit;
-			//
-			# if ( 0 != ( $replace_id = intval( get_post_meta( $post->ID, '_cr_replace_post_id', true ) ) ) ) {
-			# 	$new_id = $this->replace_post( $replace_id, $post->ID );
-			# 	error_log( "clone-replace: Replaced post {$replace_id} with {$post->ID}" );
-			# 	wp_redirect( get_edit_post_link( $new_id, 'url' ) );
-			# 	exit;
-			# }
 		}
 	}
 
 
 	public function replacement_action( $post_id, $post ) {
-		error_log( "Should be replacing! {$post_id}, {$post->ID}, {$post->post_status}" );
 		if ( 'publish' != $post->post_status )
 			return;
 
-		error_log( "Replacement triggered for {$post_id}" );
 		if ( 0 != ( $replace_id = intval( get_post_meta( $post_id, '_cr_replace_post_id', true ) ) ) ) {
 			$this->replace_post( $replace_id, $post_id );
 			error_log( "clone-replace: Replaced post {$replace_id} with {$post_id}" );
@@ -228,8 +215,6 @@ class CR_Replace {
 
 			if ( !is_int( $replace_post_id ) || !is_int( $with_post_id ) )
 				return false;
-
-			error_log( "Saving post meta for {$with_post_id}" );
 
 			# Whew! That was a lot of validation, but you never can be too safe.
 			update_post_meta( $with_post_id,    '_cr_replace_post_id',   $replace_post_id );
@@ -278,12 +263,11 @@ class CR_Replace {
 		$this->_copy_post_terms( $with_post_id, $replace_post_id );
 		$this->_move_post_meta( $with_post_id, $replace_post_id );
 
-		# Delete the replacing post
-		error_log( "Should be deleting {$with_post_id}" );
-		// remove_action( 'delete_post', '_wp_delete_post_menu_item' );
+		# This hook causes issues due to some interaction which I could not find
+		remove_action( 'delete_post', '_wp_delete_post_menu_item' );
 
+		# Delete the replacing post
 		$result = wp_delete_post( $with_post_id, true );
-		error_log( "Should have deleted post! " . print_r( $result, 1 ) );
 
 		# Perform cleanup actions
 		$this->_cleanup( $replace_post_id, $revision_id );
@@ -305,7 +289,6 @@ class CR_Replace {
 		$revision_id = wp_save_post_revision( $post_id );
 
 		$this->_move_post_meta( $post_id, $revision_id );
-		error_log( "Moving post meta from {$post_id} to {$revision_id}" );
 
 		return $revision_id;
 	}
@@ -341,7 +324,6 @@ class CR_Replace {
 
 
 	private function _cleanup( $post_id, $revision_id ) {
-		error_log( "Running cleanup" );
 		delete_post_meta( $post_id,     '_cr_replace_post_id'   );
 		delete_post_meta( $post_id,     '_cr_original_post'     );
 		delete_post_meta( $revision_id, '_cr_replacing_post_id' );
