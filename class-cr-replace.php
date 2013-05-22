@@ -5,8 +5,8 @@
  *
  * @todo restore post meta with revision
  * @todo display post meta with revision when browsing revisions
- * @todo add GUI to replace one published post with another
  * @todo add ability to clone a revision
+ * @todo add GUI to replace one published post with another
  */
 
 if ( !class_exists( 'CR_Replace' ) ) :
@@ -323,6 +323,7 @@ class CR_Replace {
 		$with_post->post_name   = $replace_post->post_name;
 		$with_post->guid        = $replace_post->guid;
 		$with_post->post_status = $replace_post->post_status;
+		$with_post = apply_filters( 'CR_Replace_with_post', $with_post, $replace_post_id, $with_post_id );
 		wp_update_post( $with_post );
 
 		# Update post_meta and term relationships of replacing post to its new post id
@@ -339,6 +340,7 @@ class CR_Replace {
 		# Perform cleanup actions
 		$this->_cleanup( $replace_post_id, $revision_id );
 
+		do_action( 'CR_Replace_after_replacement', $replace_post_id, $with_post_id );
 		return $replace_post_id;
 	}
 
