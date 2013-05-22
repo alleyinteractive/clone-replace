@@ -33,26 +33,40 @@ class CR_Replace {
 		return self::$instance;
 	}
 
-	public function setup() {
-		add_action( 'load-post.php',           array( &$this, 'add_page_hooks' ) );
-		add_action( 'load-post-new.php',       array( &$this, 'add_page_hooks' ) );
 
+	/**
+	 * Setup the singletons
+	 *
+	 * @return void
+	 */
+	public function setup() {
+		add_action( 'load-post.php',           array( &$this, 'add_edit_page_hooks' ) );
+		add_action( 'load-post-new.php',       array( &$this, 'add_edit_page_hooks' ) );
 		add_action( 'save_post',               array( &$this, '__action_save_post' ) );
 		add_action( 'wp_ajax_cr_search_posts', array( &$this, 'ajax_search_posts' ) );
-
 		add_action( 'transition_post_status',  array( &$this, '__action_publish_post' ), 10, 3 );
 	}
 
 
-	public function add_page_hooks() {
+	/**
+	 * Add hooks for just the new/edit post admin page
+	 *
+	 * @return void
+	 */
+	public function add_edit_page_hooks() {
 		wp_enqueue_script( 'jquery-ui-autocomplete' );
 		add_action( 'admin_footer', array( &$this, 'js' ) );
-		add_action( 'clone-replace-actions', array( &$this, 'add_editpage_link' ) );
+		add_action( 'clone-replace-actions', array( &$this, 'add_editpage_content' ) );
 		add_action( 'admin_notices', array( &$this, 'will_be_replaced_notice' ) );
 	}
 
 
-	public function add_editpage_link() {
+	/**
+	 * Add the replace GUI to edit pages
+	 *
+	 * @return void
+	 */
+	public function add_editpage_content() {
 		global $post;
 
 		if ( 'publish' != $post->post_status ) {
@@ -85,6 +99,11 @@ class CR_Replace {
 	}
 
 
+	/**
+	 * Add a warning message to a post if it is set to be replaced by another post
+	 *
+	 * @return void
+	 */
 	public function will_be_replaced_notice() {
 		global $post_ID;
 		$replacing_post_id = intval( get_post_meta( $post_ID, '_cr_replacing_post_id', true ) );
@@ -101,6 +120,11 @@ class CR_Replace {
 	}
 
 
+	/**
+	 * Add javascript routines to the edit page footer
+	 *
+	 * @return void
+	 */
 	public function js() {
 		?>
 		<script type="text/javascript">
@@ -146,6 +170,11 @@ class CR_Replace {
 	}
 
 
+	/**
+	 * Ajax responder for the "find post" autocomplete box
+	 *
+	 * @return void
+	 */
 	public function ajax_search_posts() {
 		$args = apply_filters( 'CR_Replace_ajax_query_args', array(
 			's'                => $_POST['cr_autocomplete_search'],
@@ -175,10 +204,14 @@ class CR_Replace {
 		exit;
 	}
 
+
 	/**
 	 * On post publish, if this post is set to replace another, add a hook to do it.
 	 * This is a two-hook process because we only want to run it when the post publishes.
 	 *
+	 * @param string $new_status
+	 * @param string $old_status
+	 * @param object $post
 	 * @return void
 	 */
 	public function __action_publish_post( $new_status, $old_status, $post ) {
@@ -188,6 +221,13 @@ class CR_Replace {
 	}
 
 
+	/**
+	 * Trigger the post replacement routine
+	 *
+	 * @param int $post_id
+	 * @param object $post
+	 * @return void
+	 */
 	public function replacement_action( $post_id, $post ) {
 		if ( 'publish' != $post->post_status )
 			return;
@@ -201,6 +241,12 @@ class CR_Replace {
 	}
 
 
+	/**
+	 * Save post meta for replacement data on post save
+	 *
+	 * @param int $with_post_id
+	 * @return void
+	 */
 	public function __action_save_post( $with_post_id ) {
 		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE )
 			return;
@@ -245,9 +291,9 @@ class CR_Replace {
 	/**
 	 * Replace one post with another
 	 *
-	 * @param int $old_post_id
-	 * @param array $args Optional. Options for the new post.
-	 * @return int the ID of the new post
+	 * @param int $replace_post_id
+	 * @param int $with_post_id
+	 * @return int the ID of the replaced post ($replace_post_id)
 	 */
 	public function replace_post( $replace_post_id, $with_post_id ) {
 		if ( is_int( $replace_post_id ) )
@@ -286,6 +332,8 @@ class CR_Replace {
 
 		# Perform cleanup actions
 		$this->_cleanup( $replace_post_id, $revision_id );
+
+		return $replace_post_id;
 	}
 
 
@@ -293,7 +341,7 @@ class CR_Replace {
 	 * Make a post a revision of itself and return the revision ID
 	 *
 	 * @param int $post_id
-	 * @return int
+	 * @return int The new revision ID
 	 */
 	private function _store_post_revision( $post_id ) {
 		global $wpdb;
@@ -309,6 +357,12 @@ class CR_Replace {
 	}
 
 
+	/**
+	 * Remove all the terms for a given post
+	 *
+	 * @param int $post_id
+	 * @return void
+	 */
 	private function _truncate_post_terms( $post_id ) {
 		$taxonomies = get_post_taxonomies( $post_id );
 		foreach ( (array) $taxonomies as $taxonomy ) {
@@ -317,27 +371,48 @@ class CR_Replace {
 	}
 
 
-	private function _copy_post_terms( $replace_post_id, $with_post_id ) {
-		if ( !is_int( $replace_post_id ) || !is_int( $with_post_id ) )
+	/**
+	 * Copy all taxonomy terms from one post to another
+	 *
+	 * @param int $from_post_id
+	 * @param int $to_post_id
+	 * @return void
+	 */
+	private function _copy_post_terms( $from_post_id, $to_post_id ) {
+		if ( !is_int( $from_post_id ) || !is_int( $to_post_id ) )
 			return false;
 
 		# While it would be much more efficient to use SQL here, this
 		# is much safer and more reliable to ensure proper term counts and
 		# avoid collisions
-		CR_Clone()->clone_terms( $replace_post_id, $with_post_id );
+		CR_Clone()->clone_terms( $from_post_id, $to_post_id );
 	}
 
 
-	private function _move_post_meta( $replace_post_id, $with_post_id ) {
-		if ( !is_int( $replace_post_id ) || !is_int( $with_post_id ) )
+	/**
+	 * Move all post meta from one post to another
+	 *
+	 * @param int $from_post_id
+	 * @param int $to_post_id
+	 * @return void
+	 */
+	private function _move_post_meta( $from_post_id, $to_post_id ) {
+		if ( !is_int( $from_post_id ) || !is_int( $to_post_id ) )
 			return false;
 
 		global $wpdb;
 		# We use SQL here because otherwise we'd run (2n + 1) queries deleting postmeta and re-adding it
-		$wpdb->query( "UPDATE {$wpdb->postmeta} SET `post_id` = {$with_post_id} WHERE `post_id` = {$replace_post_id}" );
+		$wpdb->query( "UPDATE {$wpdb->postmeta} SET `post_id` = {$to_post_id} WHERE `post_id` = {$from_post_id}" );
 	}
 
 
+	/**
+	 * Cleanup after a post replacement. Specifically, remove unneeded post meta that were created in the process
+	 *
+	 * @param int $post_id The resulting post ID ($replace_post_id as referenced elsewhere)
+	 * @param int $revision_id The ID of the newly-created revision, which *was* the replaced post
+	 * @return void
+	 */
 	private function _cleanup( $post_id, $revision_id ) {
 		delete_post_meta( $post_id,     '_cr_replace_post_id'   );
 		delete_post_meta( $post_id,     '_cr_original_post'     );
