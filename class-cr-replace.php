@@ -183,8 +183,8 @@ class CR_Replace {
 			'orderby'          => 'post_date',
 			'order'            => 'DESC',
 			'post_status'      => 'publish',
-			'post_type'        => 'any',
-			'suppress_filters' => False
+			'post_type'        => get_post_type( $_POST['cr_current_post'] ),
+			'suppress_filters' => false
 		) );
 		$query = new WP_Query( $args );
 
