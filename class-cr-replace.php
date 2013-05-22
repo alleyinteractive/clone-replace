@@ -306,6 +306,12 @@ class CR_Replace {
 		if ( !is_object( $with_post ) || is_wp_error( $with_post ) )
 			return false;
 
+		# Unset request params so plugins and themes don't think we're updating the current post, and re-save meta
+		$_POST = $_REQUEST = $_GET = array();
+
+		# Fire an action so other plugins and themes know what's going on
+		do_action( 'CR_Replace_pre_replacement', $replace_post_id, $with_post_id );
+
 		# Make the to-be-replaced post and its meta a revision of itself
 		$revision_id = $this->_store_post_revision( $replace_post_id );
 
