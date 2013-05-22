@@ -5,10 +5,8 @@
  *
  * @todo restore post meta with revision
  * @todo display post meta with revision when browsing revisions
- * @todo add post preview when replacing
  * @todo add GUI to replace one published post with another
  * @todo add ability to clone a revision
- * @todo add warning on to-be-replaced post indicating that it's soon to be replaced
  */
 
 if ( !class_exists( 'CR_Replace' ) ) :
@@ -50,6 +48,7 @@ class CR_Replace {
 		wp_enqueue_script( 'jquery-ui-autocomplete' );
 		add_action( 'admin_footer', array( &$this, 'js' ) );
 		add_action( 'clone-replace-actions', array( &$this, 'add_editpage_link' ) );
+		add_action( 'admin_notices', array( &$this, 'will_be_replaced_notice' ) );
 	}
 
 
@@ -83,6 +82,22 @@ class CR_Replace {
 			</div>
 			<?php
 		}
+	}
+
+
+	public function will_be_replaced_notice() {
+		global $post_ID;
+		$replacing_post_id = intval( get_post_meta( $post_ID, '_cr_replacing_post_id', true ) );
+		if ( 0 == $replacing_post_id )
+			return;
+
+
+		echo '<div class="error"><p>';
+		printf(
+			__( 'Warning: This post is set to be replaced by %s. Any edits will be lost when it is replaced.', 'clone-replace' ),
+			'<strong><a href="' . get_edit_post_link( $replacing_post_id ) . '">' . get_the_title( $replacing_post_id ) . '</a></strong>'
+		);
+		echo '</p></div>';
 	}
 
 
