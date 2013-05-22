@@ -404,13 +404,20 @@ class CR_Replace {
 	 * @param int $to_post_id
 	 * @return void
 	 */
-	private function _move_post_meta( $from_post_id, $to_post_id ) {
-		if ( !is_int( $from_post_id ) || !is_int( $to_post_id ) )
+	private function _move_post_meta( $from_post_id, $to_post_id = 0 ) {
+		$from_post_id = intval( $from_post_id );
+		$to_post_id   = intval( $to_post_id );
+		if ( ! $from_post_id )
 			return false;
 
 		global $wpdb;
 		# We use SQL here because otherwise we'd run (2n + 1) queries deleting postmeta and re-adding it
-		$wpdb->query( "UPDATE {$wpdb->postmeta} SET `post_id` = {$to_post_id} WHERE `post_id` = {$from_post_id}" );
+		if ( $to_post_id ) {
+			$wpdb->query( "UPDATE {$wpdb->postmeta} SET `post_id` = {$to_post_id} WHERE `post_id` = {$from_post_id}" );
+		} else {
+			# If we don't have a $to_post_id, delete the post meta
+			$wpdb->query( "DELETE FROM {$wpdb->postmeta} WHERE `post_id` = {$from_post_id}" );
+		}
 	}
 
 
@@ -418,13 +425,16 @@ class CR_Replace {
 	 * Cleanup after a post replacement. Specifically, remove unneeded post meta that were created in the process
 	 *
 	 * @param int $post_id The resulting post ID ($replace_post_id as referenced elsewhere)
-	 * @param int $revision_id The ID of the newly-created revision, which *was* the replaced post
+	 * @param int $revision_id Optional. The ID of the newly-created revision, which *was* the replaced post
 	 * @return void
 	 */
-	private function _cleanup( $post_id, $revision_id ) {
-		delete_post_meta( $post_id,     '_cr_replace_post_id'   );
-		delete_post_meta( $post_id,     '_cr_original_post'     );
-		delete_post_meta( $revision_id, '_cr_replacing_post_id' );
+	private function _cleanup( $post_id, $revision_id = false ) {
+		delete_post_meta( $post_id, '_cr_replace_post_id' );
+		delete_post_meta( $post_id, '_cr_original_post' );
+
+		# Only run this in the event a post revision was created
+		if ( $revision_id )
+			delete_post_meta( $revision_id, '_cr_replacing_post_id' );
 	}
 }
 
