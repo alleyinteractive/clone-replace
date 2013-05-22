@@ -54,12 +54,7 @@ class CR_Clone {
 			'_wp_trash_meta_status',
 			'_previous_revision',
 			'_wpas_done_all',
-			'_encloseme',
-			'_thumbnail_id',
-			'_wp_attached_file',
-			'_wp_attachment_metadata',
-			'_wp_attachment_image_alt',
-			'_wp_attachment_backup_sizes'
+			'_encloseme'
 		) );
 	}
 
