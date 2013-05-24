@@ -393,7 +393,7 @@ class CR_Replace {
 		# While it would be much more efficient to use SQL here, this
 		# is much safer and more reliable to ensure proper term counts and
 		# avoid collisions
-		CR_Clone()->clone_terms( $from_post_id, $to_post_id );
+		CR_Clone()->clone_terms( $to_post_id, $from_post_id );
 	}
 
 
