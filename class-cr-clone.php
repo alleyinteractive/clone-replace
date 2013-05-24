@@ -196,9 +196,7 @@ class CR_Clone {
 		foreach ( $taxonomies as $taxonomy ) {
 			$terms = wp_get_object_terms( $from_post_id, $taxonomy, array( 'orderby' => 'term_order', 'fields' => 'ids' ) );
 			if ( $terms && !is_wp_error( $terms ) ) {
-				array_walk( $terms, function( &$term ) {
-					$term = intval( $term );
-				} );
+				$terms = array_map( 'intval', $terms );
 				$terms = apply_filters( 'CR_Clone_terms', $terms, $to_post_id, $taxonomy );
 				wp_set_object_terms( $to_post_id, $terms, $taxonomy );
 			}
