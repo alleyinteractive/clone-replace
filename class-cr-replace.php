@@ -79,7 +79,7 @@ class CR_Replace {
 				<?php wp_nonce_field( 'clone_replace', "replace_with_" . $post->ID ); ?>
 
 				<div class="notice">
-					<p><?php _e( 'When this post is published, it will replace the selected post. The data from this post will be moved to the replaced one, the latest version of the replaced post will become a revision, and this post will be deleted. There is no undo, per se.', 'clone-replace' ); ?></p>
+					<p><?php _e( 'When this post is published, it will replace the selected post. The data from this post will be moved to the replaced one, the latest version of the replaced post will become a revision if revisions are enabled, or go to the trash if not, and this post will be deleted. There is no undo, per se.', 'clone-replace' ); ?></p>
 				</div>
 
 				<?php if ( 0 != ( $original_post_id = intval( get_post_meta( $post->ID, '_cr_original_post', true ) ) ) ) : ?>
@@ -359,6 +359,9 @@ class CR_Replace {
 
 		$revision_id = wp_save_post_revision( $post_id );
 
+		if ( !$revision_id )
+			$revision_id = $this->_trash_revision( $post_id );
+
 		$this->_move_post_meta( $post_id, $revision_id );
 
 		return $revision_id;
@@ -376,6 +379,22 @@ class CR_Replace {
 		foreach ( (array) $taxonomies as $taxonomy ) {
 			wp_set_object_terms( $post_id, NULL, $taxonomy );
 		}
+	}
+
+
+	/**
+	 * If revisions are disabled, create a new version of the replaced post and trash it
+	 *
+	 * @param int $post_id
+	 * @return int
+	 */
+	private function _trash_revision( $post_id ) {
+		$post = get_post( $post_id );
+		$post->post_name = wp_unique_post_slug( $post->post_name, 0, $post->post_status, $post->post_type, 0 );
+		$post->ID = 0;
+		$new_id = wp_insert_post( $post );
+		wp_trash_post( $new_id );
+		return $new_id;
 	}
 
 
