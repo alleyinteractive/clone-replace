@@ -10,8 +10,6 @@ class CR_Clone {
 
 	private static $instance;
 
-	public $ignored_meta = array();
-
 	private function __construct() {
 		/* Don't do anything, needs to be initialized via instance() method */
 	}
@@ -45,17 +43,6 @@ class CR_Clone {
 		add_action( 'CR_Clone_inserted_post', array( &$this, 'clone_terms' ), 10, 2 );
 		add_action( 'CR_Clone_inserted_post', array( &$this, 'clone_post_meta' ), 10, 2 );
 		add_action( 'CR_Clone_inserted_post', array( &$this, '_cleanup' ), 10, 2 );
-
-		$this->ignored_meta = apply_filters( 'CR_Clone_ignored_meta', array(
-			'_edit_lock',
-			'_edit_last',
-			'_wp_old_slug',
-			'_wp_trash_meta_time',
-			'_wp_trash_meta_status',
-			'_previous_revision',
-			'_wpas_done_all',
-			'_encloseme'
-		) );
 	}
 
 
@@ -215,11 +202,22 @@ class CR_Clone {
 	public function clone_post_meta( $to_post_id, $from_post_id ) {
 		$post_meta = apply_filters( 'CR_Clone_post_meta', get_post_meta( $from_post_id ), $to_post_id, $from_post_id );
 
+		$ignored_meta = apply_filters( 'CR_Clone_ignored_meta', array(
+			'_edit_lock',
+			'_edit_last',
+			'_wp_old_slug',
+			'_wp_trash_meta_time',
+			'_wp_trash_meta_status',
+			'_previous_revision',
+			'_wpas_done_all',
+			'_encloseme'
+		) );
+
 		if ( empty( $post_meta ) )
 			return;
 
 		foreach ( $post_meta as $key => $value_array ) {
-			if ( in_array( $key, $this->ignored_meta ) )
+			if ( in_array( $key, $ignored_meta ) )
 				continue;
 
 			foreach ( (array) $value_array as $value ) {
