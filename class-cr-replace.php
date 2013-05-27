@@ -15,8 +15,6 @@ class CR_Replace {
 
 	private static $instance;
 
-	public $publishing = false;
-
 	private function __construct() {
 		/* Don't do anything, needs to be initialized via instance() method */
 	}
@@ -429,13 +427,30 @@ class CR_Replace {
 		if ( ! $from_post_id )
 			return false;
 
+		$ignored_meta = apply_filters( 'CR_Replace_ignored_meta', array(
+			'_edit_lock',
+			'_edit_last',
+			'_wp_old_slug',
+			'_wp_trash_meta_time',
+			'_wp_trash_meta_status',
+			'_previous_revision',
+			'_wpas_done_all',
+			'_encloseme'
+		) );
+
 		global $wpdb;
+
+		$where = "`post_id` = {$from_post_id}";
+		if ( count( $ignored_meta ) ) {
+			$where .= " AND `meta_key` NOT IN ('" . implode( "', '", $wpdb->escape( $ignored_meta ) ) . "')";
+		}
+
 		# We use SQL here because otherwise we'd run (2n + 1) queries deleting postmeta and re-adding it
 		if ( $to_post_id ) {
-			$wpdb->query( "UPDATE {$wpdb->postmeta} SET `post_id` = {$to_post_id} WHERE `post_id` = {$from_post_id}" );
+			$wpdb->query( "UPDATE {$wpdb->postmeta} SET `post_id` = {$to_post_id} WHERE $where" );
 		} else {
 			# If we don't have a $to_post_id, delete the post meta
-			$wpdb->query( "DELETE FROM {$wpdb->postmeta} WHERE `post_id` = {$from_post_id}" );
+			$wpdb->query( "DELETE FROM {$wpdb->postmeta} WHERE $where" );
 		}
 	}
 
