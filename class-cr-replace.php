@@ -232,7 +232,6 @@ class CR_Replace {
 
 		if ( 0 != ( $replace_id = intval( get_post_meta( $post_id, '_cr_replace_post_id', true ) ) ) ) {
 			$this->replace_post( $replace_id, $post_id );
-			error_log( "clone-replace: Replaced post {$replace_id} with {$post_id}" );
 			wp_redirect( get_edit_post_link( $replace_id, 'url' ) );
 			exit;
 		}
