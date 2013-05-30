@@ -210,7 +210,10 @@ class CR_Clone {
 			'_wp_trash_meta_status',
 			'_previous_revision',
 			'_wpas_done_all',
-			'_encloseme'
+			'_encloseme',
+			'_cr_original_post',
+			'_cr_replace_post_id',
+			'_cr_replacing_post_id'
 		) );
 
 		if ( empty( $post_meta ) )
