@@ -40,8 +40,11 @@ class CR_Replace {
 	public function setup() {
 		add_action( 'load-post.php',           array( &$this, 'add_edit_page_hooks' ) );
 		add_action( 'load-post-new.php',       array( &$this, 'add_edit_page_hooks' ) );
-		add_action( 'save_post',               array( &$this, '__action_save_post' ) );
 		add_action( 'wp_ajax_cr_search_posts', array( &$this, 'ajax_search_posts' ) );
+
+		add_action( 'save_post',               array( &$this, '__action_save_post' ) );
+		add_action( 'before_delete_post',      array( &$this, '__action_before_delete_post' ) );
+		add_action( 'trashed_post',            array( &$this, '__action_trashed_post' ) );
 		add_action( 'transition_post_status',  array( &$this, '__action_publish_post' ), 10, 3 );
 	}
 
@@ -108,6 +111,8 @@ class CR_Replace {
 		if ( 0 == $replacing_post_id )
 			return;
 
+		if ( in_array( get_post_status( $replacing_post_id ), array( 'trash', 'publish', 'inherit' ) ) )
+			return;
 
 		echo '<div class="error"><p>';
 		printf(
@@ -290,6 +295,32 @@ class CR_Replace {
 			# If this post was set to replace another, and that changed, we need to update that posts's meta
 			if ( $old_replace_id )
 				delete_post_meta( $old_replace_id, '_cr_replacing_post_id' );
+		}
+	}
+
+
+	/**
+	 * When deleting a post, check to see if it was replacing another, and if so, delete the reciprocal post's relevant meta value
+	 *
+	 * @param int $post_id
+	 * @return void
+	 */
+	public function __action_before_delete_post( $post_id ) {
+		if ( 0 != ( $replace_id = intval( get_post_meta( $post_id, '_cr_replace_post_id', true ) ) ) ) {
+			delete_post_meta( $replace_id, '_cr_replacing_post_id' );
+		}
+	}
+
+
+	/**
+	 * When trashing a post, check to see if it was to be replaced by another, and if so, delete the reciprocal post's relevant meta value
+	 *
+	 * @param int $post_id
+	 * @return void
+	 */
+	public function __action_trashed_post( $post_id ) {
+		if ( 0 != ( $replacing_id = intval( get_post_meta( $post_id, '_cr_replacing_post_id', true ) ) ) ) {
+			delete_post_meta( $replacing_id, '_cr_replace_post_id' );
 		}
 	}
 
