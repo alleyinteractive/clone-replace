@@ -248,7 +248,7 @@ class CR_Replace {
 		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE )
 			return;
 
-		if ( isset( $_POST['cr_replace_post_id'] ) && 0 != intval( $_POST['cr_replace_post_id'] ) ) {
+		if ( isset( $_POST['cr_replace_post_id'] ) ) {
 			if ( ! isset( $_POST["replace_with_{$with_post_id}"] ) || ! wp_verify_nonce( $_POST["replace_with_{$with_post_id}"], 'clone_replace' ) )
 				return;
 
@@ -258,7 +258,6 @@ class CR_Replace {
 			$old_replace_id = intval( get_post_meta( $with_post_id, '_cr_replace_post_id', true ) );
 			if ( $old_replace_id == $replace_post_id )
 				return;
-
 			# The user needs to be able to edit the to-be-replaced post
 			$post_type = get_post_type( $replace_post_id );
 			$post_type_object = get_post_type_object( $post_type );
@@ -272,7 +271,17 @@ class CR_Replace {
 				return;
 
 			if ( !is_int( $replace_post_id ) || !is_int( $with_post_id ) )
-				return false;
+				return;
+
+			# Check to see if the replacement post is set
+			if ( 0 == $replace_post_id ) {
+				if ( $old_replace_id ) {
+					# Replacement was removed
+					delete_post_meta( $with_post_id, '_cr_replace_post_id' );
+					delete_post_meta( $old_replace_id, '_cr_replacing_post_id' );
+				}
+				return;
+			}
 
 			# Whew! That was a lot of validation, but you never can be too safe.
 			update_post_meta( $with_post_id,    '_cr_replace_post_id',   $replace_post_id );
