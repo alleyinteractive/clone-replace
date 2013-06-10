@@ -497,6 +497,10 @@ class CR_Replace {
 			# If we don't have a $to_post_id, delete the post meta
 			$wpdb->query( "DELETE FROM {$wpdb->postmeta} WHERE $where" );
 		}
+
+		# Cleanup cache
+		wp_cache_delete( $from_post_id, 'post_meta' );
+		wp_cache_delete( $to_post_id, 'post_meta' );
 	}
 
 
