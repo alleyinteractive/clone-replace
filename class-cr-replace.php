@@ -137,7 +137,7 @@ class CR_Replace {
 
 			var $title = $('#cr_replace_post_title');
 			var $post_id = $('#cr_replace_post_id');
-			var cr_status = "<?php _e( 'Set to replace: <strong>{{title}}</strong>', 'clone-replace' ) ?>";
+			var cr_status = "<?php echo esc_js( __( 'Set to replace: <strong>{{title}}</strong>', 'clone-replace' ) ) ?>";
 			cr_ac_options = {};
 			cr_ac_options.select = function( e, ui ) {
 				e.preventDefault();
@@ -149,7 +149,7 @@ class CR_Replace {
 				$title.val( ui.item.label );
 			};
 			cr_ac_options.source = function( request, response ) {
-				$.post( ajaxurl, { action: 'cr_search_posts', cr_autocomplete_search: request.term, cr_current_post: $('#post_ID').val() }, response, 'json' );
+				$.post( ajaxurl, { action: 'cr_search_posts', cr_autocomplete_search: request.term, cr_current_post: $('#post_ID').val(), cr_nonce: "<?php echo esc_js( wp_create_nonce( 'clone_replace_search' ) ) ?>" }, response, 'json' );
 			};
 			$title.autocomplete( cr_ac_options );
 
@@ -179,6 +179,9 @@ class CR_Replace {
 	 * @return void
 	 */
 	public function ajax_search_posts() {
+		if ( ! wp_verify_nonce( $_POST['cr_nonce'], 'clone_replace_search' ) )
+			exit( '[{"label":"Error: You shall not pass","value":"0"}]' );
+
 		$args = apply_filters( 'CR_Replace_ajax_query_args', array(
 			's'                => $_POST['cr_autocomplete_search'],
 			'post__not_in'     => array( intval( $_POST['cr_current_post'] ) ),
