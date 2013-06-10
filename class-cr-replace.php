@@ -38,14 +38,14 @@ class CR_Replace {
 	 * @return void
 	 */
 	public function setup() {
-		add_action( 'load-post.php',           array( &$this, 'add_edit_page_hooks' ) );
-		add_action( 'load-post-new.php',       array( &$this, 'add_edit_page_hooks' ) );
-		add_action( 'wp_ajax_cr_search_posts', array( &$this, 'ajax_search_posts' ) );
+		add_action( 'load-post.php',           array( $this, 'add_edit_page_hooks' ) );
+		add_action( 'load-post-new.php',       array( $this, 'add_edit_page_hooks' ) );
+		add_action( 'wp_ajax_cr_search_posts', array( $this, 'ajax_search_posts' ) );
 
-		add_action( 'save_post',               array( &$this, '__action_save_post' ) );
-		add_action( 'before_delete_post',      array( &$this, '__action_before_delete_post' ) );
-		add_action( 'trashed_post',            array( &$this, '__action_trashed_post' ) );
-		add_action( 'transition_post_status',  array( &$this, '__action_publish_post' ), 10, 3 );
+		add_action( 'save_post',               array( $this, '__action_save_post' ) );
+		add_action( 'before_delete_post',      array( $this, '__action_before_delete_post' ) );
+		add_action( 'trashed_post',            array( $this, '__action_trashed_post' ) );
+		add_action( 'transition_post_status',  array( $this, '__action_publish_post' ), 1, 3 );
 	}
 
 
@@ -56,9 +56,9 @@ class CR_Replace {
 	 */
 	public function add_edit_page_hooks() {
 		wp_enqueue_script( 'jquery-ui-autocomplete' );
-		add_action( 'admin_footer', array( &$this, 'js' ) );
-		add_action( 'clone-replace-actions', array( &$this, 'add_editpage_content' ) );
-		add_action( 'admin_notices', array( &$this, 'will_be_replaced_notice' ) );
+		add_action( 'admin_footer', array( $this, 'js' ) );
+		add_action( 'clone-replace-actions', array( $this, 'add_editpage_content' ) );
+		add_action( 'admin_notices', array( $this, 'will_be_replaced_notice' ) );
 	}
 
 
@@ -219,7 +219,7 @@ class CR_Replace {
 	 */
 	public function __action_publish_post( $new_status, $old_status, $post ) {
 		if ( 'publish' == $new_status && 'publish' != $old_status ) {
-			add_action( 'save_post', array( &$this, 'replacement_action' ), 20, 2 );
+			add_action( 'save_post', array( $this, 'replacement_action' ), 10, 2 );
 		}
 	}
 

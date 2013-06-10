@@ -33,16 +33,16 @@ class CR_Clone {
 	 * @return void
 	 */
 	public function setup() {
-		add_action( 'admin_post_clone_post', array( &$this, '__action_admin_post' ) );
+		add_action( 'admin_post_clone_post', array( $this, '__action_admin_post' ) );
 
-		add_filter( 'post_row_actions', array( &$this, 'add_row_link' ), 10, 2 );
-		add_filter( 'page_row_actions', array( &$this, 'add_row_link' ), 10, 2 );
+		add_filter( 'post_row_actions', array( $this, 'add_row_link' ), 10, 2 );
+		add_filter( 'page_row_actions', array( $this, 'add_row_link' ), 10, 2 );
 
 		add_action( 'clone-replace-actions', array( $this, 'add_editpage_link' ) );
 
-		add_action( 'CR_Clone_inserted_post', array( &$this, 'clone_terms' ), 10, 2 );
-		add_action( 'CR_Clone_inserted_post', array( &$this, 'clone_post_meta' ), 10, 2 );
-		add_action( 'CR_Clone_inserted_post', array( &$this, '_cleanup' ), 10, 2 );
+		add_action( 'CR_Clone_inserted_post', array( $this, 'clone_terms' ), 10, 2 );
+		add_action( 'CR_Clone_inserted_post', array( $this, 'clone_post_meta' ), 10, 2 );
+		add_action( 'CR_Clone_inserted_post', array( $this, '_cleanup' ), 10, 2 );
 	}
 
 
