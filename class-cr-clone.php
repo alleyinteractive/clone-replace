@@ -76,7 +76,8 @@ class CR_Clone {
 	 * @return array
 	 */
 	public function add_row_link( $actions, $post ) {
-		$actions[] = '<a href="' . $this->get_url( $post ) . '">' . esc_html__( 'Clone', 'clone-replace' ) . '</a>';
+		if ( current_user_can( get_post_type_object( get_post_type( $post ) )->cap->edit_post ) )
+			$actions[] = '<a href="' . $this->get_url( $post ) . '">' . esc_html__( 'Clone', 'clone-replace' ) . '</a>';
 		return $actions;
 	}
 
