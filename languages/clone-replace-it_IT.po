@@ -1,0 +1,122 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Clone & Replace\n"
+"Report-Msgid-Bugs-To: http://wordpress.org/tag/multisite-language-switcher\n"
+"POT-Creation-Date: 2014-01-31 10:16+0100\n"
+"PO-Revision-Date: 2014-02-12 10:30+0100\n"
+"Last-Translator: \n"
+"Language-Team: Dennis Ploetner <re@lloc.de>\n"
+"Language: Italian (it_IT)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-KeywordsList: __;_e;__ngettext:1,2;_n:1,2;__ngettext_noop:1,2;"
+"_n_noop:1,2;_c,_nc:4c,1,2;_x:1,2c;_nx:4c,1,2;_nx_noop:4c,1,2;_ex:1,2c;"
+"esc_attr__;esc_attr_e;esc_attr_x:1,2c;esc_html__;esc_html_e;esc_html_x:1,2c\n"
+"X-Poedit-Basepath: .\n"
+"X-Generator: Poedit 1.5.5\n"
+"X-Poedit-SearchPath-0: ..\n"
+
+#: ../class-cr-clone.php:56
+msgid "You are trying to copy an invalid post"
+msgstr "Stai cercando di copiare un post non valido"
+
+#: ../class-cr-clone.php:64
+msgid "There was an error copying this post"
+msgstr "Si è verificato un errore copiando questo post"
+
+#: ../class-cr-clone.php:80 ../class-cr-clone.php:96
+msgid "Clone"
+msgstr "Clona"
+
+#: ../class-cr-clone.php:98
+msgid "Clone to a new draft"
+msgstr "Clona in una nuova bozza"
+
+#: ../class-cr-replace.php:78
+msgid "Replace"
+msgstr "Sostituisci"
+
+#: ../class-cr-replace.php:83
+msgid ""
+"When this post is published, it will replace the selected post. The data "
+"from this post will be moved to the replaced one, the latest version of the "
+"replaced post will become a revision if revisions are enabled, or go to the "
+"trash if not, and this post will be deleted. There is no undo, per se."
+msgstr ""
+"Quando questo post sarà pubblicato, sostituirà il post selezionato. I dati "
+"di questo post sostituiranno i dati del post che diventeranno l'ultima "
+"revisione, nel caso questa sia abilitata. Nel caso le revisioni non siano "
+"abilitate i dati vecchi verranno eliminati. In tal caso non è possibile "
+"tornare indietro."
+
+#: ../class-cr-replace.php:87
+msgid "Replace original post"
+msgstr "Sostituisci il post originale"
+
+#: ../class-cr-replace.php:91
+msgid "Find a post to replace"
+msgstr "Cerca il post da sostituire"
+
+#: ../class-cr-replace.php:119
+#, php-format
+msgid ""
+"Warning: This post is set to be replaced by %s. Any edits will be lost when "
+"it is replaced."
+msgstr ""
+"Attenzione: questo postè configurato per essere sostituito da %s. Qualsiasi "
+"modifica verrà persa quando sarà sostituito."
+
+#: ../class-cr-replace.php:140
+msgid "Set to replace: <strong>{{title}}</strong>"
+msgstr "Scegli per sostituire:  <strong>{{title}}</strong>"
+
+#: ../class-cr-replace.php:204
+msgid "(no title)"
+msgstr "(senza titolo)"
+
+#: ../clone-replace.php:43
+msgid "Clone/Replace"
+msgstr "Clona/Sostituisci"
+
+#: ../clone-replace.php:91
+#, php-format
+msgid "Set to replace: <strong>%s</strong>"
+msgstr "Scegli per sostituire:  <strong>%s}</strong>"
+
+#~ msgid ""
+#~ "No custom post types have been registered with a custom capability, "
+#~ "public argument set to true and the map_meta_cap argument set to true."
+#~ msgstr ""
+#~ "Es ist kein Custom Post Types mit anpassbaren Ausführungsrechten "
+#~ "registriert (public und  map_meta_cap auf true gesetzt)."
+
+#~ msgid ""
+#~ "Try creating custom post types with the %sCustom Post Type UI plugin%s."
+#~ msgstr ""
+#~ "Probiere das Erstellen von Custom Post Types mit dem %sCustom Post Type "
+#~ "UI plugin%s."
+
+#~ msgid "Force Mapping"
+#~ msgstr "Erzwinge Mapping"
+
+#~ msgid ""
+#~ "Select a post type below to have Map Cap attempt to map its capabilities."
+#~ msgstr ""
+#~ "Markiere einen der untenstehenden Post Typen, um das Map Cap-Plugin für "
+#~ "das Mappen der Ausführungsrechte zu verwenden."
+
+#~ msgid ""
+#~ "If this does not work, please read the %splugin's FAQ%s for possible "
+#~ "causes."
+#~ msgstr ""
+#~ "Wenn dies nicht funktioniert, lese bitte die %sFAQs des Plugins%s, um die "
+#~ "Ursache heraus zu finden."
+
+#~ msgid "Custom Post Types"
+#~ msgstr "Custom Post Types"
+
+#~ msgid "Save"
+#~ msgstr "Speichern"
