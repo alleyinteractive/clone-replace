@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: Clone & Replace\n"
 "Report-Msgid-Bugs-To: http://wordpress.org/tag/multisite-language-switcher\n"
 "POT-Creation-Date: 2014-01-31 10:16+0100\n"
-"PO-Revision-Date: 2014-02-12 10:30+0100\n"
+"PO-Revision-Date: 2014-03-05 09:46+0100\n"
 "Last-Translator: \n"
 "Language-Team: Dennis Ploetner <re@lloc.de>\n"
 "Language: Italian (it_IT)\n"
@@ -16,7 +16,7 @@ msgstr ""
 "_n_noop:1,2;_c,_nc:4c,1,2;_x:1,2c;_nx:4c,1,2;_nx_noop:4c,1,2;_ex:1,2c;"
 "esc_attr__;esc_attr_e;esc_attr_x:1,2c;esc_html__;esc_html_e;esc_html_x:1,2c\n"
 "X-Poedit-Basepath: .\n"
-"X-Generator: Poedit 1.5.5\n"
+"X-Generator: Poedit 1.5.7\n"
 "X-Poedit-SearchPath-0: ..\n"
 
 #: ../class-cr-clone.php:56
@@ -71,7 +71,7 @@ msgstr ""
 
 #: ../class-cr-replace.php:140
 msgid "Set to replace: <strong>{{title}}</strong>"
-msgstr "Scegli per sostituire:  <strong>{{title}}</strong>"
+msgstr "Scegli per sostituire:  {{title}}"
 
 #: ../class-cr-replace.php:204
 msgid "(no title)"
@@ -84,7 +84,7 @@ msgstr "Clona/Sostituisci"
 #: ../clone-replace.php:91
 #, php-format
 msgid "Set to replace: <strong>%s</strong>"
-msgstr "Scegli per sostituire:  <strong>%s}</strong>"
+msgstr "Scegli per sostituire: %s"
 
 #~ msgid ""
 #~ "No custom post types have been registered with a custom capability, "
