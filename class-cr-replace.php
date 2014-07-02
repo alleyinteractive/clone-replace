@@ -9,7 +9,7 @@
  * @todo add GUI to replace one published post with another
  */
 
-if ( !class_exists( 'CR_Replace' ) ) :
+if ( ! class_exists( 'CR_Replace' ) ) :
 
 class CR_Replace {
 
@@ -194,7 +194,7 @@ class CR_Replace {
 			'order'            => 'DESC',
 			'post_status'      => 'publish',
 			'post_type'        => get_post_type( absint( $_POST['cr_current_post'] ) ),
-			'suppress_filters' => false
+			'suppress_filters' => false,
 		) );
 		$query = new WP_Query( $args );
 
@@ -204,10 +204,10 @@ class CR_Replace {
 
 		$posts = array();
 
-		foreach( $query->posts as $post ) {
+		foreach ( $query->posts as $post ) {
 			$posts[] = array(
 				'label' => ! empty( $post->post_title ) ? $post->post_title : __( '(no title)', 'clone-replace' ),
-				'value' => $post->ID
+				'value' => $post->ID,
 			);
 		}
 
@@ -264,7 +264,7 @@ class CR_Replace {
 		}
 
 		if ( isset( $_POST['cr_replace_post_id'] ) ) {
-			if ( ! isset( $_POST["replace_with_{$with_post_id}"] ) || ! wp_verify_nonce( sanitize_text_field( $_POST["replace_with_{$with_post_id}"] ), 'clone_replace' ) ) {
+			if ( ! isset( $_POST[ "replace_with_{$with_post_id}" ] ) || ! wp_verify_nonce( sanitize_text_field( $_POST[ "replace_with_{$with_post_id}" ] ), 'clone_replace' ) ) {
 				return;
 			}
 
@@ -291,7 +291,7 @@ class CR_Replace {
 				return;
 			}
 
-			if ( !is_int( $replace_post_id ) || !is_int( $with_post_id ) ) {
+			if ( ! is_int( $replace_post_id ) || ! is_int( $with_post_id ) ) {
 				return;
 			}
 
@@ -354,14 +354,14 @@ class CR_Replace {
 		if ( is_int( $replace_post_id ) ) {
 			$replace_post = get_post( $replace_post_id );
 		}
-		if ( !is_object( $replace_post ) || is_wp_error( $replace_post ) ) {
+		if ( ! is_object( $replace_post ) || is_wp_error( $replace_post ) ) {
 			return false;
 		}
 
 		if ( is_int( $with_post_id ) ) {
 			$with_post = get_post( $with_post_id );
 		}
-		if ( !is_object( $with_post ) || is_wp_error( $with_post ) ) {
+		if ( ! is_object( $with_post ) || is_wp_error( $with_post ) ) {
 			return false;
 		}
 
@@ -413,13 +413,13 @@ class CR_Replace {
 	private function _store_post_revision( $post_id ) {
 		global $wpdb;
 
-		if ( !is_int( $post_id ) ) {
+		if ( ! is_int( $post_id ) ) {
 			return false;
 		}
 
 		$revision_id = wp_save_post_revision( $post_id );
 
-		if ( !$revision_id ) {
+		if ( ! $revision_id ) {
 			$revision_id = $this->_trash_revision( $post_id );
 		}
 
@@ -467,7 +467,7 @@ class CR_Replace {
 	 * @return void
 	 */
 	private function _copy_post_terms( $from_post_id, $to_post_id ) {
-		if ( !is_int( $from_post_id ) || !is_int( $to_post_id ) ) {
+		if ( ! is_int( $from_post_id ) || ! is_int( $to_post_id ) ) {
 			return false;
 		}
 
@@ -503,7 +503,7 @@ class CR_Replace {
 			'_encloseme',
 			'_cr_original_post',
 			'_cr_replace_post_id',
-			'_cr_replacing_post_id'
+			'_cr_replacing_post_id',
 		) );
 
 		global $wpdb;
