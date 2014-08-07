@@ -4,7 +4,7 @@
  * Clone posts, super simply.
  */
 
-if ( !class_exists( 'CR_Clone' ) ) :
+if ( ! class_exists( 'CR_Clone' ) ) :
 
 class CR_Clone {
 
@@ -52,16 +52,17 @@ class CR_Clone {
 	 * @return void
 	 */
 	public function __action_admin_post() {
-		if ( !isset( $_GET['p'] ) )
-			wp_die( __( 'You are trying to copy an invalid post', 'clone-replace' ) );
-
+		if ( ! isset( $_GET['p'] ) ) {
+			wp_die( esc_html__( 'You are trying to copy an invalid post', 'clone-replace' ) );
+		}
 
 		check_admin_referer( 'clone_post_' . intval( $_GET['p'] ) );
 
 		$post_id = $this->clone_post( intval( $_GET['p'] ), apply_filters( 'CR_Clone_post_options', array() ) );
 
-		if ( !$post_id )
-			wp_die( __( 'There was an error copying this post', 'clone-replace' ) );
+		if ( ! $post_id ) {
+			wp_die( esc_html__( 'There was an error copying this post', 'clone-replace' ) );
+		}
 
 		wp_redirect( admin_url( "post.php?post={$post_id}&action=edit" ) );
 		exit();
@@ -76,8 +77,9 @@ class CR_Clone {
 	 * @return array
 	 */
 	public function add_row_link( $actions, $post ) {
-		if ( current_user_can( get_post_type_object( get_post_type( $post ) )->cap->edit_post, $post->ID ) )
+		if ( current_user_can( get_post_type_object( get_post_type( $post ) )->cap->edit_post, $post->ID ) ) {
 			$actions[] = '<a href="' . $this->get_url( $post ) . '">' . esc_html__( 'Clone', 'clone-replace' ) . '</a>';
+		}
 		return $actions;
 	}
 
@@ -107,12 +109,13 @@ class CR_Clone {
 	 * @return string The URL for replicating a post, properly nonced
 	 */
 	public function get_url( $post ) {
-		if ( is_int( $post ) )
+		if ( is_int( $post ) ) {
 			$post_id = $post;
-		elseif ( is_object( $post ) )
+		} elseif ( is_object( $post ) ) {
 			$post_id = $post->ID;
-		else
+		} else {
 			return;
+		}
 
 		return wp_nonce_url( admin_url( "admin-post.php?action=clone_post&p={$post_id}" ), 'clone_post_' . $post_id );
 	}
@@ -128,18 +131,21 @@ class CR_Clone {
 	public function clone_post( $old_post_id, $args = array() ) {
 		# Ensure that the user can create this post type
 		$post_type_object = get_post_type_object( get_post_type( $old_post_id ) );
-		if ( ! current_user_can( $post_type_object->cap->create_posts ) )
+		if ( ! current_user_can( $post_type_object->cap->create_posts ) ) {
 			return;
+		}
 
-		if ( is_int( $old_post_id ) )
+		if ( is_int( $old_post_id ) ) {
 			$old_post = get_post( $old_post_id );
+		}
 
-		if ( !is_object( $old_post ) )
+		if ( ! is_object( $old_post ) ) {
 			return false;
+		}
 
 		$args = wp_parse_args( $args, array(
 			'post_status' => 'draft',
-			'post_date' => false
+			'post_date' => false,
 		) );
 
 		$post_args = array(
@@ -183,7 +189,7 @@ class CR_Clone {
 
 		foreach ( $taxonomies as $taxonomy ) {
 			$terms = wp_get_object_terms( $from_post_id, $taxonomy, array( 'orderby' => 'term_order', 'fields' => 'ids' ) );
-			if ( $terms && !is_wp_error( $terms ) ) {
+			if ( $terms && ! is_wp_error( $terms ) ) {
 				$terms = array_map( 'intval', $terms );
 				$terms = apply_filters( 'CR_Clone_terms', $terms, $to_post_id, $taxonomy );
 				wp_set_object_terms( $to_post_id, $terms, $taxonomy );
@@ -214,15 +220,17 @@ class CR_Clone {
 			'_encloseme',
 			'_cr_original_post',
 			'_cr_replace_post_id',
-			'_cr_replacing_post_id'
+			'_cr_replacing_post_id',
 		) );
 
-		if ( empty( $post_meta ) )
+		if ( empty( $post_meta ) ) {
 			return;
+		}
 
 		foreach ( $post_meta as $key => $value_array ) {
-			if ( in_array( $key, $ignored_meta ) )
+			if ( in_array( $key, $ignored_meta ) ) {
 				continue;
+			}
 
 			foreach ( (array) $value_array as $value ) {
 				add_post_meta( $to_post_id, $key, maybe_unserialize( $value ) );

@@ -9,7 +9,7 @@
  * @todo add GUI to replace one published post with another
  */
 
-if ( !class_exists( 'CR_Replace' ) ) :
+if ( ! class_exists( 'CR_Replace' ) ) :
 
 class CR_Replace {
 
@@ -77,20 +77,20 @@ class CR_Replace {
 			<div id="replace-action">
 				<h4 style="margin-bottom:0.33em"><?php _e( 'Replace', 'clone-replace' ); ?></h4>
 
-				<?php wp_nonce_field( 'clone_replace', "replace_with_" . $post->ID ); ?>
+				<?php wp_nonce_field( 'clone_replace', 'replace_with_' . $post->ID ); ?>
 
 				<div class="notice">
 					<p><?php _e( 'When this post is published, it will replace the selected post. The data from this post will be moved to the replaced one, the latest version of the replaced post will become a revision if revisions are enabled, or go to the trash if not, and this post will be deleted. There is no undo, per se.', 'clone-replace' ); ?></p>
 				</div>
 
 				<?php if ( 0 != ( $original_post_id = intval( get_post_meta( $post->ID, '_cr_original_post', true ) ) ) ) : ?>
-				<p><a href="#" id="cr_replace_original_post" data-post-id="<?php echo $original_post_id ?>" data-title="<?php echo esc_attr( get_the_title( $original_post_id ) ) ?>"><?php _e( 'Replace original post', 'clone-replace' ); ?></a></p>
+				<p><a href="#" id="cr_replace_original_post" data-post-id="<?php echo esc_attr( $original_post_id ) ?>" data-title="<?php echo esc_attr( get_the_title( $original_post_id ) ) ?>"><?php _e( 'Replace original post', 'clone-replace' ); ?></a></p>
 				<?php endif ?>
 
 				<div>
 					<label for="cr_replace_post_title"><?php _e( 'Find a post to replace', 'clone-replace' ); ?></label><br />
 					<input type="text" id="cr_replace_post_title" value="<?php echo esc_attr( $replace_name ) ?>" style="width:100%" />
-					<input type="hidden" name="cr_replace_post_id" id="cr_replace_post_id" value="<?php echo $replace_id ?>" />
+					<input type="hidden" name="cr_replace_post_id" id="cr_replace_post_id" value="<?php echo esc_attr( $replace_id ) ?>" />
 				</div>
 
 				<div id="replace_preview"></div>
@@ -108,16 +108,18 @@ class CR_Replace {
 	public function will_be_replaced_notice() {
 		global $post_ID;
 		$replacing_post_id = intval( get_post_meta( $post_ID, '_cr_replacing_post_id', true ) );
-		if ( 0 == $replacing_post_id )
+		if ( 0 == $replacing_post_id ) {
 			return;
+		}
 
-		if ( in_array( get_post_status( $replacing_post_id ), array( 'trash', 'publish', 'inherit' ) ) )
+		if ( in_array( get_post_status( $replacing_post_id ), array( 'trash', 'publish', 'inherit' ) ) ) {
 			return;
+		}
 
 		echo '<div class="error"><p>';
 		printf(
 			__( 'Warning: This post is set to be replaced by %s. Any edits will be lost when it is replaced.', 'clone-replace' ),
-			'<strong><a href="' . get_edit_post_link( $replacing_post_id ) . '">' . get_the_title( $replacing_post_id ) . '</a></strong>'
+			'<strong><a href="' . esc_url( get_edit_post_link( $replacing_post_id ) ) . '">' . esc_html( get_the_title( $replacing_post_id ) ) . '</a></strong>'
 		);
 		echo '</p></div>';
 	}
@@ -132,12 +134,13 @@ class CR_Replace {
 		?>
 		<script type="text/javascript">
 		jQuery(function($){
-			if ( ! $('#replace-action').length )
+			if ( ! $('#replace-action').length ) {
 				return;
+			}
 
 			var $title = $('#cr_replace_post_title');
 			var $post_id = $('#cr_replace_post_id');
-			var cr_status = "<?php echo esc_js( __( 'Set to replace: <strong>{{title}}</strong>', 'clone-replace' ) ) ?>";
+			var cr_status = "<?php echo esc_js( __( 'Set to replace: {{title}}', 'clone-replace' ) ) ?>";
 			cr_ac_options = {};
 			cr_ac_options.select = function( e, ui ) {
 				e.preventDefault();
@@ -179,30 +182,32 @@ class CR_Replace {
 	 * @return void
 	 */
 	public function ajax_search_posts() {
-		if ( ! wp_verify_nonce( $_POST['cr_nonce'], 'clone_replace_search' ) )
+		if ( ! wp_verify_nonce( sanitize_text_field( $_POST['cr_nonce'] ), 'clone_replace_search' ) ) {
 			exit( '[{"label":"Error: You shall not pass","value":"0"}]' );
+		}
 
 		$args = apply_filters( 'CR_Replace_ajax_query_args', array(
-			's'                => $_POST['cr_autocomplete_search'],
+			's'                => sanitize_text_field( $_POST['cr_autocomplete_search'] ),
 			'post__not_in'     => array( intval( $_POST['cr_current_post'] ) ),
 			'posts_per_page'   => 10,
 			'orderby'          => 'post_date',
 			'order'            => 'DESC',
 			'post_status'      => 'publish',
-			'post_type'        => get_post_type( $_POST['cr_current_post'] ),
-			'suppress_filters' => false
+			'post_type'        => get_post_type( absint( $_POST['cr_current_post'] ) ),
+			'suppress_filters' => false,
 		) );
 		$query = new WP_Query( $args );
 
-		if ( ! $query->have_posts() )
+		if ( ! $query->have_posts() ) {
 			exit( '[]' );
+		}
 
 		$posts = array();
 
-		foreach( $query->posts as $post ) {
+		foreach ( $query->posts as $post ) {
 			$posts[] = array(
 				'label' => ! empty( $post->post_title ) ? $post->post_title : __( '(no title)', 'clone-replace' ),
-				'value' => $post->ID
+				'value' => $post->ID,
 			);
 		}
 
@@ -235,8 +240,9 @@ class CR_Replace {
 	 * @return void
 	 */
 	public function replacement_action( $post_id, $post ) {
-		if ( 'publish' != $post->post_status )
+		if ( 'publish' != $post->post_status ) {
 			return;
+		}
 
 		if ( 0 != ( $replace_id = intval( get_post_meta( $post_id, '_cr_replace_post_id', true ) ) ) ) {
 			$this->replace_post( $replace_id, $post_id );
@@ -253,33 +259,41 @@ class CR_Replace {
 	 * @return void
 	 */
 	public function __action_save_post( $with_post_id ) {
-		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE )
+		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
 			return;
+		}
 
 		if ( isset( $_POST['cr_replace_post_id'] ) ) {
-			if ( ! isset( $_POST["replace_with_{$with_post_id}"] ) || ! wp_verify_nonce( $_POST["replace_with_{$with_post_id}"], 'clone_replace' ) )
+			if ( ! isset( $_POST[ "replace_with_{$with_post_id}" ] ) || ! wp_verify_nonce( sanitize_text_field( $_POST[ "replace_with_{$with_post_id}" ] ), 'clone_replace' ) ) {
 				return;
+			}
 
 			$replace_post_id = intval( $_POST['cr_replace_post_id'] );
 
 			# If nothing has changed, no sense in progressing
 			$old_replace_id = intval( get_post_meta( $with_post_id, '_cr_replace_post_id', true ) );
-			if ( $old_replace_id == $replace_post_id )
+			if ( $old_replace_id == $replace_post_id ) {
 				return;
+			}
+
 			# The user needs to be able to edit the to-be-replaced post
 			$post_type = get_post_type( $replace_post_id );
 			$post_type_object = get_post_type_object( $post_type );
-			if ( ! current_user_can( $post_type_object->cap->edit_post, $replace_post_id ) )
+			if ( ! current_user_can( $post_type_object->cap->edit_post, $replace_post_id ) ) {
 				return;
+			}
 
 			# The user also needs to be able to delete the replacing post
-			if ( get_post_type( $with_post_id ) != $post_type )
+			if ( get_post_type( $with_post_id ) != $post_type ) {
 				$post_type_object = get_post_type_object( get_post_type( $with_post_id ) );
-			if ( ! current_user_can( $post_type_object->cap->delete_post, $with_post_id ) )
+			}
+			if ( ! current_user_can( $post_type_object->cap->delete_post, $with_post_id ) ) {
 				return;
+			}
 
-			if ( !is_int( $replace_post_id ) || !is_int( $with_post_id ) )
+			if ( ! is_int( $replace_post_id ) || ! is_int( $with_post_id ) ) {
 				return;
+			}
 
 			# Check to see if the replacement post is set
 			if ( 0 == $replace_post_id ) {
@@ -296,8 +310,9 @@ class CR_Replace {
 			update_post_meta( $replace_post_id, '_cr_replacing_post_id', $with_post_id );
 
 			# If this post was set to replace another, and that changed, we need to update that posts's meta
-			if ( $old_replace_id )
+			if ( $old_replace_id ) {
 				delete_post_meta( $old_replace_id, '_cr_replacing_post_id' );
+			}
 		}
 	}
 
@@ -336,15 +351,19 @@ class CR_Replace {
 	 * @return int the ID of the replaced post ($replace_post_id)
 	 */
 	public function replace_post( $replace_post_id, $with_post_id ) {
-		if ( is_int( $replace_post_id ) )
+		if ( is_int( $replace_post_id ) ) {
 			$replace_post = get_post( $replace_post_id );
-		if ( !is_object( $replace_post ) || is_wp_error( $replace_post ) )
+		}
+		if ( ! is_object( $replace_post ) || is_wp_error( $replace_post ) ) {
 			return false;
+		}
 
-		if ( is_int( $with_post_id ) )
+		if ( is_int( $with_post_id ) ) {
 			$with_post = get_post( $with_post_id );
-		if ( !is_object( $with_post ) || is_wp_error( $with_post ) )
+		}
+		if ( ! is_object( $with_post ) || is_wp_error( $with_post ) ) {
 			return false;
+		}
 
 		# Unset request params so plugins and themes don't think we're updating the current post, and re-save meta
 		$_POST = $_REQUEST = $_GET = array();
@@ -394,13 +413,15 @@ class CR_Replace {
 	private function _store_post_revision( $post_id ) {
 		global $wpdb;
 
-		if ( !is_int( $post_id ) )
+		if ( ! is_int( $post_id ) ) {
 			return false;
+		}
 
 		$revision_id = wp_save_post_revision( $post_id );
 
-		if ( !$revision_id )
+		if ( ! $revision_id ) {
 			$revision_id = $this->_trash_revision( $post_id );
+		}
 
 		$this->_move_post_meta( $post_id, $revision_id );
 
@@ -417,7 +438,7 @@ class CR_Replace {
 	private function _truncate_post_terms( $post_id ) {
 		$taxonomies = get_post_taxonomies( $post_id );
 		foreach ( (array) $taxonomies as $taxonomy ) {
-			wp_set_object_terms( $post_id, NULL, $taxonomy );
+			wp_set_object_terms( $post_id, null, $taxonomy );
 		}
 	}
 
@@ -446,8 +467,9 @@ class CR_Replace {
 	 * @return void
 	 */
 	private function _copy_post_terms( $from_post_id, $to_post_id ) {
-		if ( !is_int( $from_post_id ) || !is_int( $to_post_id ) )
+		if ( ! is_int( $from_post_id ) || ! is_int( $to_post_id ) ) {
 			return false;
+		}
 
 		# While it would be much more efficient to use SQL here, this
 		# is much safer and more reliable to ensure proper term counts and
@@ -466,8 +488,9 @@ class CR_Replace {
 	private function _move_post_meta( $from_post_id, $to_post_id = 0 ) {
 		$from_post_id = intval( $from_post_id );
 		$to_post_id   = intval( $to_post_id );
-		if ( ! $from_post_id )
+		if ( ! $from_post_id ) {
 			return false;
+		}
 
 		$ignored_meta = apply_filters( 'CR_Replace_ignored_meta', array(
 			'_edit_lock',
@@ -480,7 +503,7 @@ class CR_Replace {
 			'_encloseme',
 			'_cr_original_post',
 			'_cr_replace_post_id',
-			'_cr_replacing_post_id'
+			'_cr_replacing_post_id',
 		) );
 
 		global $wpdb;
@@ -516,8 +539,9 @@ class CR_Replace {
 		delete_post_meta( $post_id, '_cr_original_post' );
 
 		# Only run this in the event a post revision was created
-		if ( $revision_id )
+		if ( $revision_id ) {
 			delete_post_meta( $revision_id, '_cr_replacing_post_id' );
+		}
 	}
 }
 
