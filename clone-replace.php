@@ -57,6 +57,10 @@ if ( is_admin() ) :
 	add_action( 'post_submitbox_misc_actions', 'cr_post_actions' );
 
 
+	/**
+	 * Add javascript to edit post footers for behavior of clone and replace links.
+	 * Hide the clone link after click to prevent multiple clicks.
+	 */
 	function cr_print_js() {
 		?>
 		<script type="text/javascript">
@@ -78,12 +82,32 @@ if ( is_admin() ) :
 					$('.edit-clone-replace').show();
 				});
 			});
+			$('#clone-action a').click(function() {
+				$(this).hide();
+			});
 		});
 		</script>
 		<?php
 	}
 	add_action( 'admin_footer-post.php', 'cr_print_js' );
 	add_action( 'admin_footer-post-new.php', 'cr_print_js' );
+
+
+	/**
+	 * Add javascript to the edit footer to prevent multiple clicks on a clone link.
+	 */
+	function cr_print_edit_js() {
+		?>
+		<script type="text/javascript">
+		jQuery(function($){
+			$('.row-actions .cr-clone').click(function() {
+				$(this).hide();
+			});
+		});
+		</script>
+		<?php
+	}
+	add_action( 'admin_footer-edit.php', 'cr_print_edit_js' );
 
 
 	function cr_the_status( $post ) {
