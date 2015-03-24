@@ -75,20 +75,20 @@ class CR_Replace {
 			$replace_name = ( 0 != intval( $replace_id ) ) ? get_the_title( intval( $replace_id ) ) : '';
 			?>
 			<div id="replace-action">
-				<h4 style="margin-bottom:0.33em"><?php _e( 'Replace', 'clone-replace' ); ?></h4>
+				<h4 style="margin-bottom:0.33em"><?php esc_html_e( 'Replace', 'clone-replace' ); ?></h4>
 
 				<?php wp_nonce_field( 'clone_replace', 'replace_with_' . $post->ID ); ?>
 
-				<div class="notice">
-					<p><?php _e( 'When this post is published, it will replace the selected post. The data from this post will be moved to the replaced one, the latest version of the replaced post will become a revision if revisions are enabled, or go to the trash if not, and this post will be deleted. There is no undo, per se.', 'clone-replace' ); ?></p>
+				<div class="cr-notice">
+					<p><?php esc_html_e( 'When this post is published, it will replace the selected post. The data from this post will be moved to the replaced one, the latest version of the replaced post will become a revision if revisions are enabled, or go to the trash if not, and this post will be deleted. There is no undo, per se.', 'clone-replace' ); ?></p>
 				</div>
 
 				<?php if ( 0 != ( $original_post_id = intval( get_post_meta( $post->ID, '_cr_original_post', true ) ) ) ) : ?>
-				<p><a href="#" id="cr_replace_original_post" data-post-id="<?php echo esc_attr( $original_post_id ) ?>" data-title="<?php echo esc_attr( get_the_title( $original_post_id ) ) ?>"><?php _e( 'Replace original post', 'clone-replace' ); ?></a></p>
+				<p><a href="#" id="cr_replace_original_post" data-post-id="<?php echo esc_attr( $original_post_id ) ?>" data-title="<?php echo esc_attr( get_the_title( $original_post_id ) ) ?>"><?php esc_html_e( 'Replace original post', 'clone-replace' ); ?></a></p>
 				<?php endif ?>
 
 				<div>
-					<label for="cr_replace_post_title"><?php _e( 'Find a post to replace', 'clone-replace' ); ?></label><br />
+					<label for="cr_replace_post_title"><?php esc_html_e( 'Find a post to replace', 'clone-replace' ); ?></label><br />
 					<input type="text" id="cr_replace_post_title" value="<?php echo esc_attr( $replace_name ) ?>" style="width:100%" />
 					<input type="hidden" name="cr_replace_post_id" id="cr_replace_post_id" value="<?php echo esc_attr( $replace_id ) ?>" />
 				</div>
