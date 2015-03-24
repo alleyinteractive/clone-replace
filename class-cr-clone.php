@@ -95,7 +95,7 @@ class CR_Clone {
 			?>
 			<div id="clone-action">
 				<?php if ( 'publish' != $post->post_status ) : ?>
-					<h4 style="margin-bottom:0.33em"><?php _e( 'Clone', 'clone-replace' ); ?></h4>
+					<h4 style="margin-bottom:0.33em"><?php esc_html_e( 'Clone', 'clone-replace' ); ?></h4>
 				<?php endif ?>
 				<a href="<?php echo esc_url( $this->get_url( intval( $_GET['post'] ) ) ) ?>"><?php esc_html_e( 'Clone to a new draft', 'clone-replace' ) ?></a>
 			</div>
