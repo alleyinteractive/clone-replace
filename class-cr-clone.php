@@ -158,7 +158,7 @@ class CR_Clone {
 			'post_mime_type' => $old_post->post_mime_type,
 			'post_parent'    => $old_post->post_parent,
 			'post_password'  => $old_post->post_password,
-			'post_status'    => $args['status'],
+			'post_status'    => $args['post_status'],
 			'post_title'     => $old_post->post_title,
 			'post_type'      => $old_post->post_type,
 		);
