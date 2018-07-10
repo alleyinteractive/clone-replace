@@ -72,8 +72,13 @@ class CR_Clone {
 		 * @since 0.2
 		 *
 		 * @param string $redirect_url URL string passed to wp_redirect
+		 * @param int    $post_id      ID for newly cloned post.
 		 */
-		$redirect_url = apply_filters( 'CR_Clone_redirect_url', admin_url( "post.php?post={$post_id}&action=edit" ) );
+		$redirect_url = apply_filters(
+			'CR_Clone_redirect_url',
+			admin_url( "post.php?post={$post_id}&action=edit" ),
+			$post_id
+		);
 
 		wp_redirect( esc_url_raw( $redirect_url ) );
 		exit();
