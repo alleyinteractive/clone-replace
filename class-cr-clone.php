@@ -64,7 +64,23 @@ class CR_Clone {
 			wp_die( esc_html__( 'There was an error copying this post', 'clone-replace' ) );
 		}
 
-		wp_redirect( admin_url( "post.php?post={$post_id}&action=edit" ) );
+		/**
+		 * Filter Cloned Post Redirect URL.
+		 *
+		 * Modify the resulting redirect location after cloning a post.
+		 *
+		 * @since 0.2
+		 *
+		 * @param string $redirect_url URL string passed to wp_redirect
+		 * @param int    $post_id      ID for newly cloned post.
+		 */
+		$redirect_url = apply_filters(
+			'CR_Clone_redirect_url',
+			admin_url( "post.php?post={$post_id}&action=edit" ),
+			$post_id
+		);
+
+		wp_redirect( esc_url_raw( $redirect_url ) );
 		exit();
 	}
 
