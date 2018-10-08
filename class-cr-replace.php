@@ -246,8 +246,10 @@ class CR_Replace {
 
 		if ( 0 != ( $replace_id = intval( get_post_meta( $post_id, '_cr_replace_post_id', true ) ) ) ) {
 			$this->replace_post( $replace_id, $post_id );
-			wp_redirect( get_edit_post_link( $replace_id, 'url' ) );
-			exit;
+
+			if ( wp_redirect( get_edit_post_link( $replace_id, 'url' ) ) ) {
+				exit;
+			}
 		}
 	}
 
@@ -510,7 +512,7 @@ class CR_Replace {
 
 		$where = "`post_id` = {$from_post_id}";
 		if ( count( $ignored_meta ) ) {
-			$where .= " AND `meta_key` NOT IN ('" . implode( "', '", $wpdb->escape( $ignored_meta ) ) . "')";
+			$where .= " AND `meta_key` NOT IN ('" . implode( "', '", esc_sql( $ignored_meta ) ) . "')";
 		}
 
 		# We use SQL here because otherwise we'd run (2n + 1) queries deleting postmeta and re-adding it
