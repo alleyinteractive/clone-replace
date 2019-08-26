@@ -52,7 +52,7 @@ before_script:
   # Couple the PHPUnit version to the PHP version.
   - |
     case "$TRAVIS_PHP_VERSION" in
-    7.2|7.0|nightly)
+    7.*)
       echo "Using PHPUnit 6.1"
       composer global require "phpunit/phpunit=6.1.*"
       ;;
