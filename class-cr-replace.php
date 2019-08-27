@@ -401,18 +401,6 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 		 * @return void
 		 */
 		public function ajax_search_posts() {
-			if ( ! wp_verify_nonce( sanitize_text_field( $_POST['cr_nonce'] ), 'clone_replace_search' ) ) {
-				exit( '[{"label":"Error: You shall not pass","value":"0"}]' );
-			}
-		}
-
-
-		/**
-		 * Ajax responder for the "find post" autocomplete box
-		 *
-		 * @return void
-		 */
-		public function ajax_search_posts() {
 			// Extract and sanitize variables from $_POST.
 			$cr_nonce               = isset( $_POST['cr_nonce'] ) ? sanitize_text_field( $_POST['cr_nonce'] ) : '';
 			$cr_autocomplete_search = isset( $_POST['cr_autocomplete_search'] ) ? sanitize_text_field( $_POST['cr_autocomplete_search'] ) : '';
