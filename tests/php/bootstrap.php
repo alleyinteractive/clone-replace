@@ -11,20 +11,16 @@ if ( !$_tests_dir ) $_tests_dir = '/tmp/wordpress-tests-lib';
 require_once $_tests_dir . '/includes/functions.php';
 
 /**
- * Mock being in admin so that CR will load properly.
+ * Because the plugin bootstraps itself inside of an 'init' hook,
+ * and the 'init' hook relies on `is_admin()` being true, we will
+ * bypass the hook and invoke the plugin's functionality manually.
  */
-class Mock_Screen {
-	public function in_admin() {
-		return true;
-	}
-}
-
 function _manually_load_plugin() {
-	global $current_screen;
-
-	$current_screen = new Mock_Screen;
 	require_once dirname( __FILE__ ) . '/../../clone-replace.php';
-	$current_screen = null;
+	require_once dirname( __FILE__ ) . '/../../class-cr-clone.php';
+	require_once dirname( __FILE__ ) . '/../../class-cr-replace.php';
+	CR_Clone();
+	CR_Replace();
 }
 tests_add_filter( 'muplugins_loaded', '_manually_load_plugin' );
 

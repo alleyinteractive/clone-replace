@@ -69,11 +69,18 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 			add_action( 'load-post.php', array( $this, 'add_edit_page_hooks' ) );
 			add_action( 'load-post-new.php', array( $this, 'add_edit_page_hooks' ) );
 			add_action( 'wp_ajax_cr_search_posts', array( $this, 'ajax_search_posts' ) );
+			add_action( 'wp_ajax_cr_save_post', array( $this, 'ajax_save_post' ) );
 
 			add_action( 'save_post', array( $this, 'action_save_post' ) );
 			add_action( 'before_delete_post', array( $this, 'action_before_delete_post' ) );
 			add_action( 'trashed_post', array( $this, 'action_trashed_post' ) );
 			add_action( 'transition_post_status', array( $this, 'action_publish_post' ), 1, 3 );
+
+			// Used when adding row-action Replace.
+			add_action( 'admin_enqueue_scripts', array( $this, 'action_admin_enqueue_scripts' ) );
+			add_action( 'admin_footer', array( $this, 'row_action_replace_js' ) );
+			add_filter( 'post_row_actions', array( $this, 'add_row_link' ), 10, 2 );
+			add_filter( 'page_row_actions', array( $this, 'add_row_link' ), 10, 2 );
 		}
 
 
@@ -89,6 +96,58 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 			add_action( 'admin_notices', array( $this, 'will_be_replaced_notice' ) );
 		}
 
+		/**
+		 * Add a link to the actions row in post, page lists
+		 *
+		 * @param array   $actions Actions for the row.
+		 * @param WP_Post $post    The post object for the current row.
+		 * @return array
+		 */
+		public function add_row_link( $actions, $post ) {
+			if ( 'publish' !== $post->post_status && current_user_can( get_post_type_object( get_post_type( $post ) )->cap->edit_post, $post->ID ) ) {
+				$replace_id            = get_post_meta( $post->ID, '_cr_replace_post_id', true );
+				$replace_name          = ( 0 !== intval( $replace_id ) ) ? get_the_title( intval( $replace_id ) ) : '';
+				$actions['cr-replace'] = '<a href="#">' . esc_html__( 'Replace', 'clone-replace' ) . '</a>';
+				$original_post_id      = intval( get_post_meta( $post->ID, '_cr_original_post', true ) );
+				$cr_notice_text        = esc_html__( 'When this post is published, it will replace the selected post. The data from this post will be moved to the replaced one, the latest version of the replaced post will become a revision if revisions are enabled, or go to the trash if not, and this post will be deleted. There is no undo, per se.', 'clone-replace' );
+				$cr_orig_post_anchor   = 0 !== $original_post_id ? '
+					<p>
+						<a
+							href="#"
+							class="cr_replace_original_post"
+							data-post-id="' . esc_attr( $original_post_id ) . '"
+							data-title="' . esc_attr( get_the_title( $original_post_id ) ) . '
+						">
+							' . esc_html__( 'Replace original post', 'clone-replace' ) . '
+						</a>
+					</p>
+					' : '';
+
+				$replace_interface = '
+					<div class="replace-action" style="display: none">
+						' . wp_nonce_field( 'clone_replace', 'replace_with_' . $post->ID ) . '
+						<h4 style="margin-bottom:0.33em">' . esc_html__( 'Replace', 'clone-replace' ) . '</h4>
+						<div class="cr-notice">
+							<p>' . $cr_notice_text . '</p>
+						</div>
+						' . $cr_orig_post_anchor . '
+						<div>
+							<label for="cr_replace_post_title-' . intval( $post->ID ) . '">' . esc_html__( 'Find a post to replace', 'clone-replace' ) . '</label><br />
+							<input type="text" class="cr_replace_post_title" id="cr_replace_post_title-' . intval( $post->ID ) . '" value="' . esc_attr( $replace_name ) . '" style="width:100%" />
+							<input type="hidden" name="cr_replace_post_id" class="cr_replace_post_id" value="' . esc_attr( $replace_id ) . '" />
+							<input type="hidden" name="current_post_id" class="current_post_id" value="' . esc_attr( $post->ID ) . '" />
+						</div>
+						<p>
+							<a href="#" class="inline-save-clone-replace hide-if-no-js button">Replace Post</a>
+							<a href="#" class="inline-cancel-clone-replace hide-if-no-js">Cancel</a>
+						</p>
+					</div>
+				';
+
+				$actions['cr-replace'] .= $replace_interface;
+			}
+			return $actions;
+		}
 
 		/**
 		 * Add the replace GUI to edit pages
@@ -154,6 +213,113 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 			echo '</p></div>';
 		}
 
+		/**
+		 * Add JavaScript event handling for Replace in Row Actions
+		 *
+		 * @return void
+		 */
+		public function row_action_replace_js() {
+			?>
+			<script type="text/javascript">
+			jQuery(function($) {
+				// On Cancel Replace, reset state of Replace UI
+				$('.inline-cancel-clone-replace').click(function() {
+					$(this).parents('.replace-action').remove();
+				});
+
+				// Move replace-action into the row
+				// Setup XHR request for post search
+				$('.row-actions .cr-replace').click(function() {
+					var $replace_clone;
+					var $original_replace_actions = $(this).children('.replace-action');
+					if ($(this).parents('.row-actions').next('.replace-action').length) {
+						$replace_clone = $(this).parents('.row-actions').next('.replace-action');
+					} else {
+						$replace_clone = $original_replace_actions.clone(true);
+						$replace_clone.insertAfter($(this).parents('.row-actions'));
+					}
+					// With the markup set, we need to store variables and setup an xhr call
+					var $title = $('.cr_replace_post_title', $replace_clone);
+					var $post_id = $('.cr_replace_post_id', $replace_clone);
+					var $current_post = $('.current_post_id', $replace_clone);
+					var $save_button = $('.inline-save-clone-replace', $replace_clone);
+					var $replace_original = $('.cr_replace_original_post', $replace_clone);
+					var $replace_with = $('[name="replace_with_' + $current_post.val() + '"]', $replace_clone);
+					var cr_status = "<?php echo esc_js( __( 'Set to replace: {{title}}', 'clone-replace' ) ); ?>";
+					var cr_ac_options = {};
+
+					// jQueryUI AutoComplete options
+					cr_ac_options.select = function( e, ui ) {
+						e.preventDefault();
+						$title.val( ui.item.label );
+						$post_id.val( ui.item.value );
+					};
+					cr_ac_options.focus = function( e, ui ) {
+						e.preventDefault();
+						$title.val( ui.item.label );
+					};
+					cr_ac_options.source = function( request, response ) {
+						$.post(
+							ajaxurl,
+							{
+								action: 'cr_search_posts',
+								cr_autocomplete_search: request.term,
+								cr_current_post: $current_post.val(),
+								cr_nonce: "<?php echo esc_js( wp_create_nonce( 'clone_replace_search' ) ); ?>"
+							},
+							response,
+							'json'
+						);
+					};
+					$title.autocomplete( cr_ac_options );
+
+					// Finally, show the replace container
+					$replace_clone.toggle();
+
+					$save_button.click(function(event) {
+						event.preventDefault();
+						if (!$title.val() || !$post_id.val()) {
+							alert('Please select a post to replace');
+							return;
+						}
+						$(this).text('Saving...');
+
+						var postOptions = {
+							action: 'cr_save_post',
+							cr_nonce: "<?php echo esc_js( wp_create_nonce( 'clone_replace_save' ) ); ?>",
+							cr_replace_post_id: $post_id.val(), // Autocomplete hidden field
+							cr_replace_with_id: $current_post.val(),
+						};
+						postOptions['replace_with_' + $current_post.val()] = $replace_with.val();
+
+						$.post(
+							ajaxurl,
+							postOptions,
+							function(data) {
+								if ('success' === data.label) {
+									$replace_clone.remove();
+									// Update cloned-from markup to reflect change
+									// A page refresh will populate this field automatically
+									$('.cr_replace_post_title', $original_replace_actions)
+										.val($title.val())
+								}
+							},
+							'json'
+						);
+					});
+
+					$replace_original.click(function(event) {
+						$(this).text('Saving...')
+						event.preventDefault();
+						$title.val( $(this).data('title') );
+						$post_id.val( $(this).data('post-id') );
+						$save_button.click();
+					});
+				});
+			});
+			</script>
+			<?php
+		}
 
 		/**
 		 * Add javascript routines to the edit page footer
@@ -162,47 +328,72 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 		 */
 		public function js() {
 			?>
-		<script type="text/javascript">
-		jQuery(function($){
-			if ( ! $('#replace-action').length ) {
-				return;
+			<script type="text/javascript">
+			jQuery(function($){
+				if ( ! $('#replace-action').length ) {
+					return;
+				}
+
+				var $title = $('#cr_replace_post_title');
+				var $post_id = $('#cr_replace_post_id');
+				var cr_status = "<?php echo esc_js( __( 'Set to replace: {{title}}', 'clone-replace' ) ); ?>";
+				cr_ac_options = {};
+				cr_ac_options.select = function( e, ui ) {
+					e.preventDefault();
+					$title.val( ui.item.label );
+					$post_id.val( ui.item.value );
+				};
+				cr_ac_options.focus = function( e, ui ) {
+					e.preventDefault();
+					$title.val( ui.item.label );
+				};
+				cr_ac_options.source = function( request, response ) {
+					$.post( ajaxurl, { action: 'cr_search_posts', cr_autocomplete_search: request.term, cr_current_post: $('#post_ID').val(), cr_nonce: "<?php echo esc_js( wp_create_nonce( 'clone_replace_search' ) ); ?>" }, response, 'json' );
+				};
+				$title.autocomplete( cr_ac_options );
+
+				$('.save-clone-replace').click(function(){
+					$('#clone-replace-status').html( cr_status.replace( '{{title}}', $title.val() ) );
+				});
+				$('.cancel-clone-replace').click(function(){
+					$title.val('');
+					$post_id.val('');
+					$('#clone-replace-status').html('');
+				});
+				$('#cr_replace_original_post').click(function(event) {
+					event.preventDefault();
+					$title.val( $(this).data('title') );
+					$post_id.val( $(this).data('post-id') );
+					$('.save-clone-replace').click();
+				});
+			});
+			</script>
+			<?php
+		}
+
+		/**
+		 * Ajax responder for saving a post via row-action replace
+		 *
+		 * @return void
+		 */
+		public function ajax_save_post() {
+			// Check the nonce.
+			$cr_nonce = isset( $_POST['cr_nonce'] ) ? sanitize_text_field( $_POST['cr_nonce'] ) : '';
+			if ( ! wp_verify_nonce( $cr_nonce, 'clone_replace_save' ) ) {
+				exit( '[{"label":"Error: You shall not pass","value":"0"}]' );
 			}
 
-			var $title = $('#cr_replace_post_title');
-			var $post_id = $('#cr_replace_post_id');
-			var cr_status = "<?php echo esc_js( __( 'Set to replace: {{title}}', 'clone-replace' ) ); ?>";
-			cr_ac_options = {};
-			cr_ac_options.select = function( e, ui ) {
-				e.preventDefault();
-				$title.val( ui.item.label );
-				$post_id.val( ui.item.value );
-			};
-			cr_ac_options.focus = function( e, ui ) {
-				e.preventDefault();
-				$title.val( ui.item.label );
-			};
-			cr_ac_options.source = function( request, response ) {
-				$.post( ajaxurl, { action: 'cr_search_posts', cr_autocomplete_search: request.term, cr_current_post: $('#post_ID').val(), cr_nonce: "<?php echo esc_js( wp_create_nonce( 'clone_replace_search' ) ); ?>" }, response, 'json' );
-			};
-			$title.autocomplete( cr_ac_options );
+			$post_id         = isset( $_POST['cr_replace_post_id'] ) ? intval( sanitize_text_field( $_POST['cr_replace_post_id'] ) ) : 0;
+			$replace_with_id = isset( $_POST['cr_replace_with_id'] ) ? intval( sanitize_text_field( $_POST['cr_replace_with_id'] ) ) : 0;
 
-			$('.save-clone-replace').click(function(){
-				$('#clone-replace-status').html( cr_status.replace( '{{title}}', $title.val() ) );
-			});
-			$('.cancel-clone-replace').click(function(){
-				$title.val('');
-				$post_id.val('');
-				$('#clone-replace-status').html('');
-			});
-			$('#cr_replace_original_post').click(function(event) {
-				event.preventDefault();
-				$title.val( $(this).data('title') );
-				$post_id.val( $(this).data('post-id') );
-				$('.save-clone-replace').click();
-			});
-		});
-		</script>
-			<?php
+			$this->action_save_post( intval( $replace_with_id ) );
+
+			// Test to ensure post meta was set.
+			if ( intval( get_post_meta( $replace_with_id, '_cr_replace_post_id', $post_id ) ) === $post_id ) {
+				exit( '{"label": "success"}' );
+			} else {
+				exit();
+			}
 		}
 
 
@@ -253,6 +444,15 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 			exit;
 		}
 
+		/**
+		 * Enqueues scripts used in an admin context.
+		 */
+		public function action_admin_enqueue_scripts() {
+			$screen = get_current_screen();
+			if ( ! empty( $screen->base ) && 'edit' === $screen->base ) {
+				wp_enqueue_script( 'jquery-ui-autocomplete' );
+			}
+		}
 
 		/**
 		 * On post publish, if this post is set to replace another, add a hook to do it.
@@ -285,9 +485,10 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 			$replace_id = intval( get_post_meta( $post_id, '_cr_replace_post_id', true ) );
 			if ( 0 !== $replace_id ) {
 				$this->replace_post( $replace_id, $post_id );
-
-				if ( wp_safe_redirect( get_edit_post_link( $replace_id, 'url' ) ) ) {
-					exit;
+				if ( ! defined( 'REST_REQUEST' ) || true !== REST_REQUEST ) {
+					if ( wp_safe_redirect( get_edit_post_link( $replace_id, 'url' ) ) ) {
+						exit;
+					}
 				}
 			}
 		}
