@@ -77,7 +77,7 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 			add_action( 'transition_post_status', array( $this, 'action_publish_post' ), 1, 3 );
 
 			// Used when adding row-action Replace.
-			wp_enqueue_script( 'jquery-ui-autocomplete' );
+			add_action( 'admin_enqueue_scripts', array( $this, 'action_admin_enqueue_scripts' ) );
 			add_action( 'admin_footer', array( $this, 'row_action_replace_js' ) );
 			add_filter( 'post_row_actions', array( $this, 'add_row_link' ), 10, 2 );
 			add_filter( 'page_row_actions', array( $this, 'add_row_link' ), 10, 2 );
@@ -132,8 +132,8 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 						</div>
 						' . $cr_orig_post_anchor . '
 						<div>
-							<label for="cr_replace_post_title">' . esc_html__( 'Find a post to replace', 'clone-replace' ) . '</label><br />
-							<input type="text" class="cr_replace_post_title" value="' . esc_attr( $replace_name ) . '" style="width:100%" />
+							<label for="cr_replace_post_title-' . intval( $post->ID ) . '">' . esc_html__( 'Find a post to replace', 'clone-replace' ) . '</label><br />
+							<input type="text" class="cr_replace_post_title" id="cr_replace_post_title-' . intval( $post->ID ) . '" value="' . esc_attr( $replace_name ) . '" style="width:100%" />
 							<input type="hidden" name="cr_replace_post_id" class="cr_replace_post_id" value="' . esc_attr( $replace_id ) . '" />
 							<input type="hidden" name="current_post_id" class="current_post_id" value="' . esc_attr( $post->ID ) . '" />
 						</div>
@@ -444,6 +444,15 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 			exit;
 		}
 
+		/**
+		 * Enqueues scripts used in an admin context.
+		 */
+		public function action_admin_enqueue_scripts() {
+			$screen = get_current_screen();
+			if ( ! empty( $screen->base ) && 'edit' === $screen->base ) {
+				wp_enqueue_script( 'jquery-ui-autocomplete' );
+			}
+		}
 
 		/**
 		 * On post publish, if this post is set to replace another, add a hook to do it.
