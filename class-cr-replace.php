@@ -66,17 +66,17 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 		 * @return void
 		 */
 		public function setup() {
-			add_action( 'load-post.php',           array( $this, 'add_edit_page_hooks' ) );
-			add_action( 'load-post-new.php',       array( $this, 'add_edit_page_hooks' ) );
+			add_action( 'load-post.php', array( $this, 'add_edit_page_hooks' ) );
+			add_action( 'load-post-new.php', array( $this, 'add_edit_page_hooks' ) );
 			add_action( 'wp_ajax_cr_search_posts', array( $this, 'ajax_search_posts' ) );
-			add_action( 'wp_ajax_cr_save_post',    array( $this, 'ajax_save_post' ) );
+			add_action( 'wp_ajax_cr_save_post', array( $this, 'ajax_save_post' ) );
 
-			add_action( 'save_post',               array( $this, 'action_save_post' ) );
-			add_action( 'before_delete_post',      array( $this, 'action_before_delete_post' ) );
-			add_action( 'trashed_post',            array( $this, 'action_trashed_post' ) );
-			add_action( 'transition_post_status',  array( $this, 'action_publish_post' ), 1, 3 );
+			add_action( 'save_post', array( $this, 'action_save_post' ) );
+			add_action( 'before_delete_post', array( $this, 'action_before_delete_post' ) );
+			add_action( 'trashed_post', array( $this, 'action_trashed_post' ) );
+			add_action( 'transition_post_status', array( $this, 'action_publish_post' ), 1, 3 );
 
-			// Used when adding row-action Replace
+			// Used when adding row-action Replace.
 			wp_enqueue_script( 'jquery-ui-autocomplete' );
 			add_action( 'admin_footer', array( $this, 'row_action_replace_js' ) );
 			add_filter( 'post_row_actions', array( $this, 'add_row_link' ), 10, 2 );
@@ -99,18 +99,18 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 		/**
 		 * Add a link to the actions row in post, page lists
 		 *
-		 * @param array $actions
-		 * @param object $post
+		 * @param array   $actions Actions for the row.
+		 * @param WP_Post $post    The post object for the current row.
 		 * @return array
 		 */
 		public function add_row_link( $actions, $post ) {
-			if ( 'publish' != $post->post_status && current_user_can( get_post_type_object( get_post_type( $post ) )->cap->edit_post, $post->ID ) ) {
-				$replace_id = get_post_meta( $post->ID, '_cr_replace_post_id', true );
-				$replace_name = ( 0 != intval( $replace_id ) ) ? get_the_title( intval( $replace_id ) ) : '';
+			if ( 'publish' !== $post->post_status && current_user_can( get_post_type_object( get_post_type( $post ) )->cap->edit_post, $post->ID ) ) {
+				$replace_id            = get_post_meta( $post->ID, '_cr_replace_post_id', true );
+				$replace_name          = ( 0 !== intval( $replace_id ) ) ? get_the_title( intval( $replace_id ) ) : '';
 				$actions['cr-replace'] = '<a href="#">' . esc_html__( 'Replace', 'clone-replace' ) . '</a>';
-				$original_post_id = intval( get_post_meta( $post->ID, '_cr_original_post', true ) );
-				$cr_notice_text = esc_html__( 'When this post is published, it will replace the selected post. The data from this post will be moved to the replaced one, the latest version of the replaced post will become a revision if revisions are enabled, or go to the trash if not, and this post will be deleted. There is no undo, per se.', 'clone-replace' );
-				$cr_orig_post_anchor = 0 !== $original_post_id ? '
+				$original_post_id      = intval( get_post_meta( $post->ID, '_cr_original_post', true ) );
+				$cr_notice_text        = esc_html__( 'When this post is published, it will replace the selected post. The data from this post will be moved to the replaced one, the latest version of the replaced post will become a revision if revisions are enabled, or go to the trash if not, and this post will be deleted. There is no undo, per se.', 'clone-replace' );
+				$cr_orig_post_anchor   = 0 !== $original_post_id ? '
 					<p>
 						<a
 							href="#"
@@ -245,9 +245,9 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 					var $save_button = $('.inline-save-clone-replace', $replace_clone);
 					var $replace_original = $('.cr_replace_original_post', $replace_clone);
 					var $replace_with = $('[name="replace_with_' + $current_post.val() + '"]', $replace_clone);
-					var cr_status = "<?php echo esc_js( __( 'Set to replace: {{title}}', 'clone-replace' ) ) ?>";
+					var cr_status = "<?php echo esc_js( __( 'Set to replace: {{title}}', 'clone-replace' ) ); ?>";
 					var cr_ac_options = {};
-					
+
 					// jQueryUI AutoComplete options
 					cr_ac_options.select = function( e, ui ) {
 						e.preventDefault();
@@ -265,7 +265,7 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 								action: 'cr_search_posts',
 								cr_autocomplete_search: request.term,
 								cr_current_post: $current_post.val(),
-								cr_nonce: "<?php echo esc_js( wp_create_nonce( 'clone_replace_search' ) ) ?>"
+								cr_nonce: "<?php echo esc_js( wp_create_nonce( 'clone_replace_search' ) ); ?>"
 							},
 							response,
 							'json'
@@ -286,7 +286,7 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 
 						var postOptions = {
 							action: 'cr_save_post',
-							cr_nonce: "<?php echo esc_js( wp_create_nonce( 'clone_replace_save' ) ) ?>",
+							cr_nonce: "<?php echo esc_js( wp_create_nonce( 'clone_replace_save' ) ); ?>",
 							cr_replace_post_id: $post_id.val(), // Autocomplete hidden field
 							cr_replace_with_id: $current_post.val(),
 						};
@@ -377,17 +377,19 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 		 * @return void
 		 */
 		public function ajax_save_post() {
-			if ( ! wp_verify_nonce( sanitize_text_field( $_POST['cr_nonce'] ), 'clone_replace_save' ) ) {
+			// Check the nonce.
+			$cr_nonce = isset( $_POST['cr_nonce'] ) ? sanitize_text_field( $_POST['cr_nonce'] ) : '';
+			if ( ! wp_verify_nonce( $cr_nonce, 'clone_replace_save' ) ) {
 				exit( '[{"label":"Error: You shall not pass","value":"0"}]' );
 			}
 
-			$post_id = sanitize_text_field( $_POST['cr_replace_post_id'] );
-			$replace_with_id = sanitize_text_field( $_POST['cr_replace_with_id'] );
+			$post_id         = isset( $_POST['cr_replace_post_id'] ) ? intval( sanitize_text_field( $_POST['cr_replace_post_id'] ) ) : 0;
+			$replace_with_id = isset( $_POST['cr_replace_with_id'] ) ? intval( sanitize_text_field( $_POST['cr_replace_with_id'] ) ) : 0;
 
 			$this->action_save_post( intval( $replace_with_id ) );
 
-			// Test to ensure post meta was set
-			if ($post_id === get_post_meta( $replace_with_id, '_cr_replace_post_id', $post_id ) ) {
+			// Test to ensure post meta was set.
+			if ( intval( get_post_meta( $replace_with_id, '_cr_replace_post_id', $post_id ) ) === $post_id ) {
 				exit( '{"label": "success"}' );
 			} else {
 				exit();

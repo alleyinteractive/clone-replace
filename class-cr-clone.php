@@ -70,7 +70,7 @@ if ( ! class_exists( 'CR_Clone' ) ) :
 
 			add_action( 'CR_Clone_inserted_post', array( $this, 'clone_terms' ), 10, 2 );
 			add_action( 'CR_Clone_inserted_post', array( $this, 'clone_post_meta' ), 10, 2 );
-			add_action( 'CR_Clone_inserted_post', array( $this, '_cleanup' ), 10, 2 );
+			add_action( 'CR_Clone_inserted_post', array( $this, 'cleanup' ), 10, 2 );
 		}
 
 
@@ -304,7 +304,7 @@ if ( ! class_exists( 'CR_Clone' ) ) :
 		 * @param int $old_post_id The ID of the post to copy from.
 		 * @return void
 		 */
-		public function _cleanup( $post_id, $old_post_id ) {
+		public function cleanup( $post_id, $old_post_id ) {
 			// Record the original post ID so the clone can later replace the cloned.
 			add_post_meta( $post_id, '_cr_original_post', $old_post_id );
 		}
