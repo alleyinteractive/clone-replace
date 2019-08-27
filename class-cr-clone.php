@@ -304,7 +304,7 @@ if ( ! class_exists( 'CR_Clone' ) ) :
 		 * @param int $old_post_id The ID of the post to copy from.
 		 * @return void
 		 */
-		public function cleanup( $post_id, $old_post_id ) {
+		public function _cleanup( $post_id, $old_post_id ) {
 			// Record the original post ID so the clone can later replace the cloned.
 			add_post_meta( $post_id, '_cr_original_post', $old_post_id );
 		}
