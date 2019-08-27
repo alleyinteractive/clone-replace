@@ -29,14 +29,21 @@
 	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-
-if ( is_admin() || ( defined( 'DOING_CRON' ) && DOING_CRON ) ) {
-	require_once __DIR__ . '/class-cr-clone.php';
-	add_action( 'init', 'CR_Clone' );
-
-	require_once __DIR__ . '/class-cr-replace.php';
-	add_action( 'init', 'CR_Replace' );
-}
+add_action(
+	'init',
+	function () {
+		if ( is_admin()
+			|| ( defined( 'DOING_CRON' ) && DOING_CRON )
+			|| ( ! empty( $_SERVER['REQUEST_URI'] ) && false !== strpos( $_SERVER['REQUEST_URI'], rest_get_url_prefix() ) ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+		) {
+			require_once __DIR__ . '/class-cr-clone.php';
+			require_once __DIR__ . '/class-cr-replace.php';
+			CR_Clone();
+			CR_Replace();
+		}
+	},
+	9999
+);
 
 if ( is_admin() ) :
 
