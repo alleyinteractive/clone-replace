@@ -71,7 +71,7 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 			add_action( 'wp_ajax_cr_search_posts', array( $this, 'ajax_search_posts' ) );
 			add_action( 'wp_ajax_cr_save_post',    array( $this, 'ajax_save_post' ) );
 
-			add_action( 'save_post',               array( $this, 'action_save_post' ) );
+			add_action( 'save_post',               array( $this, '__action_save_post' ) );
 			add_action( 'before_delete_post',      array( $this, '__action_before_delete_post' ) );
 			add_action( 'trashed_post',            array( $this, '__action_trashed_post' ) );
 			add_action( 'transition_post_status',  array( $this, '__action_publish_post' ), 1, 3 );
@@ -384,7 +384,7 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 			$post_id = sanitize_text_field( $_POST['cr_replace_post_id'] );
 			$replace_with_id = sanitize_text_field( $_POST['cr_replace_with_id'] );
 
-			$this->action_save_post( intval( $replace_with_id ) );
+			$this->__action_save_post( intval( $replace_with_id ) );
 
 			// Test to ensure post meta was set
 			if ($post_id === get_post_meta( $replace_with_id, '_cr_replace_post_id', $post_id ) ) {
@@ -489,7 +489,7 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 		 * @param int $with_post_id The ID of the post being saved.
 		 * @return void
 		 */
-		public function action_save_post( $with_post_id ) {
+		public function __action_save_post( $with_post_id ) {
 			if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
 				return;
 			}
