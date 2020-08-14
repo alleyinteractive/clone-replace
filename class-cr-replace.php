@@ -412,8 +412,8 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 				exit( '[{"label":"Error: You shall not pass","value":"0"}]' );
 			}
 
-			$args  = apply_filters( // phpcs:ignore WordPress.NamingConventions.ValidHookName.NotLowercase
-				'CR_Replace_ajax_query_args',
+			$args  = apply_filters(
+				'CR_Replace_ajax_query_args', // phpcs:ignore WordPress.NamingConventions.ValidHookName.NotLowercase
 				array(
 					's'                => $cr_autocomplete_search,
 					'post__not_in'     => array( $cr_current_post ), // phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn
@@ -734,8 +734,8 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 				return;
 			}
 
-			$ignored_meta = apply_filters( // phpcs:ignore WordPress.NamingConventions.ValidHookName.NotLowercase
-				'CR_Replace_ignored_meta',
+			$ignored_meta = apply_filters(
+				'CR_Replace_ignored_meta', // phpcs:ignore WordPress.NamingConventions.ValidHookName.NotLowercase
 				array(
 					'_edit_lock',
 					'_edit_last',

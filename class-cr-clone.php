@@ -102,8 +102,8 @@ if ( ! class_exists( 'CR_Clone' ) ) :
 			 * @param string $redirect_url URL string passed to wp_redirect
 			 * @param int    $post_id      ID for newly cloned post.
 			 */
-			$redirect_url = apply_filters( // phpcs:ignore WordPress.NamingConventions.ValidHookName.NotLowercase
-				'CR_Clone_redirect_url',
+			$redirect_url = apply_filters(
+				'CR_Clone_redirect_url', // phpcs:ignore WordPress.NamingConventions.ValidHookName.NotLowercase
 				admin_url( "post.php?post={$post_id}&action=edit" ),
 				$post_id
 			);
@@ -264,8 +264,8 @@ if ( ! class_exists( 'CR_Clone' ) ) :
 		public function clone_post_meta( $to_post_id, $from_post_id ) {
 			$post_meta = apply_filters( 'CR_Clone_post_meta', get_post_meta( $from_post_id ), $to_post_id, $from_post_id ); // phpcs:ignore WordPress.NamingConventions.ValidHookName.NotLowercase
 
-			$ignored_meta = apply_filters( // phpcs:ignore WordPress.NamingConventions.ValidHookName.NotLowercase
-				'CR_Clone_ignored_meta',
+			$ignored_meta = apply_filters(
+				'CR_Clone_ignored_meta', // phpcs:ignore WordPress.NamingConventions.ValidHookName.NotLowercase
 				array(
 					'_edit_lock',
 					'_edit_last',
