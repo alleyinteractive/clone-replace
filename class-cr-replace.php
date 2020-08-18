@@ -59,7 +59,6 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 			return self::$instance;
 		}
 
-
 		/**
 		 * Setup the singletons
 		 *
@@ -82,7 +81,6 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 			add_filter( 'post_row_actions', array( $this, 'add_row_link' ), 10, 2 );
 			add_filter( 'page_row_actions', array( $this, 'add_row_link' ), 10, 2 );
 		}
-
 
 		/**
 		 * Add hooks for just the new/edit post admin page
@@ -186,7 +184,6 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 				<?php
 			}
 		}
-
 
 		/**
 		 * Add a warning message to a post if it is set to be replaced by another post
@@ -396,7 +393,6 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 			}
 		}
 
-
 		/**
 		 * Ajax responder for the "find post" autocomplete box
 		 *
@@ -469,7 +465,6 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 			}
 		}
 
-
 		/**
 		 * Trigger the post replacement routine
 		 *
@@ -492,7 +487,6 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 				}
 			}
 		}
-
 
 		/**
 		 * Save post meta for replacement data on post save
@@ -558,7 +552,6 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 			}
 		}
 
-
 		/**
 		 * When deleting a post, check to see if it was replacing another, and if so, delete the reciprocal post's relevant meta value
 		 *
@@ -572,7 +565,6 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 			}
 		}
 
-
 		/**
 		 * When trashing a post, check to see if it was to be replaced by another, and if so, delete the reciprocal post's relevant meta value
 		 *
@@ -585,7 +577,6 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 				delete_post_meta( $replacing_id, '_cr_replace_post_id' );
 			}
 		}
-
 
 		/**
 		 * Replace one post with another
@@ -649,7 +640,6 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 			return $replace_post_id;
 		}
 
-
 		/**
 		 * Make a post a revision of itself and return the revision ID
 		 *
@@ -672,7 +662,6 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 			return $revision_id;
 		}
 
-
 		/**
 		 * Remove all the terms for a given post
 		 *
@@ -685,7 +674,6 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 				wp_set_object_terms( $post_id, null, $taxonomy );
 			}
 		}
-
 
 		/**
 		 * If revisions are disabled, create a new version of the replaced post and trash it
@@ -701,7 +689,6 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 			wp_trash_post( $new_id );
 			return $new_id;
 		}
-
 
 		/**
 		 * Copy all taxonomy terms from one post to another
@@ -719,7 +706,6 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 			// avoid collisions.
 			CR_Clone()->clone_terms( $to_post_id, $from_post_id );
 		}
-
 
 		/**
 		 * Move all post meta from one post to another
@@ -770,7 +756,6 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 			wp_cache_delete( $from_post_id, 'post_meta' );
 			wp_cache_delete( $to_post_id, 'post_meta' );
 		}
-
 
 		/**
 		 * Cleanup after a post replacement. Specifically, remove unneeded post meta that were created in the process

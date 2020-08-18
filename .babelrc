@@ -1,0 +1,52 @@
+{
+  "env": {
+    "test": {
+      "presets": [
+        [
+          "@babel/preset-env",
+          {
+            "targets": {
+              "node": "current"
+            }
+          }
+        ]
+      ]
+    }
+  },
+  "plugins": [
+    "transform-class-properties",
+    [
+      "module-resolver",
+      {
+        "extensions": [
+          ".js",
+          ".jsx"
+        ],
+        "alias": {
+          "components": "./src"
+        },
+        "root": [
+          "./"
+        ]
+      }
+    ],
+    "@babel/plugin-proposal-optional-chaining",
+    "@babel/plugin-proposal-object-rest-spread",
+    "react-hot-loader/babel"
+  ],
+  "presets": [
+    [
+      "@babel/preset-env",
+      {
+        "targets": {
+          "browsers": [
+            "last 2 versions",
+            "ie >= 11"
+          ],
+          "node": "current"
+        }
+      }
+    ],
+    "@babel/preset-react"
+  ]
+}

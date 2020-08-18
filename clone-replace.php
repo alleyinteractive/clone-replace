@@ -48,6 +48,80 @@ add_action(
 if ( is_admin() ) :
 
 	/**
+	 * Decode the asset map at the given file path.
+	 *
+	 * @param string $path File path.
+	 * @return array
+	 */
+	function read_asset_map( $path ) {
+		if ( file_exists( $path ) && 0 === validate_file( $path ) ) {
+			ob_start();
+			include $path; // phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.IncludingFile, WordPressVIPMinimum.Files.IncludingFile.UsingVariable
+			return json_decode( ob_get_clean(), true );
+		}
+
+		return [];
+	}
+
+	/**
+	 * The main theme asset map.
+	 *
+	 * @var array
+	 */
+	define( 'CR_ASSET_MAP', read_asset_map( __DIR__ . '/build/assetMap.json' ) );
+
+	/**
+	 * The main theme asset build mode.
+	 *
+	 * @var string
+	 */
+	define( 'CR_ASSET_MODE', CR_ASSET_MAP['mode'] ?? 'production' );
+
+	/**
+	 * Enqueue Clone and Repalce assets.
+	 */
+	function cr_action_enqueue_block_editor_assets() {
+
+		// Only load within the Gutenberg editor.
+		$current_screen = get_current_screen();
+
+		if (
+			$current_screen instanceof \WP_Screen
+			&& ! $current_screen->is_block_editor()
+		) {
+			return;
+		}
+
+		wp_enqueue_script(
+			'clone-replace',
+			get_asset_path( 'block.js' ),
+			[],
+			get_asset_hash( 'block.js' ),
+			true
+		);
+
+		$post_id          = absint( get_the_ID() );
+		$original_post_id = absint( get_post_meta( $post_id, '_cr_original_post', true ) );
+		$replace_nonce    = 0;
+
+		if ( 'publish' !== get_post_status( $post_id ) ) {
+			$replace_nonce = wp_create_nonce( 'replace_with_' . $post_id );
+		}
+
+		wp_localize_script(
+			'clone-replace',
+			'cloneReplaceSettings',
+			[
+				'nonce'                  => wp_create_nonce( 'clone_post_' . $post_id ),
+				'replace_nonce'          => $replace_nonce,
+				'cr_original_post'       => $original_post_id,
+				'cr_original_post_title' => esc_attr( get_the_title( $original_post_id ) ),
+			]
+		);
+	}
+	add_action( 'admin_enqueue_scripts', 'cr_action_enqueue_block_editor_assets' );
+
+	/**
 	 * Adds HTML for Clone-Replace actions to the submit metabox.
 	 */
 	function cr_post_actions() {
@@ -71,7 +145,6 @@ if ( is_admin() ) :
 		<?php
 	}
 	add_action( 'post_submitbox_misc_actions', 'cr_post_actions' );
-
 
 	/**
 	 * Add javascript to edit post footers for behavior of clone and replace links.
@@ -108,7 +181,6 @@ if ( is_admin() ) :
 	add_action( 'admin_footer-post.php', 'cr_print_js' );
 	add_action( 'admin_footer-post-new.php', 'cr_print_js' );
 
-
 	/**
 	 * Add javascript to the edit footer to prevent multiple clicks on a clone link.
 	 */
@@ -141,6 +213,74 @@ if ( is_admin() ) :
 				);
 			}
 		}
+	}
+
+	/**
+	 * Get the path for a given asset.
+	 *
+	 * @param string $asset Entry point and asset type separated by a '.'.
+	 * @return string The asset version.
+	 */
+	function get_asset_path( $asset ) {
+		$asset_property = get_asset_property( $asset, 'path' );
+
+		if ( $asset_property ) {
+			// Create public path.
+			$base_path = CR_ASSET_MODE === 'development' ?
+				get_proxy_path() :
+				plugins_url( 'build/', __FILE__ );
+
+			return $base_path . $asset_property;
+		}
+
+		return null;
+	}
+
+	/**
+	 * Get a property for a given asset.
+	 *
+	 * @param string $asset Entry point and asset type separated by a '.'.
+	 * @param string $prop The property to get from the entry object.
+	 * @return string|null The asset property based on entry and type.
+	 */
+	function get_asset_property( $asset, $prop ) {
+		/*
+		* Appending a '.' ensures the explode() doesn't generate a notice while
+		* allowing the variable names to be more readable via list().
+		*/
+		list( $entrypoint, $type ) = explode( '.', "$asset." );
+
+		$asset_property = CR_ASSET_MAP[ $entrypoint ][ $type ][ $prop ] ?? null;
+
+		return $asset_property ? $asset_property : null;
+	}
+
+	/**
+	 * Get the development mode proxy URL from .env
+	 *
+	 * @return string
+	 */
+	function get_proxy_path() {
+		$proxy_url = 'https://0.0.0.0:8080';
+
+		// Use the value in .env if available.
+		if ( function_exists( 'getenv' ) && ! empty( getenv( 'PROXY_URL' ) ) ) {
+			$proxy_url = getenv( 'PROXY_URL' );
+		}
+
+		return sprintf( '%s/build/', $proxy_url );
+	}
+
+	/**
+	 * Get the contentHash for a given asset.
+	 *
+	 * @param string $asset Entry point and asset type separated by a '.'.
+	 * @return string The asset's hash.
+	 */
+	function get_asset_hash( $asset ) {
+		$asset_property = get_asset_property( $asset, 'hash' );
+
+		return $asset_property ?? CR_ASSET_MAP['hash'] ?? '1.0.0';
 	}
 
 endif;
