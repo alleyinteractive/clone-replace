@@ -1,31 +1,42 @@
 import React from 'react';
 
-const { __ } = wp.i18n;
-const { select } = wp.data;
 const {
-  getCurrentPostId,
-} = select('core/editor');
-const { addQueryArgs } = wp.url;
+  i18n: {
+    __,
+  },
+  data: {
+    select,
+  },
+  url: {
+    addQueryArgs,
+  },
+} = wp;
 
-const HeaderStyle = {
-  marginBottom: '0.33em',
+const CloneAction = () => {
+  const {
+    getCurrentPostId,
+    isCurrentPostPublished,
+  } = select('core/editor');
+
+  return (
+    <div id="clone-action">
+      {!isCurrentPostPublished() && (
+        <h4 style={{ marginBottom: '0.33em' }}>
+          {__('Clone', 'clone-replace')}
+        </h4>
+      )}
+      <a
+        href={addQueryArgs('admin-post.php', {
+          action: 'clone_post',
+          p: getCurrentPostId(),
+          _wpnonce: cloneReplaceSettings.nonce,
+        })}
+        role="button"
+      >
+        {__('Clone to a new draft', 'clone-replace')}
+      </a>
+    </div>
+  );
 };
-
-const CloneAction = () => (
-  <div id="clone-action">
-    <h4 style={HeaderStyle}>
-      {__('Clone', 'clone-replace')}
-    </h4>
-
-    <a href={addQueryArgs('admin-post.php', {
-      action: 'clone_post',
-      p: getCurrentPostId(),
-      _wpnonce: cloneReplaceSettings.nonce,
-    })}
-    >
-      {__('Clone to a new draft', 'clone-replace')}
-    </a>
-  </div>
-);
 
 export default CloneAction;

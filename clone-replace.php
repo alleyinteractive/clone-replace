@@ -32,10 +32,34 @@
 add_action(
 	'init',
 	function () {
+
+		register_post_meta(
+			'post',
+			'_cr_original_post',
+			[
+				'sanitize_callback' => 'absint',
+				'show_in_rest'      => true,
+				'single'            => true,
+				'type'              => 'integer',
+			]
+		);
+
+		register_post_meta(
+			'post',
+			'_cr_replace_post_id',
+			[
+				'sanitize_callback' => 'absint',
+				'show_in_rest'      => true,
+				'single'            => true,
+				'type'              => 'integer',
+			]
+		);
+
 		if ( is_admin()
 			|| ( defined( 'DOING_CRON' ) && DOING_CRON )
 			|| ( ! empty( $_SERVER['REQUEST_URI'] ) && false !== strpos( $_SERVER['REQUEST_URI'], rest_get_url_prefix() ) ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
 		) {
+			require_once __DIR__ . '/class-cr-search.php';
 			require_once __DIR__ . '/class-cr-clone.php';
 			require_once __DIR__ . '/class-cr-replace.php';
 			CR_Clone();
@@ -43,6 +67,27 @@ add_action(
 		}
 	},
 	9999
+);
+
+/**
+ * Make sure clone and replace meta keys are not protected.
+ * 
+ * @param bool   $is_protected True or False.
+ * @param string $meta_key     Meta key.
+ *
+ * @return bool
+ */
+add_filter(
+	'is_protected_meta',
+	function( $is_protected, $meta_key ): bool {
+		if ( in_array( $meta_key, [ '_cr_replace_post_id', '_cr_original_post' ], true ) ) {
+			$is_protected = false;
+		}
+
+		return (bool) $is_protected;
+	},
+	10,
+	2
 );
 
 if ( is_admin() ) :
@@ -53,7 +98,7 @@ if ( is_admin() ) :
 	 * @param string $path File path.
 	 * @return array
 	 */
-	function read_asset_map( $path ) {
+	function cr_read_asset_map( $path ) {
 		if ( file_exists( $path ) && 0 === validate_file( $path ) ) {
 			ob_start();
 			include $path; // phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.IncludingFile, WordPressVIPMinimum.Files.IncludingFile.UsingVariable
@@ -68,7 +113,7 @@ if ( is_admin() ) :
 	 *
 	 * @var array
 	 */
-	define( 'CR_ASSET_MAP', read_asset_map( __DIR__ . '/build/assetMap.json' ) );
+	define( 'CR_ASSET_MAP', cr_read_asset_map( __DIR__ . '/build/assetMap.json' ) );
 
 	/**
 	 * The main theme asset build mode.
@@ -78,7 +123,7 @@ if ( is_admin() ) :
 	define( 'CR_ASSET_MODE', CR_ASSET_MAP['mode'] ?? 'production' );
 
 	/**
-	 * Enqueue Clone and Repalce assets.
+	 * Enqueue Clone and Replace assets.
 	 */
 	function cr_action_enqueue_block_editor_assets() {
 
@@ -100,22 +145,11 @@ if ( is_admin() ) :
 			true
 		);
 
-		$post_id          = absint( get_the_ID() );
-		$original_post_id = absint( get_post_meta( $post_id, '_cr_original_post', true ) );
-		$replace_nonce    = 0;
-
-		if ( 'publish' !== get_post_status( $post_id ) ) {
-			$replace_nonce = wp_create_nonce( 'replace_with_' . $post_id );
-		}
-
 		wp_localize_script(
 			'clone-replace',
 			'cloneReplaceSettings',
 			[
-				'nonce'                  => wp_create_nonce( 'clone_post_' . $post_id ),
-				'replace_nonce'          => $replace_nonce,
-				'cr_original_post'       => $original_post_id,
-				'cr_original_post_title' => esc_attr( get_the_title( $original_post_id ) ),
+				'nonce' => wp_create_nonce( 'clone_post_' . absint( get_the_ID() ) ),
 			]
 		);
 	}

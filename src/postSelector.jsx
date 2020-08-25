@@ -2,10 +2,19 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import debounce from 'lodash/debounce';
 
-const { apiFetch } = wp;
-const { SelectControl, TextControl } = wp.components;
-const { __ } = wp.i18n;
-const { addQueryArgs } = wp.url;
+const {
+  apiFetch,
+  components: {
+    SelectControl,
+    TextControl,
+  },
+  i18n: {
+    __,
+  },
+  url: {
+    addQueryArgs,
+  },
+} = wp;
 
 /**
  * A React component that allows users to select posts by fuzzy search.
@@ -65,12 +74,6 @@ export default class PostSelector extends React.PureComponent {
 
     // Call the passed onChange function from props with the post object.
     onChange(foundPost);
-
-    // Reset the internal state.
-    this.setState({
-      foundPosts: [],
-      searchText: '',
-    });
   }
 
   /**
@@ -103,6 +106,7 @@ export default class PostSelector extends React.PureComponent {
   loadFoundPosts(searchText) {
     const {
       postTypes,
+      currentPostID,
       threshold,
     } = this.props;
 
@@ -120,7 +124,8 @@ export default class PostSelector extends React.PureComponent {
       {
         search: searchText,
         subtype: postTypes ? postTypes.join() : 'any',
-        type: 'post',
+        type: 'clone_replace',
+        current_post_id: currentPostID,
       },
     );
     apiFetch({ path })
@@ -161,7 +166,7 @@ export default class PostSelector extends React.PureComponent {
         {loading === false && searchText !== '' && foundPosts.length === 0 && (
           <div>{__('No matching posts found.', 'clone-replace')}</div>
         )}
-        {loading === false && foundPosts.length > 0 && (
+        {foundPosts.length > 0 && (
           <SelectControl
             label={__('Selected Post', 'clone-replace')}
             onChange={this.handlePostSelect}
@@ -188,6 +193,7 @@ export default class PostSelector extends React.PureComponent {
  */
 PostSelector.defaultProps = {
   postTypes: [],
+  currentPostID: 0,
   threshold: 3,
   label: __('Search Text', 'clone-replace'),
 };
@@ -200,5 +206,6 @@ PostSelector.propTypes = {
   onChange: PropTypes.func.isRequired,
   postTypes: PropTypes.arrayOf(PropTypes.string),
   threshold: PropTypes.number,
+  currentPostID: PropTypes.number,
   label: PropTypes.string,
 };

@@ -80,6 +80,23 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 			add_action( 'admin_footer', array( $this, 'row_action_replace_js' ) );
 			add_filter( 'post_row_actions', array( $this, 'add_row_link' ), 10, 2 );
 			add_filter( 'page_row_actions', array( $this, 'add_row_link' ), 10, 2 );
+
+			add_filter( 'wp_rest_search_handlers', array( $this, 'search_handler' ) );
+		}
+
+		/**
+		 * Add Clone and Replace Search Hanlder
+		 *
+		 * @param array $handlers Search Handlers.
+		 * @return array
+		 */
+		public function search_handler( array $handlers ): array {
+
+			if ( current_user_can( 'edit_posts' ) ) {
+				$handlers[] = new WP_REST_Clone_Replace_Search_Handler();
+			}
+
+			return (array) $handlers;
 		}
 
 		/**
@@ -476,7 +493,7 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 			if ( 'publish' !== $post->post_status ) {
 				return;
 			}
-
+			
 			$replace_id = intval( get_post_meta( $post_id, '_cr_replace_post_id', true ) );
 			if ( 0 !== $replace_id ) {
 				$this->replace_post( $replace_id, $post_id );
