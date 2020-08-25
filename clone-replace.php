@@ -74,12 +74,11 @@ add_action(
  * 
  * @param bool   $is_protected True or False.
  * @param string $meta_key     Meta key.
- *
  * @return bool
  */
 add_filter(
 	'is_protected_meta',
-	function( $is_protected, $meta_key ): bool {
+	function( $is_protected, $meta_key ) {
 		if ( in_array( $meta_key, [ '_cr_replace_post_id', '_cr_original_post' ], true ) ) {
 			$is_protected = false;
 		}
