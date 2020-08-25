@@ -119,7 +119,7 @@ if ( is_admin() ) :
 	 *
 	 * @var string
 	 */
-	define( 'CR_ASSET_MODE', CR_ASSET_MAP['mode'] ?? 'production' );
+	define( 'CR_ASSET_MODE', CR_ASSET_MAP['mode'] ? CR_ASSET_MAP['mode'] : 'production' );
 
 	/**
 	 * Enqueue Clone and Replace assets.
@@ -283,7 +283,10 @@ if ( is_admin() ) :
 		*/
 		list( $entrypoint, $type ) = explode( '.', "$asset." );
 
-		$asset_property = CR_ASSET_MAP[ $entrypoint ][ $type ][ $prop ] ?? null;
+		$asset_property = null;
+		if ( CR_ASSET_MAP[ $entrypoint ][ $type ][ $prop ] ) {
+			$asset_property = CR_ASSET_MAP[ $entrypoint ][ $type ][ $prop ];
+		}
 
 		return $asset_property ? $asset_property : null;
 	}
@@ -313,7 +316,15 @@ if ( is_admin() ) :
 	function get_asset_hash( $asset ) {
 		$asset_property = get_asset_property( $asset, 'hash' );
 
-		return $asset_property ?? CR_ASSET_MAP['hash'] ?? '1.0.0';
+		if ( ! empty( $asset_property ) ) {
+			return $asset_property;
+		}
+
+		if ( ! empty( CR_ASSET_MAP['hash'] ) ) {
+			return CR_ASSET_MAP['hash'];
+		}
+
+		return '1.0.0';
 	}
 
 endif;
