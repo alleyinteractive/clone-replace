@@ -13,7 +13,7 @@
  */
 class WP_REST_Clone_Replace_Search_Handler extends WP_REST_Post_Search_Handler {
 
-    /**
+	/**
 	 * Constructor.
 	 */
 	public function __construct() {
@@ -29,20 +29,20 @@ class WP_REST_Clone_Replace_Search_Handler extends WP_REST_Post_Search_Handler {
 	 *               total count for the matching search results.
 	 */
 	public function search_items( WP_REST_Request $request ) {
-        $current_post_ud = absint( $request->get_param( 'current_post_id' ) );
+		$current_post_ud = absint( $request->get_param( 'current_post_id' ) );
 
 		$query_args = [
-            'post__not_in'        => [ $current_post_ud ],
-            'post_type'           => get_post_type( $current_post_ud ),
-            'post_status'         => 'publish',
-            'paged'               => absint( $request->get_param( 'page' ) ),
-            'posts_per_page'      => absint( $request->get_param( 'per_page' ) ),
-            'orderby'             => 'post_date',
-            'order'               => 'DESC',
-            'suppress_filters'    => false,
-            'posts_per_page'      => 10,
-            'ignore_sticky_posts' => true,
-            'fields'              => 'ids',
+			'post__not_in'        => [ $current_post_ud ],
+			'post_type'           => get_post_type( $current_post_ud ),
+			'post_status'         => 'publish',
+			'paged'               => absint( $request->get_param( 'page' ) ),
+			'posts_per_page'      => absint( $request->get_param( 'per_page' ) ),
+			'orderby'             => 'post_date',
+			'order'               => 'DESC',
+			'suppress_filters'    => false,
+			'posts_per_page'      => 10,
+			'ignore_sticky_posts' => true,
+			'fields'              => 'ids',
 		];
 
 		if ( ! empty( $request['search'] ) ) {
@@ -66,6 +66,6 @@ class WP_REST_Clone_Replace_Search_Handler extends WP_REST_Post_Search_Handler {
 		return [
 			self::RESULT_IDS   => $found_ids,
 			self::RESULT_TOTAL => $total,
-        ];
+		];
 	}
 }
