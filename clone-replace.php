@@ -32,27 +32,29 @@
 add_action(
 	'init',
 	function () {
-		register_post_meta(
-			'post',
-			'_cr_original_post',
-			array(
-				'sanitize_callback' => 'absint',
-				'show_in_rest'      => true,
-				'single'            => true,
-				'type'              => 'integer',
-			)
-		);
+		if ( function_exists( 'register_post_meta' ) ) {
+			register_post_meta(
+				'post',
+				'_cr_original_post',
+				array(
+					'sanitize_callback' => 'absint',
+					'show_in_rest'      => true,
+					'single'            => true,
+					'type'              => 'integer',
+				)
+			);
 
-		register_post_meta(
-			'post',
-			'_cr_replace_post_id',
-			array(
-				'sanitize_callback' => 'absint',
-				'show_in_rest'      => true,
-				'single'            => true,
-				'type'              => 'integer',
-			)
-		);
+			register_post_meta(
+				'post',
+				'_cr_replace_post_id',
+				array(
+					'sanitize_callback' => 'absint',
+					'show_in_rest'      => true,
+					'single'            => true,
+					'type'              => 'integer',
+				)
+			);
+		}
 
 		if ( is_admin()
 			|| ( defined( 'DOING_CRON' ) && DOING_CRON )

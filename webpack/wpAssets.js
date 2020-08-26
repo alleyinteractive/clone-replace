@@ -78,10 +78,7 @@ module.exports = (stats, opts) => {
     const ext = fileInfo.ext.replace('.', '');
 
     // Validate key and value
-    if (
-      hasInvalidCharacters(ext)
-      || hasInvalidCharacters(outputPath)
-    ) {
+    if ( hasInvalidCharacters(ext) || hasInvalidCharacters(outputPath) ) {
       return assetAcc;
     }
 
