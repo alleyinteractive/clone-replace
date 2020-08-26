@@ -32,27 +32,26 @@
 add_action(
 	'init',
 	function () {
-
 		register_post_meta(
 			'post',
 			'_cr_original_post',
-			[
+			array(
 				'sanitize_callback' => 'absint',
 				'show_in_rest'      => true,
 				'single'            => true,
 				'type'              => 'integer',
-			]
+			)
 		);
 
 		register_post_meta(
 			'post',
 			'_cr_replace_post_id',
-			[
+			array(
 				'sanitize_callback' => 'absint',
 				'show_in_rest'      => true,
 				'single'            => true,
 				'type'              => 'integer',
-			]
+			)
 		);
 
 		if ( is_admin()
@@ -79,7 +78,7 @@ add_action(
 add_filter(
 	'is_protected_meta',
 	function( $is_protected, $meta_key ) {
-		if ( in_array( $meta_key, [ '_cr_replace_post_id', '_cr_original_post' ], true ) ) {
+		if ( in_array( $meta_key, array( '_cr_replace_post_id', '_cr_original_post' ), true ) ) {
 			$is_protected = false;
 		}
 
@@ -104,7 +103,7 @@ if ( is_admin() ) :
 			return json_decode( ob_get_clean(), true );
 		}
 
-		return [];
+		return array();
 	}
 
 	/**
@@ -138,18 +137,18 @@ if ( is_admin() ) :
 
 		wp_enqueue_script(
 			'clone-replace',
-			get_asset_path( 'block.js' ),
-			[],
-			get_asset_hash( 'block.js' ),
+			cr_get_asset_path( 'block.js' ),
+			array(),
+			cr_get_asset_hasg( 'block.js' ),
 			true
 		);
 
 		wp_localize_script(
 			'clone-replace',
 			'cloneReplaceSettings',
-			[
+			array(
 				'nonce' => wp_create_nonce( 'clone_post_' . absint( get_the_ID() ) ),
-			]
+			)
 		);
 	}
 	add_action( 'admin_enqueue_scripts', 'cr_action_enqueue_block_editor_assets' );
@@ -254,13 +253,13 @@ if ( is_admin() ) :
 	 * @param string $asset Entry point and asset type separated by a '.'.
 	 * @return string The asset version.
 	 */
-	function get_asset_path( $asset ) {
-		$asset_property = get_asset_property( $asset, 'path' );
+	function cr_get_asset_path( $asset ) {
+		$asset_property = cr_get_asset_property( $asset, 'path' );
 
 		if ( $asset_property ) {
 			// Create public path.
 			$base_path = CR_ASSET_MODE === 'development' ?
-				get_proxy_path() :
+				cr_get_proxy_path() :
 				plugins_url( 'build/', __FILE__ );
 
 			return $base_path . $asset_property;
@@ -276,7 +275,7 @@ if ( is_admin() ) :
 	 * @param string $prop The property to get from the entry object.
 	 * @return string|null The asset property based on entry and type.
 	 */
-	function get_asset_property( $asset, $prop ) {
+	function cr_get_asset_property( $asset, $prop ) {
 		/*
 		* Appending a '.' ensures the explode() doesn't generate a notice while
 		* allowing the variable names to be more readable via list().
@@ -296,7 +295,7 @@ if ( is_admin() ) :
 	 *
 	 * @return string
 	 */
-	function get_proxy_path() {
+	function cr_get_proxy_path() {
 		$proxy_url = 'https://0.0.0.0:8080';
 
 		// Use the value in .env if available.
@@ -313,8 +312,8 @@ if ( is_admin() ) :
 	 * @param string $asset Entry point and asset type separated by a '.'.
 	 * @return string The asset's hash.
 	 */
-	function get_asset_hash( $asset ) {
-		$asset_property = get_asset_property( $asset, 'hash' );
+	function cr_get_asset_hasg( $asset ) {
+		$asset_property = cr_get_asset_property( $asset, 'hash' );
 
 		if ( ! empty( $asset_property ) ) {
 			return $asset_property;

@@ -31,8 +31,8 @@ class WP_REST_Clone_Replace_Search_Handler extends WP_REST_Post_Search_Handler {
 	public function search_items( WP_REST_Request $request ) {
 		$current_post_ud = absint( $request->get_param( 'current_post_id' ) );
 
-		$query_args = [
-			'post__not_in'        => [ $current_post_ud ],
+		$query_args = array(
+			'post__not_in'        => array( $current_post_ud ),
 			'post_type'           => get_post_type( $current_post_ud ),
 			'post_status'         => 'publish',
 			'paged'               => absint( $request->get_param( 'page' ) ),
@@ -43,7 +43,7 @@ class WP_REST_Clone_Replace_Search_Handler extends WP_REST_Post_Search_Handler {
 			'posts_per_page'      => 10,
 			'ignore_sticky_posts' => true,
 			'fields'              => 'ids',
-		];
+		);
 
 		if ( ! empty( $request['search'] ) ) {
 			$query_args['s'] = $request->get_param( 'search' );

@@ -90,7 +90,7 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 		 * @param array $handlers Search Handlers.
 		 * @return array
 		 */
-		public function search_handler( array $handlers ): array {
+		public function search_handler( array $handlers ) {
 
 			if ( current_user_can( 'edit_posts' ) ) {
 				$handlers[] = new WP_REST_Clone_Replace_Search_Handler();
