@@ -129,7 +129,7 @@ if ( ! class_exists( 'CR_Clone' ) ) :
 			if ( isset( $_GET['post'] ) && intval( $_GET['post'] ) ) : // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 				?>
 			<div id="clone-action">
-				<?php if ( 'publish' !== get_post_status( intval( $_GET['post'] ) ) ) : ?>
+				<?php if ( 'publish' !== get_post_status( intval( $_GET['post'] ) ) ) : // phpcs:ignore WordPress.Security.NonceVerification.Recommended ?>
 					<h4 style="margin-bottom:0.33em">
 						<?php esc_html_e( 'Clone', 'clone-replace' ); ?>
 					</h4>

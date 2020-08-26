@@ -32,7 +32,7 @@ class WP_REST_Clone_Replace_Search_Handler extends WP_REST_Post_Search_Handler {
 		$current_post_ud = absint( $request->get_param( 'current_post_id' ) );
 
 		$query_args = array(
-			'post__not_in'        => array( $current_post_ud ),
+			'post__not_in'        => array( $current_post_ud ), // phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn
 			'post_type'           => get_post_type( $current_post_ud ),
 			'post_status'         => 'publish',
 			'paged'               => absint( $request->get_param( 'page' ) ),
@@ -57,15 +57,15 @@ class WP_REST_Clone_Replace_Search_Handler extends WP_REST_Post_Search_Handler {
 		 * @param array           $query_args Key value array of query var to query value.
 		 * @param WP_REST_Request $request    The request used.
 		 */
-		$query_args = apply_filters( 'CR_Replace_rest_post_search_query', $query_args, $request );
+		$query_args = apply_filters( 'CR_Replace_rest_post_search_query', $query_args, $request ); // phpcs:ignore WordPress.NamingConventions.ValidHookName.NotLowercase
 
 		$query     = new WP_Query();
 		$found_ids = $query->query( $query_args );
 		$total     = $query->found_posts;
 
-		return [
+		return array(
 			self::RESULT_IDS   => $found_ids,
 			self::RESULT_TOTAL => $total,
-		];
+		);
 	}
 }
