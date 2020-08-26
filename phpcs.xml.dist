@@ -62,4 +62,9 @@
             </property>
         </properties>
     </rule>
+
+	<rule ref="WordPress">
+		<exclude name="WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedClassFound"/>
+		<exclude name="WordPress.Files.FileName.InvalidClassFileName"/>
+	</rule>
 </ruleset>
