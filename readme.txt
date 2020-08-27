@@ -1,7 +1,7 @@
 === Plugin Name ===
 Contributors: mboynes, alleyinteractive
 Tags: editing, duplication, replacement, workflow
-Requires at least: 4.9
+Requires at least: 3.5
 Tested up to: 5.5
 Stable tag: 0.3
 License: GPLv2 or later
