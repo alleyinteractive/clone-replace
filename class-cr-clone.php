@@ -54,7 +54,6 @@ if ( ! class_exists( 'CR_Clone' ) ) :
 			return self::$instance;
 		}
 
-
 		/**
 		 * Setup our singleton: add hooks and set defaults
 		 *
@@ -73,11 +72,8 @@ if ( ! class_exists( 'CR_Clone' ) ) :
 			add_action( 'CR_Clone_inserted_post', array( $this, 'cleanup' ), 10, 2 );
 		}
 
-
 		/**
-		 * Respond to the admin request to clone a post
-		 *
-		 * @return void
+		 * Respond to the admin request to clone a post.
 		 */
 		public function action_admin_post() {
 			if ( ! isset( $_GET['p'] ) ) {
@@ -102,8 +98,8 @@ if ( ! class_exists( 'CR_Clone' ) ) :
 			 * @param string $redirect_url URL string passed to wp_redirect
 			 * @param int    $post_id      ID for newly cloned post.
 			 */
-			$redirect_url = apply_filters( // phpcs:ignore WordPress.NamingConventions.ValidHookName.NotLowercase
-				'CR_Clone_redirect_url',
+			$redirect_url = apply_filters(
+				'CR_Clone_redirect_url', // phpcs:ignore WordPress.NamingConventions.ValidHookName.NotLowercase
 				admin_url( "post.php?post={$post_id}&action=edit" ),
 				$post_id
 			);
@@ -111,7 +107,6 @@ if ( ! class_exists( 'CR_Clone' ) ) :
 			wp_safe_redirect( esc_url_raw( $redirect_url ) );
 			exit();
 		}
-
 
 		/**
 		 * Add a link to the actions row in post, page lists
@@ -127,21 +122,21 @@ if ( ! class_exists( 'CR_Clone' ) ) :
 			return $actions;
 		}
 
-
 		/**
-		 * Add a link to the post edit page
-		 *
-		 * @return void
+		 * Add a link to the post edit page.
 		 */
 		public function add_editpage_link() {
 			if ( isset( $_GET['post'] ) && intval( $_GET['post'] ) ) : // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-				global $post;
 				?>
 			<div id="clone-action">
-				<?php if ( 'publish' !== $post->post_status ) : ?>
-					<h4 style="margin-bottom:0.33em"><?php esc_html_e( 'Clone', 'clone-replace' ); ?></h4>
+				<?php if ( 'publish' !== get_post_status( intval( $_GET['post'] ) ) ) : // phpcs:ignore WordPress.Security.NonceVerification.Recommended ?>
+					<h4 style="margin-bottom:0.33em">
+						<?php esc_html_e( 'Clone', 'clone-replace' ); ?>
+					</h4>
 				<?php endif ?>
-				<a href="<?php echo esc_url( $this->get_url( intval( $_GET['post'] ) ) ); ?>"><?php esc_html_e( 'Clone to a new draft', 'clone-replace' ); ?></a> <?php // phpcs:ignore WordPress.Security.NonceVerification.Recommended ?>
+				<a href="<?php echo esc_url( $this->get_url( intval( $_GET['post'] ) ) ); ?>"> <?php // phpcs:ignore WordPress.Security.NonceVerification.Recommended ?>
+					<?php esc_html_e( 'Clone to a new draft', 'clone-replace' ); ?>
+				</a>
 			</div>
 				<?php
 		endif;
@@ -164,7 +159,6 @@ if ( ! class_exists( 'CR_Clone' ) ) :
 
 			return wp_nonce_url( admin_url( "admin-post.php?action=clone_post&p={$post_id}" ), 'clone_post_' . $post_id );
 		}
-
 
 		/**
 		 * Copy an existing post to a new one
@@ -223,7 +217,6 @@ if ( ! class_exists( 'CR_Clone' ) ) :
 			return $post_id;
 		}
 
-
 		/**
 		 * Copy terms from one post to another
 		 *
@@ -250,9 +243,7 @@ if ( ! class_exists( 'CR_Clone' ) ) :
 					wp_set_object_terms( $to_post_id, $terms, $taxonomy );
 				}
 			}
-
 		}
-
 
 		/**
 		 * Copy post meta from one post to another
@@ -264,8 +255,8 @@ if ( ! class_exists( 'CR_Clone' ) ) :
 		public function clone_post_meta( $to_post_id, $from_post_id ) {
 			$post_meta = apply_filters( 'CR_Clone_post_meta', get_post_meta( $from_post_id ), $to_post_id, $from_post_id ); // phpcs:ignore WordPress.NamingConventions.ValidHookName.NotLowercase
 
-			$ignored_meta = apply_filters( // phpcs:ignore WordPress.NamingConventions.ValidHookName.NotLowercase
-				'CR_Clone_ignored_meta',
+			$ignored_meta = apply_filters(
+				'CR_Clone_ignored_meta', // phpcs:ignore WordPress.NamingConventions.ValidHookName.NotLowercase
 				array(
 					'_edit_lock',
 					'_edit_last',
@@ -296,7 +287,6 @@ if ( ! class_exists( 'CR_Clone' ) ) :
 			}
 		}
 
-
 		/**
 		 * Perform any cleanup operations following a post cloning
 		 *
@@ -308,7 +298,6 @@ if ( ! class_exists( 'CR_Clone' ) ) :
 			// Record the original post ID so the clone can later replace the cloned.
 			add_post_meta( $post_id, '_cr_original_post', $old_post_id );
 		}
-
 	}
 
 	/**

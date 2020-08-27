@@ -1,0 +1,54 @@
+{
+  "name": "clone-replace",
+  "version": "0.0.3",
+  "license": "unlicensed",
+  "main": "clone-replace.php",
+  "engines": {
+    "node": "12",
+    "npm": "6"
+  },
+  "scripts": {
+    "preinstall": "npx check-node-version --package",
+    "build": "webpack --mode=production",
+    "dev": "webpack-dev-server --config webpack.config.js --mode development --no-inline",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "@hot-loader/react-dom": "^16.13.0",
+    "dotenv": "^8.2.0",
+    "lodash": "^4.17.20",
+    "lodash.debounce": "^4.0.8",
+    "prop-types": "^15.6.2",
+    "react": "16.9.0",
+    "react-dom": "16.9.0",
+    "react-hot-loader": "^4.12.21",
+    "webpack-dev-server": "^3.11.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.9.0",
+    "@babel/plugin-proposal-object-rest-spread": "^7.9.6",
+    "@babel/plugin-proposal-optional-chaining": "^7.9.0",
+    "@babel/preset-env": "^7.9.0",
+    "@babel/preset-react": "^7.9.4",
+    "babel-eslint": "^10.1.0",
+    "babel-loader": "^8.1.0",
+    "babel-plugin-module-resolver": "^4.0.0",
+    "babel-plugin-transform-class-properties": "^6.24.1",
+    "chalk": "^3.0.0",
+    "check-node-version": "^4.0.2",
+    "clean-webpack-plugin": "^3.0.0",
+    "eslint": "^6.8.0",
+    "eslint-config-airbnb": "^18.1.0",
+    "eslint-config-airbnb-base": "^14.1.0",
+    "eslint-import-resolver-babel-module": "^5.1.2",
+    "eslint-loader": "^3.0.3",
+    "eslint-plugin-import": "^2.20.2",
+    "eslint-plugin-jsx-a11y": "^6.1.1",
+    "eslint-plugin-react": "^7.19.0",
+    "file-loader": "^6.0.0",
+    "identity-obj-proxy": "^3.0.0",
+    "webpack": "^4.42.1",
+    "webpack-cli": "^3.3.11",
+    "webpack-stats-plugin": "^0.3.1"
+  }
+}

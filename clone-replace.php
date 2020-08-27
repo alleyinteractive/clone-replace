@@ -8,7 +8,7 @@
  * Plugin Name: Clone & Replace
  * Plugin URI: https://alley.co/
  * Description: Gives you the ability to clone posts, and replace posts. Together, you have a very powerful tool for a fork/merge editing model.
- * Version: 0.2
+ * Version: 0.3
  * Author: Alley
  * Author URI: https://alley.co/
  */
@@ -32,10 +32,35 @@
 add_action(
 	'init',
 	function () {
+		if ( function_exists( 'register_post_meta' ) ) {
+			register_post_meta(
+				'post',
+				'_cr_original_post',
+				array(
+					'sanitize_callback' => 'absint',
+					'show_in_rest'      => true,
+					'single'            => true,
+					'type'              => 'integer',
+				)
+			);
+
+			register_post_meta(
+				'post',
+				'_cr_replace_post_id',
+				array(
+					'sanitize_callback' => 'absint',
+					'show_in_rest'      => true,
+					'single'            => true,
+					'type'              => 'integer',
+				)
+			);
+		}
+
 		if ( is_admin()
 			|| ( defined( 'DOING_CRON' ) && DOING_CRON )
 			|| ( ! empty( $_SERVER['REQUEST_URI'] ) && false !== strpos( $_SERVER['REQUEST_URI'], rest_get_url_prefix() ) ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
 		) {
+			require_once __DIR__ . '/class-cr-search.php';
 			require_once __DIR__ . '/class-cr-clone.php';
 			require_once __DIR__ . '/class-cr-replace.php';
 			CR_Clone();
@@ -45,7 +70,90 @@ add_action(
 	9999
 );
 
+/**
+ * Make sure clone and replace meta keys are not protected.
+ * 
+ * @param bool   $is_protected True or False.
+ * @param string $meta_key     Meta key.
+ * @return bool
+ */
+add_filter(
+	'is_protected_meta',
+	function( $is_protected, $meta_key ) {
+		if ( in_array( $meta_key, array( '_cr_replace_post_id', '_cr_original_post' ), true ) ) {
+			$is_protected = false;
+		}
+
+		return (bool) $is_protected;
+	},
+	10,
+	2
+);
+
 if ( is_admin() ) :
+
+	/**
+	 * Decode the asset map at the given file path.
+	 *
+	 * @param string $path File path.
+	 * @return array
+	 */
+	function cr_read_asset_map( $path ) {
+		if ( file_exists( $path ) && 0 === validate_file( $path ) ) {
+			ob_start();
+			include $path; // phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.IncludingFile, WordPressVIPMinimum.Files.IncludingFile.UsingVariable
+			return json_decode( ob_get_clean(), true );
+		}
+
+		return array();
+	}
+
+	/**
+	 * The main theme asset map.
+	 *
+	 * @var array
+	 */
+	define( 'CR_ASSET_MAP', cr_read_asset_map( __DIR__ . '/build/assetMap.json' ) );
+
+	/**
+	 * The main theme asset build mode.
+	 *
+	 * @var string
+	 */
+	define( 'CR_ASSET_MODE', CR_ASSET_MAP['mode'] ? CR_ASSET_MAP['mode'] : 'production' );
+
+	/**
+	 * Enqueue Clone and Replace assets.
+	 */
+	function cr_action_enqueue_block_editor_assets() {
+
+		// Only load within the Gutenberg editor.
+		$current_screen = get_current_screen();
+
+		if (
+			$current_screen instanceof \WP_Screen
+			&& ! $current_screen->is_block_editor()
+		) {
+			return;
+		}
+
+		wp_enqueue_script(
+			'clone-replace',
+			cr_get_asset_path( 'block.js' ),
+			array(),
+			cr_get_asset_hasg( 'block.js' ),
+			true
+		);
+
+		wp_localize_script(
+			'clone-replace',
+			'cloneReplaceSettings',
+			array(
+				'nonce' => wp_create_nonce( 'clone_post_' . absint( get_the_ID() ) ),
+			)
+		);
+	}
+	add_action( 'admin_enqueue_scripts', 'cr_action_enqueue_block_editor_assets' );
 
 	/**
 	 * Adds HTML for Clone-Replace actions to the submit metabox.
@@ -71,7 +179,6 @@ if ( is_admin() ) :
 		<?php
 	}
 	add_action( 'post_submitbox_misc_actions', 'cr_post_actions' );
-
 
 	/**
 	 * Add javascript to edit post footers for behavior of clone and replace links.
@@ -108,7 +215,6 @@ if ( is_admin() ) :
 	add_action( 'admin_footer-post.php', 'cr_print_js' );
 	add_action( 'admin_footer-post-new.php', 'cr_print_js' );
 
-
 	/**
 	 * Add javascript to the edit footer to prevent multiple clicks on a clone link.
 	 */
@@ -141,6 +247,85 @@ if ( is_admin() ) :
 				);
 			}
 		}
+	}
+
+	/**
+	 * Get the path for a given asset.
+	 *
+	 * @param string $asset Entry point and asset type separated by a '.'.
+	 * @return string The asset version.
+	 */
+	function cr_get_asset_path( $asset ) {
+		$asset_property = cr_get_asset_property( $asset, 'path' );
+
+		if ( $asset_property ) {
+			// Create public path.
+			$base_path = CR_ASSET_MODE === 'development' ?
+				cr_get_proxy_path() :
+				plugins_url( 'build/', __FILE__ );
+
+			return $base_path . $asset_property;
+		}
+
+		return null;
+	}
+
+	/**
+	 * Get a property for a given asset.
+	 *
+	 * @param string $asset Entry point and asset type separated by a '.'.
+	 * @param string $prop The property to get from the entry object.
+	 * @return string|null The asset property based on entry and type.
+	 */
+	function cr_get_asset_property( $asset, $prop ) {
+		/*
+		* Appending a '.' ensures the explode() doesn't generate a notice while
+		* allowing the variable names to be more readable via list().
+		*/
+		list( $entrypoint, $type ) = explode( '.', "$asset." );
+
+		$asset_property = null;
+		if ( CR_ASSET_MAP[ $entrypoint ][ $type ][ $prop ] ) {
+			$asset_property = CR_ASSET_MAP[ $entrypoint ][ $type ][ $prop ];
+		}
+
+		return $asset_property ? $asset_property : null;
+	}
+
+	/**
+	 * Get the development mode proxy URL from .env
+	 *
+	 * @return string
+	 */
+	function cr_get_proxy_path() {
+		$proxy_url = 'https://0.0.0.0:8080';
+
+		// Use the value in .env if available.
+		if ( function_exists( 'getenv' ) && ! empty( getenv( 'PROXY_URL' ) ) ) {
+			$proxy_url = getenv( 'PROXY_URL' );
+		}
+
+		return sprintf( '%s/build/', $proxy_url );
+	}
+
+	/**
+	 * Get the contentHash for a given asset.
+	 *
+	 * @param string $asset Entry point and asset type separated by a '.'.
+	 * @return string The asset's hash.
+	 */
+	function cr_get_asset_hasg( $asset ) {
+		$asset_property = cr_get_asset_property( $asset, 'hash' );
+
+		if ( ! empty( $asset_property ) ) {
+			return $asset_property;
+		}
+
+		if ( ! empty( CR_ASSET_MAP['hash'] ) ) {
+			return CR_ASSET_MAP['hash'];
+		}
+
+		return '1.0.0';
 	}
 
 endif;
