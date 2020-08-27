@@ -53,8 +53,6 @@ module.exports = {
         ignoreSelectors: [
           ':global',
           ':local',
-          '#oovvuu-dialog-wrapper',
-          '#oovvuu-alert-wrapper',
         ],
       },
     ],

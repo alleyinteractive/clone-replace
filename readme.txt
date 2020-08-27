@@ -1,8 +1,8 @@
 === Plugin Name ===
 Contributors: mboynes, alleyinteractive
 Tags: editing, duplication, replacement, workflow
-Requires at least: 3.5
-Tested up to: 3.6
+Requires at least: 4.9
+Tested up to: 5.5
 Stable tag: 0.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -21,7 +21,6 @@ WordPress has a wonderful editing model with its "draft workflow", where writers
 Combined, these features give writers a pseudo-"fork and merge" model. Published posts can be cloned, the clones edited as any other draft can be, then the originals replaced with the clones.
 
 Individually, these features are equally as useful. You don't need to use the "fork and merge" model to take advantage of this plugin.
-
 
 == Installation ==
 
@@ -48,16 +47,15 @@ Everything about a post will be cloned except *child posts* (which includes atta
 
 Everything about a post will be replaced except its *Post ID*, *Slug*, *GUID*, *Post Status*, and *child posts* (including attachments and revisions).
 
-
 == Screenshots ==
-
-
 
 == Upgrade Notice ==
 
+= 0.3 =
+Added support to Gutenberg.
+
 = 0.2 =
 Adds filter `CR_Clone_redirect_url`, used to change redirect URL after successfully cloning a post.
-
 
 = 0.1 =
 Brand new, nothing to see here.
