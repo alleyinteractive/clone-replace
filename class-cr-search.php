@@ -32,7 +32,7 @@ class WP_REST_Clone_Replace_Search_Handler extends WP_REST_Post_Search_Handler {
 		$current_post_id = absint( $request->get_param( 'current_post_id' ) );
 
 		$query_args = array(
-			'post__not_in'        => array( $current_post_ud ), // phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn
+			'post__not_in'        => array( $current_post_id ), // phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn
 			'post_type'           => get_post_type( $current_post_id ),
 			'post_status'         => 'publish',
 			'paged'               => absint( $request->get_param( 'page' ) ),
