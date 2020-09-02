@@ -40,7 +40,8 @@ if ( is_admin() ) :
 		<div id="clone-replace-actions" class="misc-pub-section">
 			<span id="clone-replace-status"><?php cr_the_status( $post ) ?></span>
 			<?php if ( 'publish' != $post->post_status ) : ?>
-				<a href="#clone-replace-select" class="edit-clone-replace hide-if-no-js"><?php _e( 'Clone/Replace', 'clone-replace' ); ?></a>
+				<a href="#clone-replace-select"
+				   class="edit-clone-replace hide-if-no-js"><?php _e( 'Clone/Replace', 'clone-replace' ); ?></a>
 				<div id="clone-replace-select" class="hide-if-js">
 					<?php do_action( 'clone-replace-actions' ) ?>
 					<p>
@@ -54,34 +55,36 @@ if ( is_admin() ) :
 		</div>
 		<?php
 	}
+
 	add_action( 'post_submitbox_misc_actions', 'cr_post_actions' );
 
 
 	function cr_print_js() {
 		?>
 		<script type="text/javascript">
-		jQuery(function($){
-			$('.edit-clone-replace').click(function(event) {
-				event.preventDefault();
-				$('#clone-replace-select').slideDown();
-				$(this).hide();
-			});
-			$('.cancel-clone-replace').click(function(event) {
-				event.preventDefault();
-				$('#clone-replace-select').slideUp( 'normal', function(){
-					$('.edit-clone-replace').show();
-				});
-			});
-			$('.save-clone-replace').click(function(event) {
-				event.preventDefault();
-				$('#clone-replace-select').slideUp( 'normal', function(){
-					$('.edit-clone-replace').show();
-				});
-			});
-		});
+          jQuery(function ($) {
+            $('.edit-clone-replace').click(function (event) {
+              event.preventDefault()
+              $('#clone-replace-select').slideDown()
+              $(this).hide()
+            })
+            $('.cancel-clone-replace').click(function (event) {
+              event.preventDefault()
+              $('#clone-replace-select').slideUp('normal', function () {
+                $('.edit-clone-replace').show()
+              })
+            })
+            $('.save-clone-replace').click(function (event) {
+              event.preventDefault()
+              $('#clone-replace-select').slideUp('normal', function () {
+                $('.edit-clone-replace').show()
+              })
+            })
+          })
 		</script>
 		<?php
 	}
+
 	add_action( 'admin_footer-post.php', 'cr_print_js' );
 	add_action( 'admin_footer-post-new.php', 'cr_print_js' );
 
@@ -96,12 +99,13 @@ if ( is_admin() ) :
 	 * Loads textdomain
 	 */
 	function cr_i18n_support() {
-        	load_plugin_textdomain(
+		load_plugin_textdomain(
 			'clone-replace',
 			false,
 			dirname( plugin_basename( __FILE__ ) ) . '/languages/'
-        	);
+		);
 	}
+
 	add_action( 'plugins_loaded', 'cr_i18n_support' );
 
 endif;
