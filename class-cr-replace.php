@@ -56,6 +56,7 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 				self::$instance = new CR_Replace();
 				self::$instance->setup();
 			}
+
 			return self::$instance;
 		}
 
@@ -99,8 +100,9 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 		/**
 		 * Add a link to the actions row in post, page lists
 		 *
-		 * @param array   $actions Actions for the row.
-		 * @param WP_Post $post    The post object for the current row.
+		 * @param array $actions Actions for the row.
+		 * @param WP_Post $post The post object for the current row.
+		 *
 		 * @return array
 		 */
 		public function add_row_link( $actions, $post ) {
@@ -146,6 +148,7 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 
 				$actions['cr-replace'] .= $replace_interface;
 			}
+
 			return $actions;
 		}
 
@@ -161,28 +164,33 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 				$replace_id   = get_post_meta( $post->ID, '_cr_replace_post_id', true );
 				$replace_name = ( 0 !== intval( $replace_id ) ) ? get_the_title( intval( $replace_id ) ) : '';
 				?>
-			<div id="replace-action">
-				<h4 style="margin-bottom:0.33em"><?php esc_html_e( 'Replace', 'clone-replace' ); ?></h4>
+				<div id="replace-action">
+					<h4 style="margin-bottom:0.33em"><?php esc_html_e( 'Replace', 'clone-replace' ); ?></h4>
 
-				<?php wp_nonce_field( 'clone_replace', 'replace_with_' . $post->ID ); ?>
+					<?php wp_nonce_field( 'clone_replace', 'replace_with_' . $post->ID ); ?>
 
-				<div class="cr-notice">
-					<p><?php esc_html_e( 'When this post is published, it will replace the selected post. The data from this post will be moved to the replaced one, the latest version of the replaced post will become a revision if revisions are enabled, or go to the trash if not, and this post will be deleted. There is no undo, per se.', 'clone-replace' ); ?></p>
+					<div class="cr-notice">
+						<p><?php esc_html_e( 'When this post is published, it will replace the selected post. The data from this post will be moved to the replaced one, the latest version of the replaced post will become a revision if revisions are enabled, or go to the trash if not, and this post will be deleted. There is no undo, per se.', 'clone-replace' ); ?></p>
+					</div>
+
+					<?php $original_post_id = intval( get_post_meta( $post->ID, '_cr_original_post', true ) ); ?>
+					<?php if ( 0 !== $original_post_id ) : ?>
+						<p><a href="#" id="cr_replace_original_post"
+							  data-post-id="<?php echo esc_attr( $original_post_id ); ?>"
+							  data-title="<?php echo esc_attr( get_the_title( $original_post_id ) ); ?>"><?php esc_html_e( 'Replace original post', 'clone-replace' ); ?></a>
+						</p>
+					<?php endif ?>
+
+					<div>
+						<label for="cr_replace_post_title"><?php esc_html_e( 'Find a post to replace', 'clone-replace' ); ?></label><br/>
+						<input type="text" id="cr_replace_post_title" value="<?php echo esc_attr( $replace_name ); ?>"
+							   style="width:100%"/>
+						<input type="hidden" name="cr_replace_post_id" id="cr_replace_post_id"
+							   value="<?php echo esc_attr( $replace_id ); ?>"/>
+					</div>
+
+					<div id="replace_preview"></div>
 				</div>
-
-				<?php $original_post_id = intval( get_post_meta( $post->ID, '_cr_original_post', true ) ); ?>
-				<?php if ( 0 !== $original_post_id ) : ?>
-				<p><a href="#" id="cr_replace_original_post" data-post-id="<?php echo esc_attr( $original_post_id ); ?>" data-title="<?php echo esc_attr( get_the_title( $original_post_id ) ); ?>"><?php esc_html_e( 'Replace original post', 'clone-replace' ); ?></a></p>
-				<?php endif ?>
-
-				<div>
-					<label for="cr_replace_post_title"><?php esc_html_e( 'Find a post to replace', 'clone-replace' ); ?></label><br />
-					<input type="text" id="cr_replace_post_title" value="<?php echo esc_attr( $replace_name ); ?>" style="width:100%" />
-					<input type="hidden" name="cr_replace_post_id" id="cr_replace_post_id" value="<?php echo esc_attr( $replace_id ); ?>" />
-				</div>
-
-				<div id="replace_preview"></div>
-			</div>
 				<?php
 			}
 		}
@@ -206,7 +214,7 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 
 			echo '<div class="error"><p>';
 			printf(
-				// translators: A link to the post that will do the replacing.
+			// translators: A link to the post that will do the replacing.
 				esc_html__( 'Warning: This post is set to be replaced by %s. Any edits will be lost when it is replaced.', 'clone-replace' ),
 				'<strong><a href="' . esc_url( get_edit_post_link( $replacing_post_id ) ) . '">' . esc_html( get_the_title( $replacing_post_id ) ) . '</a></strong>'
 			);
@@ -221,102 +229,102 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 		public function row_action_replace_js() {
 			?>
 			<script type="text/javascript">
-			jQuery(function($) {
-				// On Cancel Replace, reset state of Replace UI
-				$('.inline-cancel-clone-replace').click(function() {
-					$(this).parents('.replace-action').remove();
-				});
+              jQuery(function ($) {
+                // On Cancel Replace, reset state of Replace UI
+                $('.inline-cancel-clone-replace').click(function () {
+                  $(this).parents('.replace-action').remove()
+                })
 
-				// Move replace-action into the row
-				// Setup XHR request for post search
-				$('.row-actions .cr-replace').click(function() {
-					var $replace_clone;
-					var $original_replace_actions = $(this).children('.replace-action');
-					if ($(this).parents('.row-actions').next('.replace-action').length) {
-						$replace_clone = $(this).parents('.row-actions').next('.replace-action');
-					} else {
-						$replace_clone = $original_replace_actions.clone(true);
-						$replace_clone.insertAfter($(this).parents('.row-actions'));
-					}
-					// With the markup set, we need to store variables and setup an xhr call
-					var $title = $('.cr_replace_post_title', $replace_clone);
-					var $post_id = $('.cr_replace_post_id', $replace_clone);
-					var $current_post = $('.current_post_id', $replace_clone);
-					var $save_button = $('.inline-save-clone-replace', $replace_clone);
-					var $replace_original = $('.cr_replace_original_post', $replace_clone);
-					var $replace_with = $('[name="replace_with_' + $current_post.val() + '"]', $replace_clone);
-					var cr_status = "<?php echo esc_js( __( 'Set to replace: {{title}}', 'clone-replace' ) ); ?>";
-					var cr_ac_options = {};
+                // Move replace-action into the row
+                // Setup XHR request for post search
+                $('.row-actions .cr-replace').click(function () {
+                  var $replace_clone
+                  var $original_replace_actions = $(this).children('.replace-action')
+                  if ($(this).parents('.row-actions').next('.replace-action').length) {
+                    $replace_clone = $(this).parents('.row-actions').next('.replace-action')
+                  }
+                  else {
+                    $replace_clone = $original_replace_actions.clone(true)
+                    $replace_clone.insertAfter($(this).parents('.row-actions'))
+                  }
+                  // With the markup set, we need to store variables and setup an xhr call
+                  var $title = $('.cr_replace_post_title', $replace_clone)
+                  var $post_id = $('.cr_replace_post_id', $replace_clone)
+                  var $current_post = $('.current_post_id', $replace_clone)
+                  var $save_button = $('.inline-save-clone-replace', $replace_clone)
+                  var $replace_original = $('.cr_replace_original_post', $replace_clone)
+                  var $replace_with = $('[name="replace_with_' + $current_post.val() + '"]', $replace_clone)
+                  var cr_status = "<?php echo esc_js( __( 'Set to replace: {{title}}', 'clone-replace' ) ); ?>"
+                  var cr_ac_options = {}
 
-					// jQueryUI AutoComplete options
-					cr_ac_options.select = function( e, ui ) {
-						e.preventDefault();
-						$title.val( ui.item.label );
-						$post_id.val( ui.item.value );
-					};
-					cr_ac_options.focus = function( e, ui ) {
-						e.preventDefault();
-						$title.val( ui.item.label );
-					};
-					cr_ac_options.source = function( request, response ) {
-						$.post(
-							ajaxurl,
-							{
-								action: 'cr_search_posts',
-								cr_autocomplete_search: request.term,
-								cr_current_post: $current_post.val(),
-								cr_nonce: "<?php echo esc_js( wp_create_nonce( 'clone_replace_search' ) ); ?>"
-							},
-							response,
-							'json'
-						);
-					};
-					$title.autocomplete( cr_ac_options );
+                  // jQueryUI AutoComplete options
+                  cr_ac_options.select = function (e, ui) {
+                    e.preventDefault()
+                    $title.val(ui.item.label)
+                    $post_id.val(ui.item.value)
+                  }
+                  cr_ac_options.focus = function (e, ui) {
+                    e.preventDefault()
+                    $title.val(ui.item.label)
+                  }
+                  cr_ac_options.source = function (request, response) {
+                    $.post(
+                      ajaxurl,
+                      {
+                        action: 'cr_search_posts',
+                        cr_autocomplete_search: request.term,
+                        cr_current_post: $current_post.val(),
+                        cr_nonce: "<?php echo esc_js( wp_create_nonce( 'clone_replace_search' ) ); ?>",
+                      },
+                      response,
+                      'json',
+                    )
+                  }
+                  $title.autocomplete(cr_ac_options)
 
-					// Finally, show the replace container
-					$replace_clone.toggle();
+                  // Finally, show the replace container
+                  $replace_clone.toggle()
 
-					$save_button.click(function(event) {
-						event.preventDefault();
-						if (!$title.val() || !$post_id.val()) {
-							alert('Please select a post to replace');
-							return;
-						}
-						$(this).text('Saving...');
+                  $save_button.click(function (event) {
+                    event.preventDefault()
+                    if (!$title.val() || !$post_id.val()) {
+                      alert('Please select a post to replace')
+                      return
+                    }
+                    $(this).text('Saving...')
 
-						var postOptions = {
-							action: 'cr_save_post',
-							cr_nonce: "<?php echo esc_js( wp_create_nonce( 'clone_replace_save' ) ); ?>",
-							cr_replace_post_id: $post_id.val(), // Autocomplete hidden field
-							cr_replace_with_id: $current_post.val(),
-						};
-						postOptions['replace_with_' + $current_post.val()] = $replace_with.val();
+                    var postOptions = {
+                      action: 'cr_save_post',
+                      cr_nonce: "<?php echo esc_js( wp_create_nonce( 'clone_replace_save' ) ); ?>",
+                      cr_replace_post_id: $post_id.val(), // Autocomplete hidden field
+                      cr_replace_with_id: $current_post.val(),
+                    }
+                    postOptions['replace_with_' + $current_post.val()] = $replace_with.val()
 
-						$.post(
-							ajaxurl,
-							postOptions,
-							function(data) {
-								if ('success' === data.label) {
-									$replace_clone.remove();
-									// Update cloned-from markup to reflect change
-									// A page refresh will populate this field automatically
-									$('.cr_replace_post_title', $original_replace_actions)
-										.val($title.val())
-								}
-							},
-							'json'
-						);
-					});
+                    $.post(
+                      ajaxurl,
+                      postOptions,
+                      function (data) {
+                        if ('success' === data.label) {
+                          $replace_clone.remove()
+                          // Update cloned-from markup to reflect change
+                          // A page refresh will populate this field automatically
+                          $('.cr_replace_post_title', $original_replace_actions).val($title.val())
+                        }
+                      },
+                      'json',
+                    )
+                  })
 
-					$replace_original.click(function(event) {
-						$(this).text('Saving...')
-						event.preventDefault();
-						$title.val( $(this).data('title') );
-						$post_id.val( $(this).data('post-id') );
-						$save_button.click();
-					});
-				});
-			});
+                  $replace_original.click(function (event) {
+                    $(this).text('Saving...')
+                    event.preventDefault()
+                    $title.val($(this).data('title'))
+                    $post_id.val($(this).data('post-id'))
+                    $save_button.click()
+                  })
+                })
+              })
 			</script>
 			<?php
 		}
@@ -329,44 +337,49 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 		public function js() {
 			?>
 			<script type="text/javascript">
-			jQuery(function($){
-				if ( ! $('#replace-action').length ) {
-					return;
-				}
+              jQuery(function ($) {
+                if (!$('#replace-action').length) {
+                  return
+                }
 
-				var $title = $('#cr_replace_post_title');
-				var $post_id = $('#cr_replace_post_id');
-				var cr_status = "<?php echo esc_js( __( 'Set to replace: {{title}}', 'clone-replace' ) ); ?>";
-				cr_ac_options = {};
-				cr_ac_options.select = function( e, ui ) {
-					e.preventDefault();
-					$title.val( ui.item.label );
-					$post_id.val( ui.item.value );
-				};
-				cr_ac_options.focus = function( e, ui ) {
-					e.preventDefault();
-					$title.val( ui.item.label );
-				};
-				cr_ac_options.source = function( request, response ) {
-					$.post( ajaxurl, { action: 'cr_search_posts', cr_autocomplete_search: request.term, cr_current_post: $('#post_ID').val(), cr_nonce: "<?php echo esc_js( wp_create_nonce( 'clone_replace_search' ) ); ?>" }, response, 'json' );
-				};
-				$title.autocomplete( cr_ac_options );
+                var $title = $('#cr_replace_post_title')
+                var $post_id = $('#cr_replace_post_id')
+                var cr_status = "<?php echo esc_js( __( 'Set to replace: {{title}}', 'clone-replace' ) ); ?>"
+                cr_ac_options = {}
+                cr_ac_options.select = function (e, ui) {
+                  e.preventDefault()
+                  $title.val(ui.item.label)
+                  $post_id.val(ui.item.value)
+                }
+                cr_ac_options.focus = function (e, ui) {
+                  e.preventDefault()
+                  $title.val(ui.item.label)
+                }
+                cr_ac_options.source = function (request, response) {
+                  $.post(ajaxurl, {
+                    action: 'cr_search_posts',
+                    cr_autocomplete_search: request.term,
+                    cr_current_post: $('#post_ID').val(),
+                    cr_nonce: "<?php echo esc_js( wp_create_nonce( 'clone_replace_search' ) ); ?>",
+                  }, response, 'json')
+                }
+                $title.autocomplete(cr_ac_options)
 
-				$('.save-clone-replace').click(function(){
-					$('#clone-replace-status').html( cr_status.replace( '{{title}}', $title.val() ) );
-				});
-				$('.cancel-clone-replace').click(function(){
-					$title.val('');
-					$post_id.val('');
-					$('#clone-replace-status').html('');
-				});
-				$('#cr_replace_original_post').click(function(event) {
-					event.preventDefault();
-					$title.val( $(this).data('title') );
-					$post_id.val( $(this).data('post-id') );
-					$('.save-clone-replace').click();
-				});
-			});
+                $('.save-clone-replace').click(function () {
+                  $('#clone-replace-status').html(cr_status.replace('{{title}}', $title.val()))
+                })
+                $('.cancel-clone-replace').click(function () {
+                  $title.val('')
+                  $post_id.val('')
+                  $('#clone-replace-status').html('')
+                })
+                $('#cr_replace_original_post').click(function (event) {
+                  event.preventDefault()
+                  $title.val($(this).data('title'))
+                  $post_id.val($(this).data('post-id'))
+                  $('.save-clone-replace').click()
+                })
+              })
 			</script>
 			<?php
 		}
@@ -416,7 +429,8 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 				'CR_Replace_ajax_query_args',
 				array(
 					's'                => $cr_autocomplete_search,
-					'post__not_in'     => array( $cr_current_post ), // phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn
+					'post__not_in'     => array( $cr_current_post ),
+					// phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn
 					'posts_per_page'   => 10,
 					'orderby'          => 'post_date',
 					'order'            => 'DESC',
@@ -458,9 +472,10 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 		 * On post publish, if this post is set to replace another, add a hook to do it.
 		 * This is a two-hook process because we only want to run it when the post publishes.
 		 *
-		 * @param string  $new_status The new post status.
-		 * @param string  $old_status The old post status.
-		 * @param WP_Post $post       The post object.
+		 * @param string $new_status The new post status.
+		 * @param string $old_status The old post status.
+		 * @param WP_Post $post The post object.
+		 *
 		 * @return void
 		 */
 		public function action_publish_post( $new_status, $old_status, $post ) {
@@ -473,8 +488,9 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 		/**
 		 * Trigger the post replacement routine
 		 *
-		 * @param int     $post_id The ID of the post.
-		 * @param WP_Post $post    The post object.
+		 * @param int $post_id The ID of the post.
+		 * @param WP_Post $post The post object.
+		 *
 		 * @return void
 		 */
 		public function replacement_action( $post_id, $post ) {
@@ -498,6 +514,7 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 		 * Save post meta for replacement data on post save
 		 *
 		 * @param int $with_post_id The ID of the post being saved.
+		 *
 		 * @return void
 		 */
 		public function action_save_post( $with_post_id ) {
@@ -506,7 +523,7 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 			}
 
 			if ( isset( $_POST['cr_replace_post_id'] ) ) {
-				if ( ! isset( $_POST[ "replace_with_{$with_post_id}" ] ) || ! wp_verify_nonce( sanitize_text_field( $_POST[ "replace_with_{$with_post_id}" ] ), 'clone_replace' ) ) {
+				if ( ! isset( $_POST["replace_with_{$with_post_id}"] ) || ! wp_verify_nonce( sanitize_text_field( $_POST["replace_with_{$with_post_id}"] ), 'clone_replace' ) ) {
 					return;
 				}
 
@@ -544,6 +561,7 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 						delete_post_meta( $with_post_id, '_cr_replace_post_id' );
 						delete_post_meta( $old_replace_id, '_cr_replacing_post_id' );
 					}
+
 					return;
 				}
 
@@ -563,6 +581,7 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 		 * When deleting a post, check to see if it was replacing another, and if so, delete the reciprocal post's relevant meta value
 		 *
 		 * @param int $post_id The ID of the post being deleted.
+		 *
 		 * @return void
 		 */
 		public function action_before_delete_post( $post_id ) {
@@ -577,6 +596,7 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 		 * When trashing a post, check to see if it was to be replaced by another, and if so, delete the reciprocal post's relevant meta value
 		 *
 		 * @param int $post_id The post ID for the post being trashed.
+		 *
 		 * @return void
 		 */
 		public function action_trashed_post( $post_id ) {
@@ -591,7 +611,8 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 		 * Replace one post with another
 		 *
 		 * @param int $replace_post_id The ID of the post to be replaced.
-		 * @param int $with_post_id    The ID of the post that will take its place.
+		 * @param int $with_post_id The ID of the post that will take its place.
+		 *
 		 * @return int the ID of the replaced post ($replace_post_id)
 		 */
 		public function replace_post( $replace_post_id, $with_post_id ) {
@@ -646,6 +667,7 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 			$this->cleanup( $replace_post_id, $revision_id );
 
 			do_action( 'CR_Replace_after_replacement', $replace_post_id, $with_post_id ); // phpcs:ignore WordPress.NamingConventions.ValidHookName.NotLowercase
+
 			return $replace_post_id;
 		}
 
@@ -654,6 +676,7 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 		 * Make a post a revision of itself and return the revision ID
 		 *
 		 * @param int $post_id The post ID for which to store a post revision.
+		 *
 		 * @return int The new revision ID
 		 */
 		private function store_post_revision( $post_id ) {
@@ -677,6 +700,7 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 		 * Remove all the terms for a given post
 		 *
 		 * @param int $post_id The post ID for which to truncate terms.
+		 *
 		 * @return void
 		 */
 		private function truncate_post_terms( $post_id ) {
@@ -691,6 +715,7 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 		 * If revisions are disabled, create a new version of the replaced post and trash it
 		 *
 		 * @param int $post_id The post ID to trash.
+		 *
 		 * @return int
 		 */
 		private function trash_revision( $post_id ) {
@@ -699,6 +724,7 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 			$post->ID        = 0;
 			$new_id          = wp_insert_post( $post );
 			wp_trash_post( $new_id );
+
 			return $new_id;
 		}
 
@@ -707,7 +733,7 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 		 * Copy all taxonomy terms from one post to another
 		 *
 		 * @param int $from_post_id Source post ID for taxonomy migration.
-		 * @param int $to_post_id   Destination post ID for taxonomy migration.
+		 * @param int $to_post_id Destination post ID for taxonomy migration.
 		 */
 		private function copy_post_terms( $from_post_id, $to_post_id ) {
 			if ( ! is_int( $from_post_id ) || ! is_int( $to_post_id ) ) {
@@ -725,7 +751,7 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 		 * Move all post meta from one post to another
 		 *
 		 * @param int $from_post_id Source post ID for meta migration.
-		 * @param int $to_post_id   Destination post ID for meta migration.
+		 * @param int $to_post_id Destination post ID for meta migration.
 		 */
 		private function move_post_meta( $from_post_id, $to_post_id = 0 ) {
 			$from_post_id = intval( $from_post_id );
@@ -777,6 +803,7 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 		 *
 		 * @param int $post_id The resulting post ID ($replace_post_id as referenced elsewhere).
 		 * @param int $revision_id Optional. The ID of the newly-created revision, which *was* the replaced post.
+		 *
 		 * @return void
 		 */
 		private function cleanup( $post_id, $revision_id = false ) {

@@ -51,6 +51,7 @@ if ( ! class_exists( 'CR_Clone' ) ) :
 				self::$instance = new CR_Clone();
 				self::$instance->setup();
 			}
+
 			return self::$instance;
 		}
 
@@ -97,10 +98,11 @@ if ( ! class_exists( 'CR_Clone' ) ) :
 			 *
 			 * Modify the resulting redirect location after cloning a post.
 			 *
+			 * @param string $redirect_url URL string passed to wp_redirect
+			 * @param int $post_id ID for newly cloned post.
+			 *
 			 * @since 0.2
 			 *
-			 * @param string $redirect_url URL string passed to wp_redirect
-			 * @param int    $post_id      ID for newly cloned post.
 			 */
 			$redirect_url = apply_filters( // phpcs:ignore WordPress.NamingConventions.ValidHookName.NotLowercase
 				'CR_Clone_redirect_url',
@@ -116,14 +118,16 @@ if ( ! class_exists( 'CR_Clone' ) ) :
 		/**
 		 * Add a link to the actions row in post, page lists
 		 *
-		 * @param array   $actions An array of actions in the row.
-		 * @param WP_Post $post    The post object for the current row.
+		 * @param array $actions An array of actions in the row.
+		 * @param WP_Post $post The post object for the current row.
+		 *
 		 * @return array
 		 */
 		public function add_row_link( $actions, $post ) {
 			if ( current_user_can( get_post_type_object( get_post_type( $post ) )->cap->edit_post, $post->ID ) ) {
 				$actions['cr-clone'] = '<a href="' . esc_url( $this->get_url( $post ) ) . '">' . esc_html__( 'Clone', 'clone-replace' ) . '</a>';
 			}
+
 			return $actions;
 		}
 
@@ -137,20 +141,22 @@ if ( ! class_exists( 'CR_Clone' ) ) :
 			if ( isset( $_GET['post'] ) && intval( $_GET['post'] ) ) : // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 				global $post;
 				?>
-			<div id="clone-action">
-				<?php if ( 'publish' !== $post->post_status ) : ?>
-					<h4 style="margin-bottom:0.33em"><?php esc_html_e( 'Clone', 'clone-replace' ); ?></h4>
-				<?php endif ?>
-				<a href="<?php echo esc_url( $this->get_url( intval( $_GET['post'] ) ) ); ?>"><?php esc_html_e( 'Clone to a new draft', 'clone-replace' ); ?></a> <?php // phpcs:ignore WordPress.Security.NonceVerification.Recommended ?>
-			</div>
-				<?php
-		endif;
+				<div id="clone-action">
+					<?php if ( 'publish' !== $post->post_status ) : ?>
+						<h4 style="margin-bottom:0.33em"><?php esc_html_e( 'Clone', 'clone-replace' ); ?></h4>
+					<?php endif ?>
+					<a href="<?php echo esc_url( $this->get_url( intval( $_GET['post'] ) ) ); ?>"><?php esc_html_e( 'Clone to a new draft', 'clone-replace' ); ?></a> <?php // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+					?>
+				</div>
+			<?php
+			endif;
 		}
 
 		/**
 		 * Get the URL for cloning a post
 		 *
 		 * @param object|int $post A post object or post ID.
+		 *
 		 * @return string The URL for replicating a post, properly nonced
 		 */
 		public function get_url( $post ) {
@@ -169,8 +175,9 @@ if ( ! class_exists( 'CR_Clone' ) ) :
 		/**
 		 * Copy an existing post to a new one
 		 *
-		 * @param int   $old_post_id The old post ID.
-		 * @param array $args        Optional. Options for the new post.
+		 * @param int $old_post_id The old post ID.
+		 * @param array $args Optional. Options for the new post.
+		 *
 		 * @return int the ID of the new post
 		 */
 		public function clone_post( $old_post_id, $args = array() ) {
@@ -229,6 +236,7 @@ if ( ! class_exists( 'CR_Clone' ) ) :
 		 *
 		 * @param int $to_post_id The ID of the post to copy to.
 		 * @param int $from_post_id The ID of the post to copy from.
+		 *
 		 * @return void
 		 */
 		public function clone_terms( $to_post_id, $from_post_id ) {
@@ -259,6 +267,7 @@ if ( ! class_exists( 'CR_Clone' ) ) :
 		 *
 		 * @param int $to_post_id The ID of the post to copy to.
 		 * @param int $from_post_id The ID of the post to copy from.
+		 *
 		 * @return void
 		 */
 		public function clone_post_meta( $to_post_id, $from_post_id ) {
@@ -302,6 +311,7 @@ if ( ! class_exists( 'CR_Clone' ) ) :
 		 *
 		 * @param int $post_id The ID of the post to copy to.
 		 * @param int $old_post_id The ID of the post to copy from.
+		 *
 		 * @return void
 		 */
 		public function cleanup( $post_id, $old_post_id ) {

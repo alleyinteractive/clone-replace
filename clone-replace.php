@@ -33,8 +33,8 @@ add_action(
 	'init',
 	function () {
 		if ( is_admin()
-			|| ( defined( 'DOING_CRON' ) && DOING_CRON )
-			|| ( ! empty( $_SERVER['REQUEST_URI'] ) && false !== strpos( $_SERVER['REQUEST_URI'], rest_get_url_prefix() ) ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+		     || ( defined( 'DOING_CRON' ) && DOING_CRON )
+		     || ( ! empty( $_SERVER['REQUEST_URI'] ) && false !== strpos( $_SERVER['REQUEST_URI'], rest_get_url_prefix() ) ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
 		) {
 			require_once __DIR__ . '/class-cr-clone.php';
 			require_once __DIR__ . '/class-cr-replace.php';
@@ -56,7 +56,8 @@ if ( is_admin() ) :
 		<div id="clone-replace-actions" class="misc-pub-section">
 			<span id="clone-replace-status"><?php cr_the_status( $post ); ?></span>
 			<?php if ( 'publish' !== $post->post_status ) : ?>
-				<a href="#clone-replace-select" class="edit-clone-replace hide-if-no-js"><?php esc_html_e( 'Clone/Replace', 'clone-replace' ); ?></a>
+				<a href="#clone-replace-select"
+				   class="edit-clone-replace hide-if-no-js"><?php esc_html_e( 'Clone/Replace', 'clone-replace' ); ?></a>
 				<div id="clone-replace-select" class="hide-if-js">
 					<?php do_action( 'clone-replace-actions' ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound, WordPress.NamingConventions.ValidHookName.UseUnderscores ?>
 					<p>
@@ -70,6 +71,7 @@ if ( is_admin() ) :
 		</div>
 		<?php
 	}
+
 	add_action( 'post_submitbox_misc_actions', 'cr_post_actions' );
 
 
@@ -80,31 +82,32 @@ if ( is_admin() ) :
 	function cr_print_js() {
 		?>
 		<script type="text/javascript">
-		jQuery(function($){
-			$('.edit-clone-replace').click(function(event) {
-				event.preventDefault();
-				$('#clone-replace-select').slideDown();
-				$(this).hide();
-			});
-			$('.cancel-clone-replace').click(function(event) {
-				event.preventDefault();
-				$('#clone-replace-select').slideUp( 'normal', function(){
-					$('.edit-clone-replace').show();
-				});
-			});
-			$('.save-clone-replace').click(function(event) {
-				event.preventDefault();
-				$('#clone-replace-select').slideUp( 'normal', function(){
-					$('.edit-clone-replace').show();
-				});
-			});
-			$('#clone-action a').click(function() {
-				$(this).hide();
-			});
-		});
+          jQuery(function ($) {
+            $('.edit-clone-replace').click(function (event) {
+              event.preventDefault()
+              $('#clone-replace-select').slideDown()
+              $(this).hide()
+            })
+            $('.cancel-clone-replace').click(function (event) {
+              event.preventDefault()
+              $('#clone-replace-select').slideUp('normal', function () {
+                $('.edit-clone-replace').show()
+              })
+            })
+            $('.save-clone-replace').click(function (event) {
+              event.preventDefault()
+              $('#clone-replace-select').slideUp('normal', function () {
+                $('.edit-clone-replace').show()
+              })
+            })
+            $('#clone-action a').click(function () {
+              $(this).hide()
+            })
+          })
 		</script>
 		<?php
 	}
+
 	add_action( 'admin_footer-post.php', 'cr_print_js' );
 	add_action( 'admin_footer-post-new.php', 'cr_print_js' );
 
@@ -115,14 +118,15 @@ if ( is_admin() ) :
 	function cr_print_edit_js() {
 		?>
 		<script type="text/javascript">
-		jQuery(function($){
-			$('.row-actions .cr-clone').click(function() {
-				$(this).hide();
-			});
-		});
+          jQuery(function ($) {
+            $('.row-actions .cr-clone').click(function () {
+              $(this).hide()
+            })
+          })
 		</script>
 		<?php
 	}
+
 	add_action( 'admin_footer-edit.php', 'cr_print_edit_js' );
 
 	/**
@@ -134,13 +138,26 @@ if ( is_admin() ) :
 		if ( 'publish' !== $post->post_status ) {
 			$replace_id = intval( get_post_meta( $post->ID, '_cr_replace_post_id', true ) );
 			if ( 0 !== $replace_id ) {
+				// translators: Title of the post to be replaced.
 				printf(
-					// translators: Title of the post to be replaced.
 					esc_html__( 'Set to replace: %s', 'clone-replace' ),
 					'<strong>' . esc_html( get_the_title( $replace_id ) ) . '<strong>'
 				);
 			}
 		}
 	}
+
+	/**
+	 * Loads textdomain
+	 */
+	function cr_i18n_support() {
+		load_plugin_textdomain(
+			'clone-replace',
+			false,
+			dirname( plugin_basename( __FILE__ ) ) . '/languages/'
+		);
+	}
+
+	add_action( 'plugins_loaded', 'cr_i18n_support' );
 
 endif;
