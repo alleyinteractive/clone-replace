@@ -96,11 +96,11 @@ if ( is_admin() ) :
 	 * Loads textdomain
 	 */
 	function cr_i18n_support() {
-        load_plugin_textdomain(
+        	load_plugin_textdomain(
 			'clone-replace',
 			false,
 			dirname( plugin_basename( __FILE__ ) ) . '/languages/'
-        );
+        	);
 	}
 	add_action( 'plugins_loaded', 'cr_i18n_support' );
 
