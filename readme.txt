@@ -55,6 +55,10 @@ Everything about a post will be replaced except its *Post ID*, *Slug*, *GUID*, *
 
 == Upgrade Notice ==
 
+= 0.2 =
+Adds filter `CR_Clone_redirect_url`, used to change redirect URL after successfully cloning a post.
+
+
 = 0.1 =
 Brand new, nothing to see here.
 
