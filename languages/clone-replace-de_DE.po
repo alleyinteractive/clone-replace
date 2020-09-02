@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Clone & Replace\n"
 "Report-Msgid-Bugs-To: http://wordpress.org/tag/multisite-language-switcher\n"
-"POT-Creation-Date: 2020-09-02 13:04+0200\n"
-"PO-Revision-Date: 2020-09-02 13:06+0200\n"
+"POT-Creation-Date: 2020-09-02 13:21+0200\n"
+"PO-Revision-Date: 2020-09-02 13:22+0200\n"
 "Last-Translator: \n"
 "Language-Team: Dennis Ploetner <re@lloc.de>\n"
 "Language: de_DE\n"
@@ -19,27 +19,28 @@ msgstr ""
 "X-Generator: Poedit 2.0.6\n"
 "X-Poedit-SearchPath-0: ..\n"
 
-#: ../class-cr-clone.php:56
+#: ../class-cr-clone.php:85
 msgid "You are trying to copy an invalid post"
 msgstr "Du versuchst einen ungültigen Post zu kopieren."
 
-#: ../class-cr-clone.php:64
+#: ../class-cr-clone.php:93
 msgid "There was an error copying this post"
 msgstr "Es kam zu einem Fehler beim Kopieren des Posts."
 
-#: ../class-cr-clone.php:80 ../class-cr-clone.php:96
+#: ../class-cr-clone.php:128 ../class-cr-clone.php:146
 msgid "Clone"
 msgstr "Klonen"
 
-#: ../class-cr-clone.php:98
+#: ../class-cr-clone.php:148
 msgid "Clone to a new draft"
 msgstr "In neuen Entwurf klonen"
 
-#: ../class-cr-replace.php:78
+#: ../class-cr-replace.php:112 ../class-cr-replace.php:131
+#: ../class-cr-replace.php:168
 msgid "Replace"
 msgstr "Ersetzen"
 
-#: ../class-cr-replace.php:83
+#: ../class-cr-replace.php:114 ../class-cr-replace.php:173
 msgid ""
 "When this post is published, it will replace the selected post. The data "
 "from this post will be moved to the replaced one, the latest version of the "
@@ -52,15 +53,16 @@ msgstr ""
 "den Papierkorb verschoben und dieser Post wird schließlich gelöscht. Dies "
 "ist nicht umkehrbar."
 
-#: ../class-cr-replace.php:87
+#: ../class-cr-replace.php:123 ../class-cr-replace.php:180
 msgid "Replace original post"
 msgstr "Original ersetzen"
 
-#: ../class-cr-replace.php:91
+#: ../class-cr-replace.php:137 ../class-cr-replace.php:185
 msgid "Find a post to replace"
 msgstr "Post zum Ersetzen finden"
 
-#: ../class-cr-replace.php:119
+#. translators: A link to the post that will do the replacing.
+#: ../class-cr-replace.php:218
 #, php-format
 msgid ""
 "Warning: This post is set to be replaced by %s. Any edits will be lost when "
@@ -69,22 +71,28 @@ msgstr ""
 "Achtung: Dieser Post soll von %s ersetzt werden. Alle Änderungen werden "
 "somit verloren gehen."
 
-#: ../class-cr-replace.php:140
-msgid "Set to replace: <strong>{{title}}</strong>"
-msgstr "Zum Ersetzen markiert: <strong>{{title}}</strong>"
+#: ../class-cr-replace.php:257 ../class-cr-replace.php:347
+msgid "Set to replace: {{title}}"
+msgstr "Zum Ersetzen markiert: {{title}}"
 
-#: ../class-cr-replace.php:204
+#: ../class-cr-replace.php:452
 msgid "(no title)"
 msgstr "(kein Titel)"
 
-#: ../clone-replace.php:43
+#: ../clone-replace.php:60
 msgid "Clone/Replace"
 msgstr "Klonen/Ersetzen"
 
-#: ../clone-replace.php:91
+#: ../clone-replace.php:143
 #, php-format
-msgid "Set to replace: <strong>%s</strong>"
-msgstr "Zum Ersetzen markiert: <strong>%s</strong>"
+msgid "Set to replace: %s"
+msgstr "Zum Ersetzen markiert: %s"
+
+#~ msgid "Set to replace: <strong>{{title}}</strong>"
+#~ msgstr "Zum Ersetzen markiert: <strong>{{title}}</strong>"
+
+#~ msgid "Set to replace: <strong>%s</strong>"
+#~ msgstr "Zum Ersetzen markiert: <strong>%s</strong>"
 
 #~ msgid ""
 #~ "No custom post types have been registered with a custom capability, "
