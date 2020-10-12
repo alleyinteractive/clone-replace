@@ -475,8 +475,8 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 		 * On post publish, if this post is set to replace another, add a hook to do it.
 		 * This is a two-hook process because we only want to run it when the post publishes.
 		 *
-		 * @param string  $new_status The new post status.
-		 * @param string  $old_status The old post status.
+		 * @param string $new_status The new post status.
+		 * @param string $old_status The old post status.
 		 * @return void
 		 */
 		public function action_publish_post( $new_status, $old_status ) {
