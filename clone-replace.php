@@ -345,7 +345,7 @@ endif;
  * Register the default post type support for Clone & Replace.
  */
 function cr_register_default_post_type_support() {
-	foreach ( array_keys( get_post_types( [ 'public' => true ] ) ) as $post_type ) {
+	foreach ( array_keys( get_post_types( array( 'public' => true ) ) ) as $post_type ) {
 		add_post_type_support( $post_type, 'clone-replace' );
 	}
 }

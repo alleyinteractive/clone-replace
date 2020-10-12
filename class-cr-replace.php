@@ -477,10 +477,9 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 		 *
 		 * @param string  $new_status The new post status.
 		 * @param string  $old_status The old post status.
-		 * @param WP_Post $post       The post object.
 		 * @return void
 		 */
-		public function action_publish_post( $new_status, $old_status, $post ) {
+		public function action_publish_post( $new_status, $old_status ) {
 			if ( 'publish' === $new_status && 'publish' !== $old_status ) {
 				add_action( 'save_post', array( $this, 'replacement_action' ), 10, 2 );
 			}
