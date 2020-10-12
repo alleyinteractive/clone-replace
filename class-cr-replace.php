@@ -106,6 +106,10 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 		 * @return array
 		 */
 		public function add_row_link( $actions, $post ) {
+			if ( ! in_array( $post->post_type, cr_get_post_types(), true ) ) {
+				return $actions;
+			}
+
 			if ( 'publish' !== $post->post_status && current_user_can( get_post_type_object( get_post_type( $post ) )->cap->edit_post, $post->ID ) ) {
 				$replace_id            = get_post_meta( $post->ID, '_cr_replace_post_id', true );
 				$replace_name          = ( 0 !== intval( $replace_id ) ) ? get_the_title( intval( $replace_id ) ) : '';

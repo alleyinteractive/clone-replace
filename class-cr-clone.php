@@ -121,6 +121,10 @@ if ( ! class_exists( 'CR_Clone' ) ) :
 		 * @return array
 		 */
 		public function add_row_link( $actions, $post ) {
+			if ( ! in_array( $post->post_type, cr_get_post_types(), true ) ) {
+				return $actions;
+			}
+
 			if ( current_user_can( get_post_type_object( get_post_type( $post ) )->cap->edit_post, $post->ID ) ) {
 				$actions['cr-clone'] = '<a href="' . esc_url( $this->get_url( $post ) ) . '">' . esc_html__( 'Clone', 'clone-replace' ) . '</a>';
 			}
@@ -175,8 +179,14 @@ if ( ! class_exists( 'CR_Clone' ) ) :
 		 * @return int|bool The ID of the new post or false on failure.
 		 */
 		public function clone_post( $old_post_id, $args = [] ) {
-			// Ensure that the user can create this post type.
 			$post_type_object = get_post_type_object( get_post_type( $old_post_id ) );
+
+			// Validate that the post type has support.
+			if ( ! in_array( $post_type_object->name, cr_get_post_types(), true ) ) {
+				return;
+			}
+
+			// Ensure that the user can create this post type.
 			if ( ! current_user_can( $post_type_object->cap->create_posts ) ) {
 				return false;
 			}
