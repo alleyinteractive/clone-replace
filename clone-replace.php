@@ -72,7 +72,7 @@ add_action(
 
 /**
  * Make sure clone and replace meta keys are not protected.
- * 
+ *
  * @param bool   $is_protected True or False.
  * @param string $meta_key     Meta key.
  * @return bool
@@ -137,6 +137,11 @@ if ( is_admin() ) :
 			return;
 		}
 
+		// Ensure the post type has support.
+		if ( ! in_array( $current_screen->post_type, cr_get_post_types(), true ) ) {
+			return;
+		}
+
 		wp_enqueue_script(
 			'clone-replace',
 			cr_get_asset_path( 'block.js' ),
@@ -160,6 +165,12 @@ if ( is_admin() ) :
 	 */
 	function cr_post_actions() {
 		global $post;
+
+		// Ensure the post type has support.
+		if ( ! in_array( $post->post_type, cr_get_post_types(), true ) ) {
+			return;
+		}
+
 		?>
 		<div id="clone-replace-actions" class="misc-pub-section">
 			<span id="clone-replace-status"><?php cr_the_status( $post ); ?></span>
@@ -329,3 +340,22 @@ if ( is_admin() ) :
 	}
 
 endif;
+
+/**
+ * Register the default post type support for Clone & Replace.
+ */
+function cr_register_default_post_type_support() {
+	foreach ( array_keys( get_post_types( [ 'public' => true ] ) ) as $post_type ) {
+		add_post_type_support( $post_type, 'clone-replace' );
+	}
+}
+add_action( 'init', 'cr_register_default_post_type_support', 50 );
+
+/**
+ * Get the available post types for clone & replace.
+ *
+ * @return string[]
+ */
+function cr_get_post_types() {
+	return get_post_types_by_support( 'clone-replace' );
+}
