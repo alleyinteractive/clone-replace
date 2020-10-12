@@ -1,4 +1,12 @@
-.DS_Store
+# System files
 .idea
+.DS_Store
+.env
 .svn
 .vscode
+
+# Client files
+node_modules
+
+# Built files
+bin

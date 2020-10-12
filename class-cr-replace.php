@@ -59,7 +59,6 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 			return self::$instance;
 		}
 
-
 		/**
 		 * Setup the singletons
 		 *
@@ -81,8 +80,24 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 			add_action( 'admin_footer', array( $this, 'row_action_replace_js' ) );
 			add_filter( 'post_row_actions', array( $this, 'add_row_link' ), 10, 2 );
 			add_filter( 'page_row_actions', array( $this, 'add_row_link' ), 10, 2 );
+
+			add_filter( 'wp_rest_search_handlers', array( $this, 'search_handler' ) );
 		}
 
+		/**
+		 * Add Clone and Replace Search Hanlder
+		 *
+		 * @param array $handlers Search Handlers.
+		 * @return array
+		 */
+		public function search_handler( array $handlers ) {
+
+			if ( current_user_can( 'edit_posts' ) ) {
+				$handlers[] = new WP_REST_Clone_Replace_Search_Handler();
+			}
+
+			return (array) $handlers;
+		}
 
 		/**
 		 * Add hooks for just the new/edit post admin page
@@ -104,6 +119,10 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 		 * @return array
 		 */
 		public function add_row_link( $actions, $post ) {
+			if ( ! in_array( $post->post_type, cr_get_post_types(), true ) ) {
+				return $actions;
+			}
+
 			if ( 'publish' !== $post->post_status && current_user_can( get_post_type_object( get_post_type( $post ) )->cap->edit_post, $post->ID ) ) {
 				$replace_id            = get_post_meta( $post->ID, '_cr_replace_post_id', true );
 				$replace_name          = ( 0 !== intval( $replace_id ) ) ? get_the_title( intval( $replace_id ) ) : '';
@@ -186,7 +205,6 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 				<?php
 			}
 		}
-
 
 		/**
 		 * Add a warning message to a post if it is set to be replaced by another post
@@ -396,7 +414,6 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 			}
 		}
 
-
 		/**
 		 * Ajax responder for the "find post" autocomplete box
 		 *
@@ -412,8 +429,8 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 				exit( '[{"label":"Error: You shall not pass","value":"0"}]' );
 			}
 
-			$args  = apply_filters( // phpcs:ignore WordPress.NamingConventions.ValidHookName.NotLowercase
-				'CR_Replace_ajax_query_args',
+			$args  = apply_filters(
+				'CR_Replace_ajax_query_args', // phpcs:ignore WordPress.NamingConventions.ValidHookName.NotLowercase
 				array(
 					's'                => $cr_autocomplete_search,
 					'post__not_in'     => array( $cr_current_post ), // phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn
@@ -458,17 +475,15 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 		 * On post publish, if this post is set to replace another, add a hook to do it.
 		 * This is a two-hook process because we only want to run it when the post publishes.
 		 *
-		 * @param string  $new_status The new post status.
-		 * @param string  $old_status The old post status.
-		 * @param WP_Post $post       The post object.
+		 * @param string $new_status The new post status.
+		 * @param string $old_status The old post status.
 		 * @return void
 		 */
-		public function action_publish_post( $new_status, $old_status, $post ) {
+		public function action_publish_post( $new_status, $old_status ) {
 			if ( 'publish' === $new_status && 'publish' !== $old_status ) {
 				add_action( 'save_post', array( $this, 'replacement_action' ), 10, 2 );
 			}
 		}
-
 
 		/**
 		 * Trigger the post replacement routine
@@ -492,7 +507,6 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 				}
 			}
 		}
-
 
 		/**
 		 * Save post meta for replacement data on post save
@@ -558,7 +572,6 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 			}
 		}
 
-
 		/**
 		 * When deleting a post, check to see if it was replacing another, and if so, delete the reciprocal post's relevant meta value
 		 *
@@ -572,7 +585,6 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 			}
 		}
 
-
 		/**
 		 * When trashing a post, check to see if it was to be replaced by another, and if so, delete the reciprocal post's relevant meta value
 		 *
@@ -585,7 +597,6 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 				delete_post_meta( $replacing_id, '_cr_replace_post_id' );
 			}
 		}
-
 
 		/**
 		 * Replace one post with another
@@ -649,7 +660,6 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 			return $replace_post_id;
 		}
 
-
 		/**
 		 * Make a post a revision of itself and return the revision ID
 		 *
@@ -672,7 +682,6 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 			return $revision_id;
 		}
 
-
 		/**
 		 * Remove all the terms for a given post
 		 *
@@ -685,7 +694,6 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 				wp_set_object_terms( $post_id, null, $taxonomy );
 			}
 		}
-
 
 		/**
 		 * If revisions are disabled, create a new version of the replaced post and trash it
@@ -701,7 +709,6 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 			wp_trash_post( $new_id );
 			return $new_id;
 		}
-
 
 		/**
 		 * Copy all taxonomy terms from one post to another
@@ -720,7 +727,6 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 			CR_Clone()->clone_terms( $to_post_id, $from_post_id );
 		}
 
-
 		/**
 		 * Move all post meta from one post to another
 		 *
@@ -734,8 +740,8 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 				return;
 			}
 
-			$ignored_meta = apply_filters( // phpcs:ignore WordPress.NamingConventions.ValidHookName.NotLowercase
-				'CR_Replace_ignored_meta',
+			$ignored_meta = apply_filters(
+				'CR_Replace_ignored_meta', // phpcs:ignore WordPress.NamingConventions.ValidHookName.NotLowercase
 				array(
 					'_edit_lock',
 					'_edit_last',
@@ -770,7 +776,6 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 			wp_cache_delete( $from_post_id, 'post_meta' );
 			wp_cache_delete( $to_post_id, 'post_meta' );
 		}
-
 
 		/**
 		 * Cleanup after a post replacement. Specifically, remove unneeded post meta that were created in the process
