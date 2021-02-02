@@ -143,4 +143,39 @@ if ( is_admin() ) :
 		}
 	}
 
+	function cr_maybe_enqueue_gutenberg_script() {
+		wp_enqueue_script(
+			'clone-replace',
+			plugins_url( '/clone-replace/build/cloneReplace.js', __DIR__ ),
+			[ 'wp-blocks', 'wp-i18n' ],
+			'1.0.0',
+			true
+		);
+		inline_locale_data( 'clone_replace' );
+	}
+
+	add_action( 'enqueue_block_editor_assets', 'cr_maybe_enqueue_gutenberg_script', 10 );
+
+	/**
+	 * Creates a new Jed instance with specified locale data configuration.
+	 *
+	 * @param string $to_handle The script handle to attach the inline script to.
+	 */
+	function inline_locale_data( string $to_handle ) {
+		// Define locale data for Jed.
+		$locale_data = [
+			'' => [
+				'domain' => 'entrepreneurship',
+				'lang'   => is_admin() ? get_user_locale() : get_locale(),
+			],
+		];
+
+		// Pass the Jed configuration to the admin to properly register i18n.
+		wp_add_inline_script(
+			$to_handle,
+			'wp.i18n.setLocaleData( ' . wp_json_encode( $locale_data ) . ", 'entrepreneurship' );"
+		);
+	}
+
+
 endif;
