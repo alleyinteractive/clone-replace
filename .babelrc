@@ -1,0 +1,21 @@
+{
+  "plugins": [
+    "syntax-dynamic-import",
+    "transform-object-assign",
+    [
+      "module-resolver",
+      {
+        "root": [
+          "./client/**"
+        ],
+        "alias": {
+          "components": "./client/components"
+        }
+      }
+    ]
+  ],
+  "presets": [
+    "env",
+    "react"
+  ]
+}

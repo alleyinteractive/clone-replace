@@ -91,9 +91,10 @@
   !*** ./client/index.js ***!
   \*************************/
 /*! no static exports found */
-/***/ (function(module, exports) {
+/***/ (function(module, exports, __webpack_require__) {
 
-eval("// eslint-disable-next-line no-console\nconsole.log('Loaded!');//# sourceURL=[module]\n//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiLi9jbGllbnQvaW5kZXguanMuanMiLCJzb3VyY2VzIjpbIndlYnBhY2s6Ly8vY2xpZW50L2luZGV4LmpzPzRlODgiXSwic291cmNlc0NvbnRlbnQiOlsiLy8gZXNsaW50LWRpc2FibGUtbmV4dC1saW5lIG5vLWNvbnNvbGVcbmNvbnNvbGUubG9nKCdMb2FkZWQhJyk7XG4iXSwibWFwcGluZ3MiOiJBQUFBO0FBQ0EiLCJzb3VyY2VSb290IjoiIn0=\n//# sourceURL=webpack-internal:///./client/index.js\n");
+"use strict";
+eval("\n\n/* global wp, React */\n\nvar _wp = wp,\n    registerPlugin = _wp.plugins.registerPlugin,\n    PluginPostStatusInfo = _wp.editPost.PluginPostStatusInfo;\n\n\nvar CloneReplaceStatusInfo = function CloneReplaceStatusInfo() {\n  return React.createElement(\n    PluginPostStatusInfo,\n    null,\n    React.createElement(\n      'div',\n      null,\n      'Post stutus info'\n    )\n  );\n};\n\nregisterPlugin('clone-replace-pre-publish-panel-test', {\n  render: CloneReplaceStatusInfo\n});//# sourceURL=[module]\n//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiLi9jbGllbnQvaW5kZXguanMuanMiLCJzb3VyY2VzIjpbIndlYnBhY2s6Ly8vY2xpZW50L2luZGV4LmpzPzRlODgiXSwic291cmNlc0NvbnRlbnQiOlsiLyogZ2xvYmFsIHdwLCBSZWFjdCAqL1xuXG5jb25zdCB7XG4gIHBsdWdpbnM6IHtcbiAgICByZWdpc3RlclBsdWdpbixcbiAgfSxcbiAgZWRpdFBvc3Q6IHtcbiAgICBQbHVnaW5Qb3N0U3RhdHVzSW5mbyxcbiAgfSxcbn0gPSB3cDtcblxuY29uc3QgQ2xvbmVSZXBsYWNlU3RhdHVzSW5mbyA9ICgpID0+IChcbiAgPFBsdWdpblBvc3RTdGF0dXNJbmZvPlxuICAgIDxkaXY+UG9zdCBzdHV0dXMgaW5mbzwvZGl2PlxuICA8L1BsdWdpblBvc3RTdGF0dXNJbmZvPlxuKTtcblxucmVnaXN0ZXJQbHVnaW4oJ2Nsb25lLXJlcGxhY2UtcHJlLXB1Ymxpc2gtcGFuZWwtdGVzdCcsIHtcbiAgcmVuZGVyOiBDbG9uZVJlcGxhY2VTdGF0dXNJbmZvLFxufSk7XG5cbiJdLCJtYXBwaW5ncyI6Ijs7QUFBQTtBQUNBO0FBUUE7QUFMQTtBQUdBO0FBQ0E7QUFDQTtBQUVBO0FBQUE7QUFDQTtBQUFBO0FBQ0E7QUFBQTtBQUFBO0FBQUE7QUFBQTtBQURBO0FBREE7QUFDQTtBQUtBO0FBQ0E7QUFEQSIsInNvdXJjZVJvb3QiOiIifQ==\n//# sourceURL=webpack-internal:///./client/index.js\n");
 
 /***/ })
 
