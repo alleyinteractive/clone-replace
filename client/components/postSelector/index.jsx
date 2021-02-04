@@ -325,6 +325,7 @@ PostSelector.defaultProps = {
 PostSelector.propTypes = {
   className: PropTypes.string,
   emptyLabel: PropTypes.string,
+  endpoint: PropTypes.string.isRequired,
   label: PropTypes.string,
   maxPages: PropTypes.number,
   multiple: PropTypes.bool,

@@ -84,7 +84,6 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 
 			// Handle gutenberg saving.
 			add_action( 'wp_after_insert_post', array( $this, 'after_insert_post' ), 10, 3 );
-			add_action( 'pre_get_posts', array( $this, 'search' ), 10, 3 );
 		}
 
 		/**
