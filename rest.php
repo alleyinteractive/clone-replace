@@ -22,9 +22,9 @@ function action_rest_api_init() {
 add_action( 'rest_api_init', __NAMESPACE__ . '\action_rest_api_init' );
 
 /**
- * A callback for /wp-json/kaiser-family-foundation/v1/csr-config.
+ * A callback for /search/
  *
- * @return array An array containing information about Custom State Reports indicators.
+ * @return array An array of post objects.
  */
 function rest_route_search( $request ) {
 	$params = $request->get_params();
