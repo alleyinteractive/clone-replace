@@ -1,6 +1,8 @@
 /* eslint-disable no-underscore-dangle */
 /* global React, crNonce */
 
+import PostSelector from './components/postSelector';
+
 const {
   components: {
     TextControl,
@@ -13,10 +15,14 @@ const {
   },
   data: {
     select,
+
   },
   element: {
     useState,
     // useEffect,
+  },
+  i18n: {
+    __,
   },
 } = wp;
 
@@ -38,6 +44,9 @@ const CloneReplaceStatusInfo = () => {
   return (
     <PluginPostStatusInfo>
       <div>
+        <PostSelector
+          label={__('Search for a post to replace', 'clone-replace')}
+        />
         <TextControl onChange={handleChange} label="Find a post to replace" />
         <TextControl
           label="cr_replace_post_id"
@@ -57,4 +66,3 @@ const CloneReplaceStatusInfo = () => {
 registerPlugin('clone-replace-pre-publish-panel-test', {
   render: CloneReplaceStatusInfo,
 });
-
