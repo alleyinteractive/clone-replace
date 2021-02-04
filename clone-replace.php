@@ -29,18 +29,6 @@
 	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-$meta_args = [
-	'type'              => 'string',
-	'single'            => true,
-	'default'           => '',
-	'show_in_rest'      => true,
-	'sanitize_callback' => 'sanitize_text',
-];
-
-register_post_meta( '', '_cr_original_post', $meta_args );
-register_post_meta( '', '_cr_replace_post_id', $meta_args );
-register_post_meta( '', '_cr_replacing_post_id', $meta_args );
-
 add_action(
 	'init',
 	function () {
@@ -51,6 +39,7 @@ add_action(
 			require_once __DIR__ . '/rest.php';
 			require_once __DIR__ . '/class-cr-clone.php';
 			require_once __DIR__ . '/class-cr-replace.php';
+
 			CR_Clone();
 			CR_Replace();
 		}
@@ -192,5 +181,25 @@ if ( is_admin() ) :
 		wp_add_inline_script( $to_handle, 'var crNonce = "' . wp_create_nonce( 'clone_replace_search' ) . '"', 'before' );
 	}
 
+	/**
+	 * Registers meta for plugin.
+	 */
+	function cr_register_meta() {
+		$meta_args = [
+			'type'              => 'string',
+			'single'            => true,
+			'default'           => '',
+			'show_in_rest'      => true,
+			'sanitize_callback' => 'sanitize_text',
+			'auth_callback'     => function () {
+				return current_user_can( 'edit_posts' );;
+			},
+		];
+
+		register_post_meta( '', '_cr_original_post', $meta_args );
+		register_post_meta( '', '_cr_replace_post_id', $meta_args );
+		register_post_meta( '', '_cr_replacing_post_id', $meta_args );
+	}
+	add_action( 'init', 'cr_register_meta' );
 
 endif;

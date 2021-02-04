@@ -87,10 +87,6 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 			add_action( 'pre_get_posts', array( $this, 'search' ), 10, 3 );
 		}
 
-		public function search( $query ) {
-			$foo = 1;
-		}
-
 		/**
 		 * Add hooks for just the new/edit post admin page
 		 *

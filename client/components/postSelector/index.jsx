@@ -23,6 +23,7 @@ import './styles.scss';
 const PostSelector = ({
   className,
   emptyLabel,
+  endpoint,
   label,
   maxPages,
   multiple,
@@ -75,7 +76,8 @@ const PostSelector = ({
 
     // Get search results from the API and store them.
     const path = addQueryArgs(
-      '/wp/v2/search',
+      // '/wp/v2/search',
+      endpoint,
       {
         page,
         search: debouncedSearchString,

@@ -27,16 +27,28 @@ add_action( 'rest_api_init', __NAMESPACE__ . '\action_rest_api_init' );
  * @return array An array of post objects.
  */
 function rest_route_search( $request ) {
-	$params = $request->get_params();
-	$search = $params['s'];
+	$params    = $request->get_params();
+	$search    = $params['search'];
+	$post_type = $params['subType'];
 
-	$query = new \WP_Query( [ 's' => $search ] );
-	$query->posts = array_filter(
-		$query->posts,
-		function ( $post ) {
-			return current_user_can( 'edit_post', $post->ID );
+	$query = new \WP_Query( [
+		's'         => $search,
+		'post_type' => $post_type,
+	] );
+
+	/**
+	 * Filter out posts the user can't edit.
+	 * While we are at it, format the keys for gutenberg and the PostSelector component specifically.
+	 */
+	$response = [];
+	foreach( $query->posts as $post ) {
+		if ( current_user_can( 'edit_post', $post->ID ) ) {
+			$result = [];
+			$result['id'] = $post->ID;
+			$result['title'] = $post->post_title;
+			$response[] = $result;
 		}
-	);
+	}
 
-	return $query->posts;
+	return $response;
 }

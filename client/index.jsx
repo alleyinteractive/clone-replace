@@ -88,6 +88,7 @@ const CloneReplaceStatusInfo = () => {
           }}
           postTypes={[postType]}
           selected={selected}
+          endpoint="/clone-replace/v1/search"
         />
       </div>
     </PluginPostStatusInfo>
