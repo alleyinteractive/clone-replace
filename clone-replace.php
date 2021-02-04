@@ -39,7 +39,7 @@ $meta_args = [
 
 register_post_meta( '', '_cr_original_post', $meta_args );
 register_post_meta( '', '_cr_replace_post_id', $meta_args );
-register_post_meta( '', '_cr_replacing_post_id' , $meta_args );
+register_post_meta( '', '_cr_replacing_post_id', $meta_args );
 
 add_action(
 	'init',
@@ -48,6 +48,7 @@ add_action(
 			|| ( defined( 'DOING_CRON' ) && DOING_CRON )
 			|| ( ! empty( $_SERVER['REQUEST_URI'] ) && false !== strpos( $_SERVER['REQUEST_URI'], rest_get_url_prefix() ) ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
 		) {
+			require_once __DIR__ . '/rest.php';
 			require_once __DIR__ . '/class-cr-clone.php';
 			require_once __DIR__ . '/class-cr-replace.php';
 			CR_Clone();
@@ -163,7 +164,7 @@ if ( is_admin() ) :
 			'1.0.0',
 			true
 		);
-		inline_locale_data( 'clone_replace' );
+		inline_locale_data( 'clone-replace' );
 	}
 
 	add_action( 'enqueue_block_editor_assets', 'cr_maybe_enqueue_gutenberg_script', 10 );
@@ -177,16 +178,18 @@ if ( is_admin() ) :
 		// Define locale data for Jed.
 		$locale_data = [
 			'' => [
-				'domain' => 'entrepreneurship',
-				'lang'   => is_admin() ? get_user_locale() : get_locale(),
+				'domain' => 'clone-replace',
+				'lang'    => is_admin() ? get_user_locale() : get_locale(),
 			],
 		];
 
 		// Pass the Jed configuration to the admin to properly register i18n.
 		wp_add_inline_script(
 			$to_handle,
-			'wp.i18n.setLocaleData( ' . wp_json_encode( $locale_data ) . ", 'entrepreneurship' );"
+			'wp.i18n.setLocaleData( ' . wp_json_encode( $locale_data ) . ", 'clone-replace' ); "
 		);
+
+		wp_add_inline_script( $to_handle, 'var crNonce = "' . wp_create_nonce( 'clone_replace_search' ) . '"', 'before' );
 	}
 
 

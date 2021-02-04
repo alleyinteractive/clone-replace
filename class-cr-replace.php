@@ -81,8 +81,15 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 			add_action( 'admin_footer', array( $this, 'row_action_replace_js' ) );
 			add_filter( 'post_row_actions', array( $this, 'add_row_link' ), 10, 2 );
 			add_filter( 'page_row_actions', array( $this, 'add_row_link' ), 10, 2 );
+
+			// Handle gutenberg saving.
+			add_action( 'wp_after_insert_post', array( $this, 'after_insert_post' ), 10, 3 );
+			add_action( 'pre_get_posts', array( $this, 'search' ), 10, 3 );
 		}
 
+		public function search( $query ) {
+			$foo = 1;
+		}
 
 		/**
 		 * Add hooks for just the new/edit post admin page
@@ -493,6 +500,21 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 			}
 		}
 
+		public function after_insert_post($post, $request, $creating) {
+			$foo = '';
+		}
+
+		/**
+		 * Sets the meta relationship between a post and post of which it will replace.
+		 * This function is called when saving both a classic editor & gutenberg post.
+		 *
+		 * @param int $with_post_id    the "replacing" post.
+		 * @param int $replace_post_id The post to be replaced.
+		 * @return void
+		 */
+		public function set_replace_realtionship( $with_post_id, $replace_post_id ) {
+			$foo = '';
+		}
 
 		/**
 		 * Save post meta for replacement data on post save
@@ -505,6 +527,8 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 				return;
 			}
 
+
+			// die;
 			if ( isset( $_POST['cr_replace_post_id'] ) ) {
 				if ( ! isset( $_POST[ "replace_with_{$with_post_id}" ] ) || ! wp_verify_nonce( sanitize_text_field( $_POST[ "replace_with_{$with_post_id}" ] ), 'clone_replace' ) ) {
 					return;
