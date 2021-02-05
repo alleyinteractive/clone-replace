@@ -495,6 +495,14 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 			}
 		}
 
+		/**
+		 * Sets meta for gutenberg posts after update.
+		 *
+		 * @param int     $post The id of the post being saved/updated.
+		 * @param object  $request The request object.
+		 * @param boolean $creating Is this post being created.
+		 * @return void
+		 */
 		public function after_insert_post( $post, $request, $creating ) {
 			$replace_post_id = (int) get_post_meta( $post, '_cr_replace_post_id', true );
 
