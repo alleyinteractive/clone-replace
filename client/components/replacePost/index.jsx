@@ -26,8 +26,9 @@ const {
  */
 const ReplacePost = () => {
   const { editPost } = useDispatch('core/editor');
-  const postType = select('core/editor').getCurrentPostType();
-  const meta = select('core/editor').getEditedPostAttribute('meta') || {};
+  const currentPost = select('core/editor');
+  const postType = currentPost.getCurrentPostType();
+  const meta = currentPost.getEditedPostAttribute('meta') || {};
   const [replacePostId, setReplacePostId] = useState(meta._cr_replace_post_id);
   const [replacePost, setReplacePost] = useState(false);
   const selected = replacePost ? [replacePost] : [];
@@ -55,6 +56,17 @@ const ReplacePost = () => {
     }
   }, []);
 
+  /**
+   * We only are interested in draft posts here.
+   */
+  if (currentPost.status !== 'draft') {
+    return null;
+  }
+
+  /**
+   * If th epost already has a postId saved to meta,
+   * show the spinner while we fetch the post object and hydrate the component.
+   */
   if (replacePostId && !replacePost) {
     return (
       <Spinner />
