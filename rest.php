@@ -29,7 +29,7 @@ add_action( 'rest_api_init', __NAMESPACE__ . '\action_rest_api_init' );
 function rest_route_search( $request ) {
 	$params    = $request->get_params();
 	$search    = $params['search'];
-	$post_type = $params['subType'];
+	$post_type = $params['subtype'];
 
 	$query = new \WP_Query( [
 		's'         => $search,
@@ -46,6 +46,7 @@ function rest_route_search( $request ) {
 			$result = [];
 			$result['id'] = $post->ID;
 			$result['title'] = $post->post_title;
+			$result['postType'] = $post->post_type;
 			$response[] = $result;
 		}
 	}

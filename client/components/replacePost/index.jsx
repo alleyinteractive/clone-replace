@@ -26,15 +26,16 @@ const {
  */
 const ReplacePost = () => {
   const { editPost } = useDispatch('core/editor');
-  const currentPost = select('core/editor');
-  const postType = currentPost.getCurrentPostType();
-  const meta = currentPost.getEditedPostAttribute('meta') || {};
+  const currentPost = select('core/editor').getCurrentPost();
+  const postType = select('core/editor').getCurrentPostType();
+  const meta = select('core/editor').getEditedPostAttribute('meta') || {};
   const [replacePostId, setReplacePostId] = useState(meta._cr_replace_post_id);
   const [replacePost, setReplacePost] = useState(false);
   const selected = replacePost ? [replacePost] : [];
 
   const fetchPost = async (postId) => {
     const post = await apiFetch({ path: `/wp/v2/${postType}/${postId}` });
+    console.log(post);
     setReplacePost({
       id: post.id,
       title: post.title.rendered,

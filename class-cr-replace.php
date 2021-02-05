@@ -495,20 +495,55 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 			}
 		}
 
-		public function after_insert_post($post, $request, $creating) {
-			$foo = '';
+		public function after_insert_post( $post, $request, $creating ) {
+			$replace_post_id = (int) get_post_meta( $post, '_cr_replace_post_id', true );
+
+			if ( ! $replace_post_id ) {
+				return;
+			}
+
+			/**
+			 * We only surface posts the user can edit in gutenberg (post selector),
+			 * but there is nothing stoping them from passing a random post id. If they do,
+			 * and the user can't edit the post, unset meta.
+			 */
+			if (! CR_Replace::current_user_can_replace( $post, $replace_post_id ) ) {
+				delete_post_meta( $with_post_id, '_cr_replace_post_id' );
+				return;
+			}
+
+			update_post_meta( $replace_post_id, '_cr_replacing_post_id', $with_post_id );
 		}
 
 		/**
-		 * Sets the meta relationship between a post and post of which it will replace.
-		 * This function is called when saving both a classic editor & gutenberg post.
+		 * Checks if a user can replace a post with the current post.
 		 *
-		 * @param int $with_post_id    the "replacing" post.
+		 * @param int $with_post_id    The current post.
 		 * @param int $replace_post_id The post to be replaced.
 		 * @return void
 		 */
-		public function set_replace_realtionship( $with_post_id, $replace_post_id ) {
-			$foo = '';
+		public function current_user_can_replace( $with_post_id, $replace_post_id ) {
+				// The user needs to be able to edit the to-be-replaced post.
+				$post_type        = get_post_type( $replace_post_id );
+				$post_type_object = get_post_type_object( $post_type );
+				if ( ! current_user_can( $post_type_object->cap->edit_post, $replace_post_id ) ) {
+					return false;
+				}
+
+				// The user also needs to be able to delete the replacing post.
+				if ( get_post_type( $with_post_id ) !== $post_type ) {
+					$post_type_object = get_post_type_object( get_post_type( $with_post_id ) );
+				}
+				if ( ! current_user_can( $post_type_object->cap->delete_post, $with_post_id ) ) {
+					return false;
+				}
+
+				if ( ! is_int( $replace_post_id ) || ! is_int( $with_post_id ) ) {
+					return false;
+				}
+
+				// If we made it this far, we're good to go.
+				return true;
 		}
 
 		/**
@@ -523,7 +558,6 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 			}
 
 
-			// die;
 			if ( isset( $_POST['cr_replace_post_id'] ) ) {
 				if ( ! isset( $_POST[ "replace_with_{$with_post_id}" ] ) || ! wp_verify_nonce( sanitize_text_field( $_POST[ "replace_with_{$with_post_id}" ] ), 'clone_replace' ) ) {
 					return;
@@ -537,22 +571,8 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 					return;
 				}
 
-				// The user needs to be able to edit the to-be-replaced post.
-				$post_type        = get_post_type( $replace_post_id );
-				$post_type_object = get_post_type_object( $post_type );
-				if ( ! current_user_can( $post_type_object->cap->edit_post, $replace_post_id ) ) {
-					return;
-				}
 
-				// The user also needs to be able to delete the replacing post.
-				if ( get_post_type( $with_post_id ) !== $post_type ) {
-					$post_type_object = get_post_type_object( get_post_type( $with_post_id ) );
-				}
-				if ( ! current_user_can( $post_type_object->cap->delete_post, $with_post_id ) ) {
-					return;
-				}
-
-				if ( ! is_int( $replace_post_id ) || ! is_int( $with_post_id ) ) {
+				if (! CR_Replace::current_user_can_replace( $with_post_id, $replace_post_id ) ) {
 					return;
 				}
 
