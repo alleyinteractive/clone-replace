@@ -164,6 +164,7 @@ if ( is_admin() ) :
 	 * @param string $to_handle The script handle to attach the inline script to.
 	 */
 	function inline_locale_data( string $to_handle ) {
+		global $post;
 		// Define locale data for Jed.
 		$locale_data = [
 			'' => [
@@ -178,10 +179,8 @@ if ( is_admin() ) :
 			'wp.i18n.setLocaleData( ' . wp_json_encode( $locale_data ) . ", 'clone-replace' ); "
 		);
 
-		wp_add_inline_script( $to_handle, 'var crNonce = "' . wp_create_nonce( 'clone_replace_search' ) . '"', 'before' );
+		wp_add_inline_script( $to_handle, 'var crNonce = "' . wp_create_nonce( 'clone_post_' . $post->ID ) . '"', 'before' );
 	}
-
-
 
 endif;
 

@@ -2,6 +2,7 @@
 /* global React */
 
 import ReplacePost from './components/replacePost';
+import ClonePost from './components/clonePost';
 
 const {
   editPost: {
@@ -17,6 +18,7 @@ const {
  */
 const CloneReplaceStatusInfo = () => (
   <PluginPostStatusInfo>
+    <ClonePost />
     <ReplacePost />
   </PluginPostStatusInfo>
 );
