@@ -145,7 +145,7 @@ if ( is_admin() ) :
 		}
 	}
 
-	function cr_maybe_enqueue_gutenberg_script() {
+	function cr_action_enqueue_block_editor_assets() {
 		wp_enqueue_script(
 			'clone-replace',
 			plugins_url( '/clone-replace/build/cloneReplace.js', __DIR__ ),
