@@ -15,7 +15,9 @@ function action_rest_api_init() {
 		[
 			'callback'            => __NAMESPACE__ . '\rest_route_search',
 			'methods'             => 'GET',
-			'permission_callback' => '__return_true',
+			'permission_callback' => function () {
+				return is_user_logged_in();
+			},
 		],
 	);
 }
