@@ -1,5 +1,5 @@
 /* eslint-disable no-underscore-dangle */
-/* global React, crNonce */
+/* global React, cloneReplace */
 import { select } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 
@@ -18,7 +18,7 @@ const ClonePost = () => {
 
   return (
     <div>
-      <a href={`/wp-admin/admin-post.php?action=clone_post&p=${currentPost.id}&_wpnonce=${crNonce}`}>
+      <a href={`${cloneReplace.homeUrl}/wp-admin/admin-post.php?action=clone_post&p=${currentPost.id}&_wpnonce=${cloneReplace.crNonce}`}>
         {__('Clone Post', 'clone-replace')}
       </a>
     </div>

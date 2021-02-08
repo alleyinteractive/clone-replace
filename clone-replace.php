@@ -146,30 +146,6 @@ if ( is_admin() ) :
 		}
 	}
 
-	/**
-	 * Creates a new Jed instance with specified locale data configuration.
-	 *
-	 * @param string $to_handle The script handle to attach the inline script to.
-	 */
-	function inline_locale_data( string $to_handle ) {
-		global $post;
-		// Define locale data for Jed.
-		$locale_data = [
-			'' => [
-				'domain' => 'clone-replace',
-				'lang'    => is_admin() ? get_user_locale() : get_locale(),
-			],
-		];
-
-		// Pass the Jed configuration to the admin to properly register i18n.
-		wp_add_inline_script(
-			$to_handle,
-			'wp.i18n.setLocaleData( ' . wp_json_encode( $locale_data ) . ", 'clone-replace' ); "
-		);
-
-		wp_add_inline_script( $to_handle, 'var crNonce = "' . wp_create_nonce( 'clone_post_' . $post->ID ) . '"', 'before' );
-	}
-
 endif;
 
 /**
