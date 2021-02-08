@@ -35,7 +35,6 @@ const ReplacePost = () => {
 
   const fetchPost = async (postId) => {
     const post = await apiFetch({ path: `/wp/v2/${postType}/${postId}` });
-    console.log(post);
     setReplacePost({
       id: post.id,
       title: post.title.rendered,
