@@ -65,7 +65,7 @@ const ReplacePost = () => {
   }
 
   /**
-   * If th epost already has a postId saved to meta,
+   * If the post already has a postId saved to meta,
    * show the spinner while we fetch the post object and hydrate the component.
    */
   if (replacePostId && !replacePost) {
