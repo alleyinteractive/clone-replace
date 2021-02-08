@@ -10,7 +10,7 @@ const ClonePost = () => {
   const currentPost = useSelect((select) => select('core/editor').getCurrentPost(), []);
 
   /**
-   * We only are interested in draft posts here.
+   * We aren't interested in draft posts here.
    */
   if (currentPost.status === 'draft') {
     return null;
