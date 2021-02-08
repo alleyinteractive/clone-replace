@@ -2,9 +2,6 @@
 /* global React, crNonce */
 
 const {
-  components: {
-    Spinner,
-  },
   data: {
     select,
   },

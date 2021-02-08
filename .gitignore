@@ -3,4 +3,5 @@ node_modules
 .idea
 .svn
 .vscode
-build
+assetMap.json
+cloneReplace.asset.php
