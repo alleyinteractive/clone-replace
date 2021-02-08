@@ -1,25 +1,12 @@
 /* eslint-disable no-underscore-dangle */
 /* global React */
 
+import apiFetch from '@wordpress/api-fetch';
+import { Spinner } from '@wordpress/components';
+import { select, useDispatch } from '@wordpress/data';
+import { useEffect, useState } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import PostSelector from '../postSelector';
-
-const {
-  apiFetch,
-  components: {
-    Spinner,
-  },
-  data: {
-    select,
-    useDispatch,
-  },
-  element: {
-    useState,
-    useEffect,
-  },
-  i18n: {
-    __,
-  },
-} = wp;
 
 /**
  * Slotfill to add clone & replace controls to the sidebar.

@@ -1,14 +1,7 @@
 /* eslint-disable no-underscore-dangle */
 /* global React, crNonce */
-
-const {
-  data: {
-    select,
-  },
-  i18n: {
-    __,
-  },
-} = wp;
+import { select } from '@wordpress/data';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Slotfill to add clone & replace controls to the sidebar.
