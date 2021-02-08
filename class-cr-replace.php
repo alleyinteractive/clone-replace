@@ -531,6 +531,12 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 		 * @return void
 		 */
 		public function current_user_can_replace( $with_post_id, $replace_post_id ) {
+
+				//
+				if ( ! is_int( $replace_post_id ) || ! is_int( $with_post_id ) ) {
+					return false;
+				}
+
 				// The user needs to be able to edit the to-be-replaced post.
 				$post_type        = get_post_type( $replace_post_id );
 				$post_type_object = get_post_type_object( $post_type );
@@ -543,10 +549,6 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 					$post_type_object = get_post_type_object( get_post_type( $with_post_id ) );
 				}
 				if ( ! current_user_can( $post_type_object->cap->delete_post, $with_post_id ) ) {
-					return false;
-				}
-
-				if ( ! is_int( $replace_post_id ) || ! is_int( $with_post_id ) ) {
 					return false;
 				}
 
