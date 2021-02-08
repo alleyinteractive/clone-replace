@@ -3,7 +3,7 @@
 
 import apiFetch from '@wordpress/api-fetch';
 import { Spinner } from '@wordpress/components';
-import { select, useDispatch } from '@wordpress/data';
+import { useSelect, useDispatch } from '@wordpress/data';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import PostSelector from '../postSelector';
@@ -13,9 +13,16 @@ import PostSelector from '../postSelector';
  */
 const ReplacePost = () => {
   const { editPost } = useDispatch('core/editor');
-  const currentPost = select('core/editor').getCurrentPost();
-  const postType = select('core/editor').getCurrentPostType();
-  const meta = select('core/editor').getEditedPostAttribute('meta') || {};
+  const {
+    meta,
+    postType,
+    currentPost,
+  } = useSelect((select) => ({
+    meta: select('core/editor').getEditedPostAttribute('meta') || {},
+    postType: select('core/editor').getCurrentPostType(),
+    currentPost: select('core/editor').getCurrentPost(),
+  }), []);
+
   const [replacePostId, setReplacePostId] = useState(meta._cr_replace_post_id);
   const [replacePost, setReplacePost] = useState(false);
   const selected = replacePost ? [replacePost] : [];

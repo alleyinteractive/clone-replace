@@ -123,6 +123,8 @@ function get_asset_property( string $asset, string $prop ) : ?string {
  * @param string $to_handle The script handle to attach the inline script to.
  */
 function inline_locale_data( string $to_handle ) {
+	global $post;
+
 	// Define locale data for Jed.
 	$locale_data = [
 		'' => [
@@ -139,7 +141,7 @@ function inline_locale_data( string $to_handle ) {
 
 	$json = [
 		'nonce'   => wp_create_nonce( 'clone_post_' . $post->ID ),
-		'homeUrl' => home_url(),
+		'homeUrl' => admin_url(),
 	];
 
 	wp_add_inline_script( $to_handle, 'var cloneReplace = ' . json_encode( $json ), 'before' );
