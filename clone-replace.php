@@ -156,7 +156,7 @@ if ( is_admin() ) :
 		inline_locale_data( 'clone-replace' );
 	}
 
-	add_action( 'enqueue_block_editor_assets', 'cr_maybe_enqueue_gutenberg_script', 10 );
+	add_action( 'enqueue_block_editor_assets', 'cr_action_enqueue_block_editor_assets', 10 );
 
 	/**
 	 * Creates a new Jed instance with specified locale data configuration.
