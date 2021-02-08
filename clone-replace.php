@@ -37,6 +37,7 @@ add_action(
 			|| ( ! empty( $_SERVER['REQUEST_URI'] ) && false !== strpos( $_SERVER['REQUEST_URI'], rest_get_url_prefix() ) ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
 		) {
 			require_once __DIR__ . '/rest.php';
+			require_once __DIR__ . '/assets.php';
 			require_once __DIR__ . '/class-cr-clone.php';
 			require_once __DIR__ . '/class-cr-replace.php';
 
@@ -144,19 +145,6 @@ if ( is_admin() ) :
 			}
 		}
 	}
-
-	function cr_action_enqueue_block_editor_assets() {
-		wp_enqueue_script(
-			'clone-replace',
-			plugins_url( '/clone-replace/build/cloneReplace.js', __DIR__ ),
-			[ 'wp-blocks', 'wp-i18n' ],
-			'1.0.0',
-			true
-		);
-		inline_locale_data( 'clone-replace' );
-	}
-
-	add_action( 'enqueue_block_editor_assets', 'cr_action_enqueue_block_editor_assets', 10 );
 
 	/**
 	 * Creates a new Jed instance with specified locale data configuration.
