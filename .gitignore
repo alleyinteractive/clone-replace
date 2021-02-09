@@ -1,4 +1,8 @@
+node_modules
 .DS_Store
 .idea
 .svn
 .vscode
+assetMap.json
+cloneReplace.asset.php
+build/cloneReplace.js

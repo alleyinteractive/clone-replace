@@ -36,8 +36,11 @@ add_action(
 			|| ( defined( 'DOING_CRON' ) && DOING_CRON )
 			|| ( ! empty( $_SERVER['REQUEST_URI'] ) && false !== strpos( $_SERVER['REQUEST_URI'], rest_get_url_prefix() ) ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
 		) {
+			require_once __DIR__ . '/rest.php';
+			require_once __DIR__ . '/assets.php';
 			require_once __DIR__ . '/class-cr-clone.php';
 			require_once __DIR__ . '/class-cr-replace.php';
+
 			CR_Clone();
 			CR_Replace();
 		}
@@ -144,3 +147,24 @@ if ( is_admin() ) :
 	}
 
 endif;
+
+/**
+ * Registers meta for plugin.
+ */
+function cr_register_meta() {
+	$meta_args = [
+		'type'              => 'string',
+		'single'            => true,
+		'default'           => '',
+		'show_in_rest'      => true,
+		'sanitize_callback' => 'sanitize_text',
+		'auth_callback'     => function () {
+			return current_user_can( 'edit_posts' );
+		},
+	];
+
+	register_post_meta( '', '_cr_original_post', $meta_args );
+	register_post_meta( '', '_cr_replace_post_id', $meta_args );
+	register_post_meta( '', '_cr_replacing_post_id', $meta_args );
+}
+add_action( 'init', 'cr_register_meta' );

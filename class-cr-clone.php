@@ -201,7 +201,7 @@ if ( ! class_exists( 'CR_Clone' ) ) :
 				'comment_status' => $old_post->comment_status,
 				'ping_status'    => $old_post->ping_status,
 				'post_author'    => get_current_user_id(),
-				'post_content'   => $old_post->post_content,
+				'post_content'   => wp_slash( $old_post->post_content ),
 				'post_excerpt'   => $old_post->post_excerpt,
 				'post_mime_type' => $old_post->post_mime_type,
 				'post_parent'    => $old_post->post_parent,
