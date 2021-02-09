@@ -141,7 +141,7 @@ function inline_locale_data( string $to_handle ) {
 
 	$json = [
 		'nonce'   => wp_create_nonce( 'clone_post_' . $post->ID ),
-		'homeUrl' => admin_url(),
+		'adminUrl' => admin_url(),
 	];
 
 	wp_add_inline_script( $to_handle, 'var cloneReplace = ' . json_encode( $json ), 'before' );
