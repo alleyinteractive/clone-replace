@@ -17,7 +17,7 @@ const ClonePost = () => {
   }
   return (
     <div>
-      <a href={`${cloneReplace.homeUrl}admin-post.php?action=clone_post&p=${currentPost.id}&_wpnonce=${cloneReplace.nonce}`}>
+      <a href={`${cloneReplace.adminUrl}admin-post.php?action=clone_post&p=${currentPost.id}&_wpnonce=${cloneReplace.nonce}`}>
         {__('Clone Post', 'clone-replace')}
       </a>
     </div>
