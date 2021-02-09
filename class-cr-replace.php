@@ -582,7 +582,7 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 				}
 
 
-				if (! CR_Replace::current_user_can_replace( $with_post_id, $replace_post_id ) ) {
+				if ( ! CR_Replace::current_user_can_replace( $with_post_id, $replace_post_id ) ) {
 					return;
 				}
 
