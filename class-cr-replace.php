@@ -515,7 +515,7 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 			 * but there is nothing stoping them from passing a random post id. If they do,
 			 * and the user can't edit the post, unset meta.
 			 */
-			if (! CR_Replace::current_user_can_replace( $post, $replace_post_id ) ) {
+			if ( ! CR_Replace::current_user_can_replace( $post, $replace_post_id ) ) {
 				delete_post_meta( $with_post_id, '_cr_replace_post_id' );
 				return;
 			}
