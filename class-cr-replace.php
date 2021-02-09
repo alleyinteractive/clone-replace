@@ -532,8 +532,8 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 		 */
 		public function current_user_can_replace( $with_post_id, $replace_post_id ) {
 
-				//
-				if ( ! is_int( $replace_post_id ) || ! is_int( $with_post_id ) ) {
+				// If we don't have valid post IDs, bail out.
+				if ( ! is_int( $replace_post_id ) || ! is_int( $with_post_id ) || empty( $replace_post_id ) || empty( $with_post_id ) ) {
 					return false;
 				}
 
