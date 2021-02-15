@@ -3,6 +3,4 @@ node_modules
 .idea
 .svn
 .vscode
-assetMap.json
-cloneReplace.asset.php
 build/cloneReplace.js
