@@ -48,8 +48,7 @@ function get_asset_dependencies( $asset ) {
 	}
 
 	// Try to load the dependencies.
-	// phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.UsingVariable
-	$dependencies = require $dependency_file;
+	$dependencies = require $dependency_file; // phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.UsingVariable
 	if ( empty( $dependencies['dependencies'] ) || ! is_array( $dependencies['dependencies'] ) ) {
 		return [];
 	}
@@ -149,8 +148,8 @@ function inline_locale_data( $to_handle ) {
 	// Define locale data for Jed.
 	$locale_data = [
 		'' => [
-			'domain'  => 'clone-replace',
-			'lang'    => is_admin() ? get_user_locale() : get_locale(),
+			'domain' => 'clone-replace',
+			'lang'   => is_admin() ? get_user_locale() : get_locale(),
 		],
 	];
 
@@ -161,11 +160,11 @@ function inline_locale_data( $to_handle ) {
 	);
 
 	$json = [
-		'nonce'   => wp_create_nonce( 'clone_post_' . $post->ID ),
+		'nonce'    => wp_create_nonce( 'clone_post_' . $post->ID ),
 		'adminUrl' => admin_url(),
 	];
 
-	wp_add_inline_script( $to_handle, 'var cloneReplace = ' . json_encode( $json ), 'before' );
+	wp_add_inline_script( $to_handle, 'var cloneReplace = ' . wp_json_encode( $json ), 'before' );
 }
 
 /**
@@ -178,7 +177,7 @@ function inline_locale_data( $to_handle ) {
 function read_asset_map( $path ) {
 	if ( file_exists( $path ) && 0 === validate_file( $path ) ) {
 		ob_start();
-		include $path; // phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.IncludingFile, WordPressVIPMinimum.Files.IncludingFile.UsingVariable
+		include $path; // phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.UsingVariable
 		return json_decode( ob_get_clean(), true );
 	}
 

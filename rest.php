@@ -1,6 +1,8 @@
 <?php
 /**
- * REST APIs for ajax responder for the search system
+ * REST APIs for ajax responder for the search system.
+ *
+ * @package Clone_Replace
  */
 
 namespace Clone_Replace;
@@ -37,23 +39,25 @@ function rest_route_search( $request ) {
 	$search    = $params['search'];
 	$post_type = $params['subtype'];
 
-	$query = new WP_Query( [
-		's'         => $search,
-		'post_type' => $post_type,
-	] );
+	$query = new WP_Query(
+		[
+			's'         => $search,
+			'post_type' => $post_type,
+		]
+	);
 
 	/**
 	 * Filter out posts the user can't edit.
 	 * While we are at it, format the keys for gutenberg and the PostSelector component specifically.
 	 */
 	$response = [];
-	foreach( $query->posts as $post ) {
+	foreach ( $query->posts as $post ) {
 		if ( current_user_can( 'edit_post', $post->ID ) ) {
-			$result = [];
-			$result['id'] = $post->ID;
-			$result['title'] = $post->post_title;
+			$result             = [];
+			$result['id']       = $post->ID;
+			$result['title']    = $post->post_title;
 			$result['postType'] = $post->post_type;
-			$response[] = $result;
+			$response[]         = $result;
 		}
 	}
 

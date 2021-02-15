@@ -1,0 +1,18 @@
+{
+  "name": "alleyinteractive/clone-replace",
+  "description": "Clone & Replace",
+  "type": "project",
+  "authors": [
+    {
+      "name": "Alley",
+      "email": "info@alley.co"
+    }
+  ],
+  "require-dev": {
+    "alleyinteractive/alley-coding-standards": "^0.2.0"
+  },
+  "scripts": {
+    "phpcbf": "phpcbf .",
+    "phpcs": "phpcs . --runtime-set text_domain clone-replace --runtime-set prefixes cr_,clone_replace"
+  }
+}

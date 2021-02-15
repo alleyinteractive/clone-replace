@@ -67,11 +67,7 @@ before_script:
   - bash bin/install-wp-tests.sh wordpress_test root '' localhost $WP_VERSION
 
   # Set up phpcs.
-  - |
-    if [[ "$WP_PHPCS" == "1" ]] ; then
-      composer global require automattic/vipwpcs
-      phpcs --config-set installed_paths $HOME/.composer/vendor/wp-coding-standards/wpcs,$HOME/.composer/vendor/automattic/vipwpcs
-    fi
+  - composer install
 
 # Run test script commands.
 # Default is specific to project language.
@@ -93,7 +89,7 @@ script:
   # @link http://pear.php.net/package/PHP_CodeSniffer/
   - |
     if [[ "$WP_PHPCS" == "1" ]] ; then
-      phpcs
+      composer phpcs
     fi
 
   # Run the plugin's unit tests, both in single and multisite.
