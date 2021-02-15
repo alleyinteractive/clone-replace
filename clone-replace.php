@@ -8,7 +8,7 @@
  * Plugin Name: Clone & Replace
  * Plugin URI: https://alley.co/
  * Description: Gives you the ability to clone posts, and replace posts. Together, you have a very powerful tool for a fork/merge editing model.
- * Version: 0.2
+ * Version: 0.3
  * Author: Alley
  * Author URI: https://alley.co/
  */

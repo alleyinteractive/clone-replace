@@ -3,7 +3,7 @@ Contributors: mboynes, alleyinteractive
 Tags: editing, duplication, replacement, workflow
 Requires at least: 3.5
 Tested up to: 3.6
-Stable tag: 0.1
+Stable tag: 0.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -55,9 +55,11 @@ Everything about a post will be replaced except its *Post ID*, *Slug*, *GUID*, *
 
 == Upgrade Notice ==
 
+= 0.3 =
+Adds native Gutenberg support. If Gutenberg is active for a particular post, a Gutenberg-native plugin sidebar is displayed with the clone and replace options.
+
 = 0.2 =
 Adds filter `CR_Clone_redirect_url`, used to change redirect URL after successfully cloning a post.
-
 
 = 0.1 =
 Brand new, nothing to see here.
