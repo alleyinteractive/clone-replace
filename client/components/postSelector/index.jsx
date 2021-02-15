@@ -308,11 +308,11 @@ const PostSelector = ({
  */
 PostSelector.defaultProps = {
   className: '',
-  emptyLabel: __('No posts found', 'wp-starter-plugin'),
-  label: __('Search for posts', 'wp-starter-plugin'),
+  emptyLabel: __('No posts found', 'clone-replace'),
+  label: __('Search for posts', 'clone-replace'),
   maxPages: 5,
   multiple: false,
-  placeHolder: __('Search for posts', 'wp-starter-plugin'),
+  placeHolder: __('Search for posts', 'clone-replace'),
   postTypes: [],
   selected: [],
   threshold: 3,
