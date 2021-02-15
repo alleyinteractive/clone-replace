@@ -163,8 +163,10 @@ function cr_register_meta() {
 		},
 	];
 
-	register_post_meta( '', '_cr_original_post', $meta_args );
-	register_post_meta( '', '_cr_replace_post_id', $meta_args );
-	register_post_meta( '', '_cr_replacing_post_id', $meta_args );
+	if ( function_exists( 'register_post_meta' ) ) {
+		register_post_meta( '', '_cr_original_post', $meta_args );
+		register_post_meta( '', '_cr_replace_post_id', $meta_args );
+		register_post_meta( '', '_cr_replacing_post_id', $meta_args );
+	}
 }
 add_action( 'init', 'cr_register_meta' );
