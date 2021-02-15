@@ -66,24 +66,24 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 		 * @return void
 		 */
 		public function setup() {
-			add_action( 'load-post.php', array( $this, 'add_edit_page_hooks' ) );
-			add_action( 'load-post-new.php', array( $this, 'add_edit_page_hooks' ) );
-			add_action( 'wp_ajax_cr_search_posts', array( $this, 'ajax_search_posts' ) );
-			add_action( 'wp_ajax_cr_save_post', array( $this, 'ajax_save_post' ) );
+			add_action( 'load-post.php', [ $this, 'add_edit_page_hooks' ] );
+			add_action( 'load-post-new.php', [ $this, 'add_edit_page_hooks' ] );
+			add_action( 'wp_ajax_cr_search_posts', [ $this, 'ajax_search_posts' ] );
+			add_action( 'wp_ajax_cr_save_post', [ $this, 'ajax_save_post' ] );
 
-			add_action( 'save_post', array( $this, 'action_save_post' ) );
-			add_action( 'before_delete_post', array( $this, 'action_before_delete_post' ) );
-			add_action( 'trashed_post', array( $this, 'action_trashed_post' ) );
-			add_action( 'transition_post_status', array( $this, 'action_publish_post' ), 1, 3 );
+			add_action( 'save_post', [ $this, 'action_save_post' ] );
+			add_action( 'before_delete_post', [ $this, 'action_before_delete_post' ] );
+			add_action( 'trashed_post', [ $this, 'action_trashed_post' ] );
+			add_action( 'transition_post_status', [ $this, 'action_publish_post' ], 1, 2 );
 
 			// Used when adding row-action Replace.
-			add_action( 'admin_enqueue_scripts', array( $this, 'action_admin_enqueue_scripts' ) );
-			add_action( 'admin_footer', array( $this, 'row_action_replace_js' ) );
-			add_filter( 'post_row_actions', array( $this, 'add_row_link' ), 10, 2 );
-			add_filter( 'page_row_actions', array( $this, 'add_row_link' ), 10, 2 );
+			add_action( 'admin_enqueue_scripts', [ $this, 'action_admin_enqueue_scripts' ] );
+			add_action( 'admin_footer', [ $this, 'row_action_replace_js' ] );
+			add_filter( 'post_row_actions', [ $this, 'add_row_link' ], 10, 2 );
+			add_filter( 'page_row_actions', [ $this, 'add_row_link' ], 10, 2 );
 
 			// Handle gutenberg saving.
-			add_action( 'wp_after_insert_post', array( $this, 'after_insert_post' ), 10, 3 );
+			add_action( 'wp_after_insert_post', [ $this, 'after_insert_post' ] );
 		}
 
 		/**
@@ -93,9 +93,9 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 		 */
 		public function add_edit_page_hooks() {
 			wp_enqueue_script( 'jquery-ui-autocomplete' );
-			add_action( 'admin_footer', array( $this, 'js' ) );
-			add_action( 'clone-replace-actions', array( $this, 'add_editpage_content' ) );
-			add_action( 'admin_notices', array( $this, 'will_be_replaced_notice' ) );
+			add_action( 'admin_footer', [ $this, 'js' ] );
+			add_action( 'clone-replace-actions', [ $this, 'add_editpage_content' ] );
+			add_action( 'admin_notices', [ $this, 'will_be_replaced_notice' ] );
 		}
 
 		/**
@@ -202,7 +202,7 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 				return;
 			}
 
-			if ( in_array( get_post_status( $replacing_post_id ), array( 'trash', 'publish', 'inherit' ), true ) ) {
+			if ( in_array( get_post_status( $replacing_post_id ), [ 'trash', 'publish', 'inherit' ], true ) ) {
 				return;
 			}
 
@@ -414,18 +414,18 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 				exit( '[{"label":"Error: You shall not pass","value":"0"}]' );
 			}
 
-			$args  = apply_filters( // phpcs:ignore WordPress.NamingConventions.ValidHookName.NotLowercase
-				'CR_Replace_ajax_query_args',
-				array(
+			$args  = apply_filters(
+				'CR_Replace_ajax_query_args', // phpcs:ignore WordPress.NamingConventions.ValidHookName.NotLowercase
+				[
 					's'                => $cr_autocomplete_search,
-					'post__not_in'     => array( $cr_current_post ), // phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn
+					'post__not_in'     => [ $cr_current_post ], // phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn
 					'posts_per_page'   => 10,
 					'orderby'          => 'post_date',
 					'order'            => 'DESC',
 					'post_status'      => 'publish',
 					'post_type'        => get_post_type( $cr_current_post ),
 					'suppress_filters' => false,
-				)
+				]
 			);
 			$query = new WP_Query( $args );
 
@@ -433,13 +433,13 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 				exit( '[]' );
 			}
 
-			$posts = array();
+			$posts = [];
 
 			foreach ( $query->posts as $post ) {
-				$posts[] = array(
+				$posts[] = [
 					'label' => ! empty( $post->post_title ) ? $post->post_title : __( '(no title)', 'clone-replace' ),
 					'value' => $post->ID,
-				);
+				];
 			}
 
 			echo wp_json_encode( $posts );
@@ -460,14 +460,12 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 		 * On post publish, if this post is set to replace another, add a hook to do it.
 		 * This is a two-hook process because we only want to run it when the post publishes.
 		 *
-		 * @param string  $new_status The new post status.
-		 * @param string  $old_status The old post status.
-		 * @param WP_Post $post       The post object.
-		 * @return void
+		 * @param string $new_status The new post status.
+		 * @param string $old_status The old post status.
 		 */
-		public function action_publish_post( $new_status, $old_status, $post ) {
+		public function action_publish_post( $new_status, $old_status ) {
 			if ( 'publish' === $new_status && 'publish' !== $old_status ) {
-				add_action( 'save_post', array( $this, 'replacement_action' ), 10, 2 );
+				add_action( 'save_post', [ $this, 'replacement_action' ], 10, 2 );
 			}
 		}
 
@@ -498,12 +496,9 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 		/**
 		 * Sets meta for gutenberg posts after update.
 		 *
-		 * @param int     $post The id of the post being saved/updated.
-		 * @param object  $request The request object.
-		 * @param boolean $creating Is this post being created.
-		 * @return void
+		 * @param int $post The id of the post being saved/updated.
 		 */
-		public function after_insert_post( $post, $request, $creating ) {
+		public function after_insert_post( $post ) {
 			$replace_post_id = (int) get_post_meta( $post, '_cr_replace_post_id', true );
 
 			if ( ! $replace_post_id ) {
@@ -515,12 +510,12 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 			 * but there is nothing stoping them from passing a random post id. If they do,
 			 * and the user can't edit the post, unset meta.
 			 */
-			if ( ! CR_Replace::current_user_can_replace( $post, $replace_post_id ) ) {
-				delete_post_meta( $with_post_id, '_cr_replace_post_id' );
+			if ( ! self::current_user_can_replace( $post, $replace_post_id ) ) {
+				delete_post_meta( $post, '_cr_replace_post_id' );
 				return;
 			}
 
-			update_post_meta( $replace_post_id, '_cr_replacing_post_id', $with_post_id );
+			update_post_meta( $replace_post_id, '_cr_replacing_post_id', $post );
 		}
 
 		/**
@@ -528,32 +523,33 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 		 *
 		 * @param int $with_post_id    The current post.
 		 * @param int $replace_post_id The post to be replaced.
-		 * @return void
+		 *
+		 * @return bool True if the current user can replace, false if not.
 		 */
 		public function current_user_can_replace( $with_post_id, $replace_post_id ) {
 
-				// If we don't have valid post IDs, bail out.
-				if ( ! is_int( $replace_post_id ) || ! is_int( $with_post_id ) || empty( $replace_post_id ) || empty( $with_post_id ) ) {
-					return false;
-				}
+			// If we don't have valid post IDs, bail out.
+			if ( ! is_int( $replace_post_id ) || ! is_int( $with_post_id ) || empty( $replace_post_id ) || empty( $with_post_id ) ) {
+				return false;
+			}
 
-				// The user needs to be able to edit the to-be-replaced post.
-				$post_type        = get_post_type( $replace_post_id );
-				$post_type_object = get_post_type_object( $post_type );
-				if ( ! current_user_can( $post_type_object->cap->edit_post, $replace_post_id ) ) {
-					return false;
-				}
+			// The user needs to be able to edit the to-be-replaced post.
+			$post_type        = get_post_type( $replace_post_id );
+			$post_type_object = get_post_type_object( $post_type );
+			if ( ! current_user_can( $post_type_object->cap->edit_post, $replace_post_id ) ) {
+				return false;
+			}
 
-				// The user also needs to be able to delete the replacing post.
-				if ( get_post_type( $with_post_id ) !== $post_type ) {
-					$post_type_object = get_post_type_object( get_post_type( $with_post_id ) );
-				}
-				if ( ! current_user_can( $post_type_object->cap->delete_post, $with_post_id ) ) {
-					return false;
-				}
+			// The user also needs to be able to delete the replacing post.
+			if ( get_post_type( $with_post_id ) !== $post_type ) {
+				$post_type_object = get_post_type_object( get_post_type( $with_post_id ) );
+			}
+			if ( ! current_user_can( $post_type_object->cap->delete_post, $with_post_id ) ) {
+				return false;
+			}
 
-				// If we made it this far, we're good to go.
-				return true;
+			// If we made it this far, we're good to go.
+			return true;
 		}
 
 		/**
@@ -582,7 +578,7 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 				}
 
 
-				if ( ! CR_Replace::current_user_can_replace( $with_post_id, $replace_post_id ) ) {
+				if ( ! self::current_user_can_replace( $with_post_id, $replace_post_id ) ) {
 					return;
 				}
 
@@ -659,9 +655,9 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 			}
 
 			// Unset request params so plugins and themes don't think we're updating the current post, and re-save meta.
-			$_POST    = array();
-			$_REQUEST = array();
-			$_GET     = array();
+			$_POST    = [];
+			$_REQUEST = [];
+			$_GET     = [];
 
 			// Fire an action so other plugins and themes know what's going on.
 			do_action( 'CR_Replace_pre_replacement', $replace_post_id, $with_post_id ); // phpcs:ignore WordPress.NamingConventions.ValidHookName.NotLowercase
@@ -783,9 +779,9 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 				return;
 			}
 
-			$ignored_meta = apply_filters( // phpcs:ignore WordPress.NamingConventions.ValidHookName.NotLowercase
-				'CR_Replace_ignored_meta',
-				array(
+			$ignored_meta = apply_filters(
+				'CR_Replace_ignored_meta', // phpcs:ignore WordPress.NamingConventions.ValidHookName.NotLowercase
+				[
 					'_edit_lock',
 					'_edit_last',
 					'_wp_old_slug',
@@ -797,7 +793,7 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 					'_cr_original_post',
 					'_cr_replace_post_id',
 					'_cr_replacing_post_id',
-				)
+				]
 			);
 
 			global $wpdb;
@@ -809,10 +805,10 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 
 			// We use SQL here because otherwise we'd run (2n + 1) queries deleting postmeta and re-adding it.
 			if ( $to_post_id ) {
-				$wpdb->query( "UPDATE {$wpdb->postmeta} SET `post_id` = {$to_post_id} WHERE $where" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery
+				$wpdb->query( "UPDATE {$wpdb->postmeta} SET `post_id` = {$to_post_id} WHERE $where" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 			} else {
 				// If we don't have a $to_post_id, delete the post meta.
-				$wpdb->query( "DELETE FROM {$wpdb->postmeta} WHERE $where" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery
+				$wpdb->query( "DELETE FROM {$wpdb->postmeta} WHERE $where" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 			}
 
 			// Cleanup cache.

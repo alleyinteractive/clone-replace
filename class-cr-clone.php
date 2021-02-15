@@ -61,16 +61,16 @@ if ( ! class_exists( 'CR_Clone' ) ) :
 		 * @return void
 		 */
 		public function setup() {
-			add_action( 'admin_post_clone_post', array( $this, 'action_admin_post' ) );
+			add_action( 'admin_post_clone_post', [ $this, 'action_admin_post' ] );
 
-			add_filter( 'post_row_actions', array( $this, 'add_row_link' ), 10, 2 );
-			add_filter( 'page_row_actions', array( $this, 'add_row_link' ), 10, 2 );
+			add_filter( 'post_row_actions', [ $this, 'add_row_link' ], 10, 2 );
+			add_filter( 'page_row_actions', [ $this, 'add_row_link' ], 10, 2 );
 
-			add_action( 'clone-replace-actions', array( $this, 'add_editpage_link' ) );
+			add_action( 'clone-replace-actions', [ $this, 'add_editpage_link' ] );
 
-			add_action( 'CR_Clone_inserted_post', array( $this, 'clone_terms' ), 10, 2 );
-			add_action( 'CR_Clone_inserted_post', array( $this, 'clone_post_meta' ), 10, 2 );
-			add_action( 'CR_Clone_inserted_post', array( $this, 'cleanup' ), 10, 2 );
+			add_action( 'CR_Clone_inserted_post', [ $this, 'clone_terms' ], 10, 2 );
+			add_action( 'CR_Clone_inserted_post', [ $this, 'clone_post_meta' ], 10, 2 );
+			add_action( 'CR_Clone_inserted_post', [ $this, 'cleanup' ], 10, 2 );
 		}
 
 
@@ -86,7 +86,7 @@ if ( ! class_exists( 'CR_Clone' ) ) :
 
 			check_admin_referer( 'clone_post_' . intval( $_GET['p'] ) );
 
-			$post_id = $this->clone_post( intval( $_GET['p'] ), apply_filters( 'CR_Clone_post_options', array() ) ); // phpcs:ignore WordPress.NamingConventions.ValidHookName.NotLowercase
+			$post_id = $this->clone_post( intval( $_GET['p'] ), apply_filters( 'CR_Clone_post_options', [] ) ); // phpcs:ignore WordPress.NamingConventions.ValidHookName.NotLowercase
 
 			if ( ! $post_id ) {
 				wp_die( esc_html__( 'There was an error copying this post', 'clone-replace' ) );
@@ -102,8 +102,8 @@ if ( ! class_exists( 'CR_Clone' ) ) :
 			 * @param string $redirect_url URL string passed to wp_redirect
 			 * @param int    $post_id      ID for newly cloned post.
 			 */
-			$redirect_url = apply_filters( // phpcs:ignore WordPress.NamingConventions.ValidHookName.NotLowercase
-				'CR_Clone_redirect_url',
+			$redirect_url = apply_filters(
+				'CR_Clone_redirect_url', // phpcs:ignore WordPress.NamingConventions.ValidHookName.NotLowercase
 				admin_url( "post.php?post={$post_id}&action=edit" ),
 				$post_id
 			);
@@ -141,7 +141,7 @@ if ( ! class_exists( 'CR_Clone' ) ) :
 				<?php if ( 'publish' !== $post->post_status ) : ?>
 					<h4 style="margin-bottom:0.33em"><?php esc_html_e( 'Clone', 'clone-replace' ); ?></h4>
 				<?php endif ?>
-				<a href="<?php echo esc_url( $this->get_url( intval( $_GET['post'] ) ) ); ?>"><?php esc_html_e( 'Clone to a new draft', 'clone-replace' ); ?></a> <?php // phpcs:ignore WordPress.Security.NonceVerification.Recommended ?>
+				<a href="<?php echo esc_url( $this->get_url( intval( $_GET['post'] ) ) ); ?>"><?php esc_html_e( 'Clone to a new draft', 'clone-replace' ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended ?></a>
 			</div>
 				<?php
 		endif;
@@ -159,7 +159,7 @@ if ( ! class_exists( 'CR_Clone' ) ) :
 			} elseif ( is_object( $post ) ) {
 				$post_id = $post->ID;
 			} else {
-				return;
+				return '';
 			}
 
 			return wp_nonce_url( admin_url( "admin-post.php?action=clone_post&p={$post_id}" ), 'clone_post_' . $post_id );
@@ -171,13 +171,14 @@ if ( ! class_exists( 'CR_Clone' ) ) :
 		 *
 		 * @param int   $old_post_id The old post ID.
 		 * @param array $args        Optional. Options for the new post.
-		 * @return int the ID of the new post
+		 *
+		 * @return int|bool The ID of the new post or false on failure.
 		 */
-		public function clone_post( $old_post_id, $args = array() ) {
+		public function clone_post( $old_post_id, $args = [] ) {
 			// Ensure that the user can create this post type.
 			$post_type_object = get_post_type_object( get_post_type( $old_post_id ) );
 			if ( ! current_user_can( $post_type_object->cap->create_posts ) ) {
-				return;
+				return false;
 			}
 
 			if ( is_int( $old_post_id ) ) {
@@ -190,13 +191,13 @@ if ( ! class_exists( 'CR_Clone' ) ) :
 
 			$args = wp_parse_args(
 				$args,
-				array(
+				[
 					'post_status' => 'draft',
 					'post_date'   => false,
-				)
+				]
 			);
 
-			$post_args = array(
+			$post_args = [
 				'menu_order'     => $old_post->menu_order,
 				'comment_status' => $old_post->comment_status,
 				'ping_status'    => $old_post->ping_status,
@@ -209,7 +210,7 @@ if ( ! class_exists( 'CR_Clone' ) ) :
 				'post_status'    => $args['post_status'],
 				'post_title'     => $old_post->post_title,
 				'post_type'      => $old_post->post_type,
-			);
+			];
 			if ( $args['post_date'] ) {
 				$post_args['post_date']     = $args['post_date'];
 				$post_args['post_date_gmt'] = get_gmt_from_date( $args['post_date'] );
@@ -239,10 +240,10 @@ if ( ! class_exists( 'CR_Clone' ) ) :
 				$terms = wp_get_object_terms(
 					$from_post_id,
 					$taxonomy,
-					array(
+					[
 						'orderby' => 'term_order',
 						'fields'  => 'ids',
-					)
+					]
 				);
 				if ( $terms && ! is_wp_error( $terms ) ) {
 					$terms = array_map( 'intval', $terms );
@@ -264,9 +265,9 @@ if ( ! class_exists( 'CR_Clone' ) ) :
 		public function clone_post_meta( $to_post_id, $from_post_id ) {
 			$post_meta = apply_filters( 'CR_Clone_post_meta', get_post_meta( $from_post_id ), $to_post_id, $from_post_id ); // phpcs:ignore WordPress.NamingConventions.ValidHookName.NotLowercase
 
-			$ignored_meta = apply_filters( // phpcs:ignore WordPress.NamingConventions.ValidHookName.NotLowercase
-				'CR_Clone_ignored_meta',
-				array(
+			$ignored_meta = apply_filters(
+				'CR_Clone_ignored_meta', // phpcs:ignore WordPress.NamingConventions.ValidHookName.NotLowercase
+				[
 					'_edit_lock',
 					'_edit_last',
 					'_wp_old_slug',
@@ -278,7 +279,7 @@ if ( ! class_exists( 'CR_Clone' ) ) :
 					'_cr_original_post',
 					'_cr_replace_post_id',
 					'_cr_replacing_post_id',
-				)
+				]
 			);
 
 			if ( empty( $post_meta ) ) {

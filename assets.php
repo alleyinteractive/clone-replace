@@ -7,15 +7,11 @@
 
 namespace Clone_Replace;
 
-define( 'CLONE_REPLACE_ASSET_MAP', read_asset_map( dirname( __FILE__ ) . '/build/assetMap.json' ) );
-define( 'CLONE_REPLACE_ASSET_MODE', CLONE_REPLACE_ASSET_MAP['mode'] ?? 'production' );
-
 // Register action and filter hooks.
 add_action(
 	'enqueue_block_editor_assets',
 	__NAMESPACE__ . '\action_enqueue_block_editor_assets'
 );
-
 
 /**
  * A callback for the enqueue_block_editor_assets action hook.
@@ -39,7 +35,7 @@ function action_enqueue_block_editor_assets() {
  *
  * @return array An array of dependencies for this asset.
  */
-function get_asset_dependencies( string $asset ) : array {
+function get_asset_dependencies( $asset ) {
 	// Get the path to the PHP file containing the dependencies.
 	$dependency_file = get_asset_path( $asset, true );
 	if ( empty( $dependency_file ) ) {
@@ -52,8 +48,7 @@ function get_asset_dependencies( string $asset ) : array {
 	}
 
 	// Try to load the dependencies.
-	// phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.UsingVariable
-	$dependencies = require $dependency_file;
+	$dependencies = require $dependency_file; // phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.UsingVariable
 	if ( empty( $dependencies['dependencies'] ) || ! is_array( $dependencies['dependencies'] ) ) {
 		return [];
 	}
@@ -68,21 +63,43 @@ function get_asset_dependencies( string $asset ) : array {
  *
  * @return string The asset's hash.
  */
-function get_asset_hash( string $asset ) : string {
-	return get_asset_property( $asset, 'hash' )
-		?? CLONE_REPLACE_ASSET_MAP['hash']
-		?? '1.0.0';
+function get_asset_hash( $asset ) {
+	$hash = get_asset_property( $asset, 'hash' );
+
+	// Fall back to the hash property of the asset map.
+	if ( empty( $hash ) ) {
+		$asset_map = get_asset_map();
+		if ( ! empty( $asset_map['hash'] ) ) {
+			$hash = $asset_map['hash'];
+		}
+	}
+
+	// Fall back to 1.0.0.
+	if ( empty( $hash ) ) {
+		$hash = '1.0.0';
+	}
+
+	return $hash;
+}
+
+/**
+ * Gets the asset map from the JSON configuration.
+ *
+ * @return array The asset map.
+ */
+function get_asset_map() {
+	return read_asset_map( dirname( __FILE__ ) . '/build/assetMap.json' );
 }
 
 /**
  * Get the URL for a given asset.
  *
- * @param string  $asset Entry point and asset type separated by a '.'.
- * @param boolean $dir   Optional. Whether to return the directory path or the plugin URL path. Defaults to false (returns URL).
+ * @param string $asset Entry point and asset type separated by a '.'.
+ * @param bool   $dir   Optional. Whether to return the directory path or the plugin URL path. Defaults to false (returns URL).
  *
  * @return string The asset URL.
  */
-function get_asset_path( string $asset, bool $dir = false ) : string {
+function get_asset_path( $asset, $dir = false ) {
 	// Try to get the relative path.
 	$relative_path = get_asset_property( $asset, 'path' );
 	if ( empty( $relative_path ) ) {
@@ -105,14 +122,17 @@ function get_asset_path( string $asset, bool $dir = false ) : string {
  *
  * @return string|null The asset property based on entry and type.
  */
-function get_asset_property( string $asset, string $prop ) : ?string {
+function get_asset_property( $asset, $prop ) {
 	/*
 	 * Appending a '.' ensures the explode() doesn't generate a notice while
 	 * allowing the variable names to be more readable via list().
 	 */
 	list( $entrypoint, $type ) = explode( '.', "$asset." );
 
-	$asset_property = CLONE_REPLACE_ASSET_MAP[ $entrypoint ][ $type ][ $prop ] ?? null;
+	$asset_map      = get_asset_map();
+	$asset_property = isset( $asset_map[ $entrypoint ][ $type ][ $prop ] )
+		? $asset_map[ $entrypoint ][ $type ][ $prop ]
+		: null;
 
 	return $asset_property ? $asset_property : null;
 }
@@ -122,14 +142,14 @@ function get_asset_property( string $asset, string $prop ) : ?string {
  *
  * @param string $to_handle The script handle to attach the inline script to.
  */
-function inline_locale_data( string $to_handle ) {
+function inline_locale_data( $to_handle ) {
 	global $post;
 
 	// Define locale data for Jed.
 	$locale_data = [
 		'' => [
-			'domain'  => 'clone-replace',
-			'lang'    => is_admin() ? get_user_locale() : get_locale(),
+			'domain' => 'clone-replace',
+			'lang'   => is_admin() ? get_user_locale() : get_locale(),
 		],
 	];
 
@@ -140,11 +160,11 @@ function inline_locale_data( string $to_handle ) {
 	);
 
 	$json = [
-		'nonce'   => wp_create_nonce( 'clone_post_' . $post->ID ),
+		'nonce'    => wp_create_nonce( 'clone_post_' . $post->ID ),
 		'adminUrl' => admin_url(),
 	];
 
-	wp_add_inline_script( $to_handle, 'var cloneReplace = ' . json_encode( $json ), 'before' );
+	wp_add_inline_script( $to_handle, 'var cloneReplace = ' . wp_json_encode( $json ), 'before' );
 }
 
 /**
@@ -154,10 +174,10 @@ function inline_locale_data( string $to_handle ) {
  *
  * @return array The asset map.
  */
-function read_asset_map( string $path ) : array {
+function read_asset_map( $path ) {
 	if ( file_exists( $path ) && 0 === validate_file( $path ) ) {
 		ob_start();
-		include $path; // phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.IncludingFile, WordPressVIPMinimum.Files.IncludingFile.UsingVariable
+		include $path; // phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.UsingVariable
 		return json_decode( ob_get_clean(), true );
 	}
 

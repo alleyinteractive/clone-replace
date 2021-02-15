@@ -34,7 +34,7 @@ add_action(
 	function () {
 		if ( is_admin()
 			|| ( defined( 'DOING_CRON' ) && DOING_CRON )
-			|| ( ! empty( $_SERVER['REQUEST_URI'] ) && false !== strpos( $_SERVER['REQUEST_URI'], rest_get_url_prefix() ) ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
+			|| ( ! empty( $_SERVER['REQUEST_URI'] ) && false !== strpos( $_SERVER['REQUEST_URI'], rest_get_url_prefix() ) ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		) {
 			require_once __DIR__ . '/rest.php';
 			require_once __DIR__ . '/assets.php';
@@ -61,14 +61,14 @@ if ( is_admin() ) :
 			<?php if ( 'publish' !== $post->post_status ) : ?>
 				<a href="#clone-replace-select" class="edit-clone-replace hide-if-no-js"><?php esc_html_e( 'Clone/Replace', 'clone-replace' ); ?></a>
 				<div id="clone-replace-select" class="hide-if-js">
-					<?php do_action( 'clone-replace-actions' ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound, WordPress.NamingConventions.ValidHookName.UseUnderscores ?>
+					<?php do_action( 'clone-replace-actions' ); // phpcs:ignore WordPress.NamingConventions.ValidHookName.UseUnderscores,WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound ?>
 					<p>
 						<a href="#clone-replace-select" class="save-clone-replace hide-if-no-js button">OK</a>
 						<a href="#clone-replace-select" class="cancel-clone-replace hide-if-no-js">Cancel</a>
 					</p>
 				</div>
 			<?php else : ?>
-				<?php do_action( 'clone-replace-actions' ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound, WordPress.NamingConventions.ValidHookName.UseUnderscores ?>
+				<?php do_action( 'clone-replace-actions' ); // phpcs:ignore WordPress.NamingConventions.ValidHookName.UseUnderscores,WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound ?>
 			<?php endif ?>
 		</div>
 		<?php
@@ -163,8 +163,10 @@ function cr_register_meta() {
 		},
 	];
 
-	register_post_meta( '', '_cr_original_post', $meta_args );
-	register_post_meta( '', '_cr_replace_post_id', $meta_args );
-	register_post_meta( '', '_cr_replacing_post_id', $meta_args );
+	if ( function_exists( 'register_post_meta' ) ) {
+		register_post_meta( '', '_cr_original_post', $meta_args );
+		register_post_meta( '', '_cr_replace_post_id', $meta_args );
+		register_post_meta( '', '_cr_replacing_post_id', $meta_args );
+	}
 }
 add_action( 'init', 'cr_register_meta' );

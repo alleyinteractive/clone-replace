@@ -19,8 +19,7 @@ branches:
 
 cache:
   directories:
-    - $HOME/.composer/cache
-    - ./vendor
+    - $HOME/.config/composer/cache
 
 # Git clone depth.
 git:
@@ -29,17 +28,15 @@ git:
 matrix:
   include:
     - php: '5.6'
-      env: WP_VERSION=4.9 PHP_LINT=1
+      env: WP_VERSION=4.9
     - php: '7.0'
-      env: WP_VERSION=latest PHP_LINT=1
+      env: WP_VERSION=latest
     - php: '7.1'
-      env: WP_VERSION=latest PHP_LINT=1
+      env: WP_VERSION=latest
     - php: '7.2'
-      env: WP_VERSION=latest PHP_LINT=1
+      env: WP_VERSION=latest
     - php: '7.3'
-      env: WP_VERSION=latest PHP_LINT=1
-    - php: '7.3'
-      env: WP_VERSION=trunk WP_PHPCS=1
+      env: WP_VERSION=latest
 
 # Prepare your build for testing.
 # Failures in this section will result in build status 'errored'.
@@ -47,7 +44,7 @@ before_script:
   # Turn off Xdebug. See https://core.trac.wordpress.org/changeset/40138.
   - phpenv config-rm xdebug.ini || echo "Xdebug not available"
 
-  - export PATH="$HOME/.composer/vendor/bin:$PATH"
+  - export PATH="${HOME}/.config/composer/vendor/bin:${PATH}"
 
   # Couple the PHPUnit version to the PHP version.
   - |
@@ -70,34 +67,17 @@ before_script:
   - bash bin/install-wp-tests.sh wordpress_test root '' localhost $WP_VERSION
 
   # Set up phpcs.
-  - |
-    if [[ "$WP_PHPCS" == "1" ]] ; then
-      composer global require automattic/vipwpcs
-      phpcs --config-set installed_paths $HOME/.composer/vendor/wp-coding-standards/wpcs,$HOME/.composer/vendor/automattic/vipwpcs
-    fi
+  - composer install
 
 # Run test script commands.
 # Default is specific to project language.
 # All commands must exit with code 0 on success. Anything else is considered failure.
 script:
-  # Search for PHP syntax errors.
-  #
-  # Only need to run this once per PHP version.
-  - |
-    if [[ "$PHP_LINT" == "1" ]] ; then
-      find . -type "f" -iname "*.php" -not -path "./vendor/*" | xargs -L "1" php -l
-    fi
-
   # WordPress Coding Standards.
-  #
-  # These are the same across PHP and WordPress, so we need to run them only once.
   #
   # @link https://github.com/WordPress-Coding-Standards/WordPress-Coding-Standards
   # @link http://pear.php.net/package/PHP_CodeSniffer/
-  - |
-    if [[ "$WP_PHPCS" == "1" ]] ; then
-      phpcs
-    fi
+  - composer phpcs
 
   # Run the plugin's unit tests, both in single and multisite.
   - phpunit

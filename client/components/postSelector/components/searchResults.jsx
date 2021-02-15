@@ -31,7 +31,7 @@ const SearchResults = ({
 
   if (loading) {
     className = 'loading';
-    content = __('Loading...', 'wp-starter-plugin');
+    content = __('Loading...', 'clone-replace');
   } else if (error) {
     className = 'error';
     content = error;
