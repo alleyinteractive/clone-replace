@@ -74,7 +74,7 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 			add_action( 'save_post', array( $this, 'action_save_post' ) );
 			add_action( 'before_delete_post', array( $this, 'action_before_delete_post' ) );
 			add_action( 'trashed_post', array( $this, 'action_trashed_post' ) );
-			add_action( 'transition_post_status', array( $this, 'action_publish_post' ), 1, 3 );
+			add_action( 'transition_post_status', array( $this, 'action_publish_post' ), 1, 2 );
 
 			// Used when adding row-action Replace.
 			add_action( 'admin_enqueue_scripts', array( $this, 'action_admin_enqueue_scripts' ) );
@@ -83,7 +83,7 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 			add_filter( 'page_row_actions', array( $this, 'add_row_link' ), 10, 2 );
 
 			// Handle gutenberg saving.
-			add_action( 'wp_after_insert_post', array( $this, 'after_insert_post' ), 10, 3 );
+			add_action( 'wp_after_insert_post', array( $this, 'after_insert_post' ) );
 		}
 
 		/**
@@ -462,10 +462,8 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 		 *
 		 * @param string  $new_status The new post status.
 		 * @param string  $old_status The old post status.
-		 * @param WP_Post $post       The post object.
-		 * @return void
 		 */
-		public function action_publish_post( $new_status, $old_status, $post ) {
+		public function action_publish_post( $new_status, $old_status ) {
 			if ( 'publish' === $new_status && 'publish' !== $old_status ) {
 				add_action( 'save_post', array( $this, 'replacement_action' ), 10, 2 );
 			}
@@ -498,12 +496,9 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 		/**
 		 * Sets meta for gutenberg posts after update.
 		 *
-		 * @param int     $post The id of the post being saved/updated.
-		 * @param object  $request The request object.
-		 * @param boolean $creating Is this post being created.
-		 * @return void
+		 * @param int $post The id of the post being saved/updated.
 		 */
-		public function after_insert_post( $post, $request, $creating ) {
+		public function after_insert_post( $post ) {
 			$replace_post_id = (int) get_post_meta( $post, '_cr_replace_post_id', true );
 
 			if ( ! $replace_post_id ) {
@@ -516,11 +511,11 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 			 * and the user can't edit the post, unset meta.
 			 */
 			if ( ! CR_Replace::current_user_can_replace( $post, $replace_post_id ) ) {
-				delete_post_meta( $with_post_id, '_cr_replace_post_id' );
+				delete_post_meta( $post, '_cr_replace_post_id' );
 				return;
 			}
 
-			update_post_meta( $replace_post_id, '_cr_replacing_post_id', $with_post_id );
+			update_post_meta( $replace_post_id, '_cr_replacing_post_id', $post );
 		}
 
 		/**
@@ -528,7 +523,8 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 		 *
 		 * @param int $with_post_id    The current post.
 		 * @param int $replace_post_id The post to be replaced.
-		 * @return void
+		 *
+		 * @return bool True if the current user can replace, false if not.
 		 */
 		public function current_user_can_replace( $with_post_id, $replace_post_id ) {
 

@@ -159,7 +159,7 @@ if ( ! class_exists( 'CR_Clone' ) ) :
 			} elseif ( is_object( $post ) ) {
 				$post_id = $post->ID;
 			} else {
-				return;
+				return '';
 			}
 
 			return wp_nonce_url( admin_url( "admin-post.php?action=clone_post&p={$post_id}" ), 'clone_post_' . $post_id );
@@ -171,13 +171,14 @@ if ( ! class_exists( 'CR_Clone' ) ) :
 		 *
 		 * @param int   $old_post_id The old post ID.
 		 * @param array $args        Optional. Options for the new post.
-		 * @return int the ID of the new post
+		 *
+		 * @return int|bool The ID of the new post or false on failure.
 		 */
 		public function clone_post( $old_post_id, $args = array() ) {
 			// Ensure that the user can create this post type.
 			$post_type_object = get_post_type_object( get_post_type( $old_post_id ) );
 			if ( ! current_user_can( $post_type_object->cap->create_posts ) ) {
-				return;
+				return false;
 			}
 
 			if ( is_int( $old_post_id ) ) {

@@ -5,6 +5,8 @@
 
 namespace Clone_Replace;
 
+use WP_Query;
+
 /**
  * A function to register custom REST routes on REST API init.
  */
@@ -18,13 +20,15 @@ function action_rest_api_init() {
 			'permission_callback' => function () {
 				return is_user_logged_in();
 			},
-		],
+		]
 	);
 }
 add_action( 'rest_api_init', __NAMESPACE__ . '\action_rest_api_init' );
 
 /**
  * A callback for /search/
+ *
+ * @param array $request Request variables.
  *
  * @return array An array of post objects.
  */
@@ -33,7 +37,7 @@ function rest_route_search( $request ) {
 	$search    = $params['search'];
 	$post_type = $params['subtype'];
 
-	$query = new \WP_Query( [
+	$query = new WP_Query( [
 		's'         => $search,
 		'post_type' => $post_type,
 	] );

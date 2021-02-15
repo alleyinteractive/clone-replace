@@ -4,7 +4,7 @@
  * Tests for replacement functionality.
  */
 
-class Test_Replace extends \WP_UnitTestCase {
+class Test_Replace extends WP_UnitTestCase {
 
 	public function setUp() {
 		parent::setUp();
