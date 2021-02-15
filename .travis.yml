@@ -37,8 +37,6 @@ matrix:
       env: WP_VERSION=latest PHP_LINT=1
     - php: '7.3'
       env: WP_VERSION=latest PHP_LINT=1
-    - php: '7.3'
-      env: WP_VERSION=trunk WP_PHPCS=1
 
 # Prepare your build for testing.
 # Failures in this section will result in build status 'errored'.
@@ -46,7 +44,7 @@ before_script:
   # Turn off Xdebug. See https://core.trac.wordpress.org/changeset/40138.
   - phpenv config-rm xdebug.ini || echo "Xdebug not available"
 
-  - export PATH="$HOME/.composer/vendor/bin:$PATH"
+  - export PATH="${HOME}/.config/composer/vendor/bin:${PATH}"
 
   # Couple the PHPUnit version to the PHP version.
   - |
