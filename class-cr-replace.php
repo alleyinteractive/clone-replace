@@ -528,28 +528,28 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 		 */
 		public function current_user_can_replace( $with_post_id, $replace_post_id ) {
 
-				// If we don't have valid post IDs, bail out.
-				if ( ! is_int( $replace_post_id ) || ! is_int( $with_post_id ) || empty( $replace_post_id ) || empty( $with_post_id ) ) {
-					return false;
-				}
+			// If we don't have valid post IDs, bail out.
+			if ( ! is_int( $replace_post_id ) || ! is_int( $with_post_id ) || empty( $replace_post_id ) || empty( $with_post_id ) ) {
+				return false;
+			}
 
-				// The user needs to be able to edit the to-be-replaced post.
-				$post_type        = get_post_type( $replace_post_id );
-				$post_type_object = get_post_type_object( $post_type );
-				if ( ! current_user_can( $post_type_object->cap->edit_post, $replace_post_id ) ) {
-					return false;
-				}
+			// The user needs to be able to edit the to-be-replaced post.
+			$post_type        = get_post_type( $replace_post_id );
+			$post_type_object = get_post_type_object( $post_type );
+			if ( ! current_user_can( $post_type_object->cap->edit_post, $replace_post_id ) ) {
+				return false;
+			}
 
-				// The user also needs to be able to delete the replacing post.
-				if ( get_post_type( $with_post_id ) !== $post_type ) {
-					$post_type_object = get_post_type_object( get_post_type( $with_post_id ) );
-				}
-				if ( ! current_user_can( $post_type_object->cap->delete_post, $with_post_id ) ) {
-					return false;
-				}
+			// The user also needs to be able to delete the replacing post.
+			if ( get_post_type( $with_post_id ) !== $post_type ) {
+				$post_type_object = get_post_type_object( get_post_type( $with_post_id ) );
+			}
+			if ( ! current_user_can( $post_type_object->cap->delete_post, $with_post_id ) ) {
+				return false;
+			}
 
-				// If we made it this far, we're good to go.
-				return true;
+			// If we made it this far, we're good to go.
+			return true;
 		}
 
 		/**

@@ -9,6 +9,10 @@ class Test_Replace extends WP_UnitTestCase {
 	public function setUp() {
 		parent::setUp();
 
+		// Set the current user to an editor so we can check permissions correctly.
+		$user = $this->factory->user->create( [ 'role' => 'editor' ] );
+		wp_set_current_user( $user );
+
 		add_filter( 'wp_redirect', '__return_false' );
 	}
 
