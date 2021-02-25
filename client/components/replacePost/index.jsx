@@ -1,54 +1,53 @@
 /* eslint-disable no-underscore-dangle */
 /* global React */
 
-import apiFetch from '@wordpress/api-fetch';
 import { Spinner } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
-import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+
+// Components.
 import PostSelector from '../postSelector';
 
 /**
- * Slotfill to add clone & replace controls to the sidebar.
+ * Slotfill to add replace controls to the sidebar.
  */
 const ReplacePost = () => {
   const { editPost } = useDispatch('core/editor');
+
+  // Get information about the post.
   const {
-    meta,
-    postType,
     currentPost,
+    meta,
+    meta: {
+      _cr_replace_post_id: replacePostId = '',
+    },
+    postType,
   } = useSelect((select) => ({
+    currentPost: select('core/editor').getCurrentPost(),
     meta: select('core/editor').getEditedPostAttribute('meta') || {},
     postType: select('core/editor').getCurrentPostType(),
-    currentPost: select('core/editor').getCurrentPost(),
-  }), []);
+  }));
 
-  const [replacePostId, setReplacePostId] = useState(meta._cr_replace_post_id);
-  const [replacePost, setReplacePost] = useState(false);
-  const selected = replacePost ? [replacePost] : [];
+  /*
+   * Get the replacement post object from the store or the API on load
+   * and whenever the replacement post ID changes.
+   */
+  const {
+    replacePost = null,
+  } = useSelect((select) => ({
+    replacePost: replacePostId
+      ? select('core').getEntityRecord(
+        'postType',
+        postType,
+        parseInt(replacePostId, 10),
+      ) : null,
+  }), [replacePostId]);
 
-  const fetchPost = async (postId) => {
-    const post = await apiFetch({ path: `/wp/v2/${postType}/${postId}` });
-    setReplacePost({
-      id: post.id,
-      title: post.title.rendered,
-    });
-  };
-
-  useEffect(() => {
-    editPost({
-      meta: {
-        ...meta,
-        _cr_replace_post_id: replacePostId.toString(),
-      },
-    });
-  }, [replacePostId]);
-
-  useEffect(() => {
-    if (replacePostId) {
-      fetchPost(replacePostId);
-    }
-  }, []);
+  const selected = replacePost
+    ? [{
+      id: replacePost.id,
+      title: replacePost.title.rendered,
+    }] : [];
 
   /**
    * We only are interested in draft posts here.
@@ -78,10 +77,14 @@ const ReplacePost = () => {
       <PostSelector
         label={__('', 'clone-replace')}
         placeHolder={__('Search for a post to replace', 'clone-replace')}
-        onSelect={(val) => {
-          setReplacePost(val.length ? val[0] : false);
-          setReplacePostId(val.length ? val[0].id : '');
-        }}
+        onSelect={(newPost) => editPost({
+          meta: {
+            ...meta,
+            _cr_replace_post_id: newPost && newPost[0] && newPost[0].id
+              ? String(newPost[0].id)
+              : '',
+          },
+        })}
         postTypes={[postType]}
         selected={selected}
         endpoint="/clone-replace/v1/search"
