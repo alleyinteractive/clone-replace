@@ -14,7 +14,7 @@
   },
   "scripts": {
     "phpcbf": "phpcbf .",
-    "phpcs:": "cd plugins/clone-replace && phpcs . --basepath=.",
+    "phpcs:": "phpcs . --basepath=.",
     "phpunit": "phpunit"
   }
 }
