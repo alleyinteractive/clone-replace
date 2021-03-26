@@ -14,7 +14,7 @@
   },
   "scripts": {
     "phpcbf": "phpcbf .",
-    "phpcs": "phpcs . --runtime-set text_domain clone-replace --runtime-set prefixes cr_,clone_replace",
+    "phpcs:plugin": "cd plugins/clone-replace && phpcs . --basepath=.",
     "phpunit": "phpunit"
   }
 }
