@@ -13,6 +13,7 @@
   },
   "scripts": {
     "phpcbf": "phpcbf .",
-    "phpcs": "phpcs . --runtime-set text_domain clone-replace --runtime-set prefixes cr_,clone_replace"
+    "phpcs": "phpcs . --runtime-set text_domain clone-replace --runtime-set prefixes cr_,clone_replace",
+    "phpunit": "phpunit"
   }
 }
