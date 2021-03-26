@@ -14,7 +14,7 @@
   },
   "scripts": {
     "phpcbf": "phpcbf .",
-    "phpcs:": "phpcs . --basepath=.",
+    "phpcs": "phpcs . --basepath=.",
     "phpunit": "phpunit"
   }
 }
