@@ -10,6 +10,11 @@
   "browserslist": [
     "last 1 version"
   ],
+  "jest": {
+    "modulePathIgnorePatterns": [
+      ".buddy-tests"
+    ]
+  },
   "scripts": {
     "preinstall": "npx check-node-version --package",
     "build": "webpack --mode=production",
