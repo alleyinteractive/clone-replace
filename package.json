@@ -21,7 +21,6 @@
     "dev": "webpack --mode=development --watch",
     "lint": "eslint --ext .jsx --ext .js .",
     "lint:fix": "eslint --ext .jsx --ext .js . --fix",
-    "scaffold": "scaffold dir ./scaffold --theme=./",
     "test": "jest",
     "test:watch": "jest --watch"
   },

@@ -153,18 +153,6 @@
         - "/:/buddy/clone-replace"
       trigger_condition: "ALWAYS"
       shell: "BASH"
-      run_next_parallel: true
-    - action: "npm run test"
-      type: "BUILD"
-      working_directory: "/buddy/clone-replace"
-      docker_image_name: "library/node"
-      docker_image_tag: "12"
-      execute_commands:
-        - "npm run test"
-      volume_mappings:
-        - "/:/buddy/clone-replace"
-      trigger_condition: "ALWAYS"
-      shell: "BASH"
     - action: "npm run build"
       type: "BUILD"
       working_directory: "/buddy/clone-replace"
