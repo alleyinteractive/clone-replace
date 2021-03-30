@@ -1,4 +1,3 @@
-const glob = require('glob');
 const path = require('path');
 const autoprefixer = require('autoprefixer');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');

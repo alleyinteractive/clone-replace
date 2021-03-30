@@ -9,10 +9,12 @@
     }
   ],
   "require-dev": {
-    "alleyinteractive/alley-coding-standards": "^0.2.0"
+    "alleyinteractive/alley-coding-standards": "^0.3.0",
+    "phpunit/phpunit": "7.5.*"
   },
   "scripts": {
     "phpcbf": "phpcbf .",
-    "phpcs": "phpcs . --runtime-set text_domain clone-replace --runtime-set prefixes cr_,clone_replace"
+    "phpcs": "phpcs . --basepath=.",
+    "phpunit": "phpunit"
   }
 }
