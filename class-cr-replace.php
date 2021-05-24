@@ -465,10 +465,14 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 		 */
 		public function action_publish_post( $new_status, $old_status ) {
 			if ( 'publish' === $new_status && 'publish' !== $old_status ) {
-				add_action( 'save_post', [ $this, 'replacement_action' ], 10, 2 );
+				// Fork for new behavior in WP 5.6 vs. old behavior.
+				if ( function_exists( 'wp_after_insert_post' ) ) {
+					add_action( 'wp_after_insert_post', [ $this, 'replacement_action' ], 10, 2 );
+				} else {
+					add_action( 'save_post', [ $this, 'replacement_action' ], 99, 2 );
+				}
 			}
 		}
-
 
 		/**
 		 * Trigger the post replacement routine
