@@ -28,6 +28,30 @@ const ReplacePost = () => {
     postType: select('core/editor').getCurrentPostType(),
   }));
 
+  // Listen for replacements.
+  const { cr_replacement_url: replacementUrl } = currentPost || {};
+  if (replacementUrl) {
+    // Wipe out the contents of the editor and replace them with a notice and a link.
+    const link = document.createElement('a');
+    link.setAttribute('href', replacementUrl);
+    link.innerText = 'Go to the newly replaced post now';
+    const message = document.createElement('p');
+    message.innerText = 'This post has replaced the original post and no longer exists. You will be redirected there momentarily. ';
+    message.appendChild(link);
+    const warning = document.createElement('div');
+    warning.classList.add('notice', 'notice-warning');
+    warning.appendChild(message);
+    warning.style.display = 'block';
+    const container = document.getElementById('wpbody-content');
+    container.innerHTML = '';
+    container.appendChild(warning);
+
+    // Now that we've successfully obliterated Gutenberg, redirect.
+    setTimeout(() => {
+      window.location.href = replacementUrl;
+    }, 1000);
+  }
+
   /*
    * Get the replacement post object from the store or the API on load
    * and whenever the replacement post ID changes.
