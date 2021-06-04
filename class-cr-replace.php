@@ -493,6 +493,20 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 					if ( wp_safe_redirect( get_edit_post_link( $replace_id, 'url' ) ) ) {
 						exit;
 					}
+				} else {
+					register_rest_field(
+						$post->post_type,
+						'cr_replacement_url',
+						[
+							'get_callback' => function () use ( $replace_id ) {
+								return get_edit_post_link( $replace_id, 'url' );
+							},
+							'schema'       => [
+								'description' => __( 'Clone/Replace replacement post edit URL.', 'clone-replace' ),
+								'type'        => 'string',
+							],
+						]
+					);
 				}
 			}
 		}
