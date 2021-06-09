@@ -465,10 +465,14 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 		 */
 		public function action_publish_post( $new_status, $old_status ) {
 			if ( 'publish' === $new_status && 'publish' !== $old_status ) {
-				add_action( 'save_post', [ $this, 'replacement_action' ], 10, 2 );
+				// Fork for new behavior in WP 5.6 vs. old behavior.
+				if ( function_exists( 'wp_after_insert_post' ) ) {
+					add_action( 'wp_after_insert_post', [ $this, 'replacement_action' ], 10, 2 );
+				} else {
+					add_action( 'save_post', [ $this, 'replacement_action' ], 99, 2 );
+				}
 			}
 		}
-
 
 		/**
 		 * Trigger the post replacement routine
@@ -489,6 +493,20 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 					if ( wp_safe_redirect( get_edit_post_link( $replace_id, 'url' ) ) ) {
 						exit;
 					}
+				} else {
+					register_rest_field(
+						$post->post_type,
+						'cr_replacement_url',
+						[
+							'get_callback' => function () use ( $replace_id ) {
+								return get_edit_post_link( $replace_id, 'url' );
+							},
+							'schema'       => [
+								'description' => __( 'Clone/Replace replacement post edit URL.', 'clone-replace' ),
+								'type'        => 'string',
+							],
+						]
+					);
 				}
 			}
 		}
