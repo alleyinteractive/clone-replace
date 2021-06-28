@@ -517,15 +517,20 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 		 * @param int $post The id of the post being saved/updated.
 		 */
 		public function after_insert_post( $post ) {
-			$replace_post_id = (int) get_post_meta( $post, '_cr_replace_post_id', true );
+			// Don't execute this in a cron context.
+			if ( defined( 'DOING_CRON' ) && DOING_CRON ) {
+				return;
+			}
 
+			// Only proceed if we have a replacement post ID.
+			$replace_post_id = (int) get_post_meta( $post, '_cr_replace_post_id', true );
 			if ( ! $replace_post_id ) {
 				return;
 			}
 
 			/**
 			 * We only surface posts the user can edit in gutenberg (post selector),
-			 * but there is nothing stoping them from passing a random post id. If they do,
+			 * but there is nothing stopping them from passing a random post id. If they do,
 			 * and the user can't edit the post, unset meta.
 			 */
 			if ( ! self::current_user_can_replace( $post, $replace_post_id ) ) {
