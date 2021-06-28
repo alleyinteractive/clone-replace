@@ -81,6 +81,9 @@ class Test_Replace extends WP_UnitTestCase {
 		$this->assertSame( 'Original Post Content', $post->post_content );
 		$this->assertSame( 'original-post-title', $post->post_name );
 
+		// Emulate cron - no logged in user, DOING_CRON is true.
+		define( 'DOING_CRON', true );
+		wp_set_current_user( null );
 		check_and_publish_future_post( $post_id_b );
 
 		$post = get_post( $post_id_b );
