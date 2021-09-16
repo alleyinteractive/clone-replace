@@ -106,7 +106,7 @@ if ( ! class_exists( 'CR_Replace' ) ) :
 		 * @return array
 		 */
 		public function add_row_link( $actions, $post ) {
-			if ( ! in_array( $post->post_type, cr_get_post_types(), true ) ) {
+			if ( ! cr_post_type_supports( $post->post_type ) ) {
 				return $actions;
 			}
 

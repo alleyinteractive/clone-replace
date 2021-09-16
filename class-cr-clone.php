@@ -121,7 +121,7 @@ if ( ! class_exists( 'CR_Clone' ) ) :
 		 * @return array
 		 */
 		public function add_row_link( $actions, $post ) {
-			if ( ! in_array( $post->post_type, cr_get_post_types(), true ) ) {
+			if ( ! cr_post_type_supports( $post->post_type ) ) {
 				return $actions;
 			}
 
@@ -179,10 +179,10 @@ if ( ! class_exists( 'CR_Clone' ) ) :
 		 * @return int|bool The ID of the new post or false on failure.
 		 */
 		public function clone_post( $old_post_id, $args = [] ) {
-			$post_type_object = get_post_type_object( get_post_type( $old_post_id ) );
+			$post_type = get_post_type( $old_post_id );
+			$post_type_object = get_post_type_object( $post_type );
 
-			// Validate that the post type has support.
-			if ( ! in_array( $post_type_object->name, cr_get_post_types(), true ) ) {
+			if ( ! cr_post_type_supports( $post_type ) ) {
 				return;
 			}
 

@@ -56,8 +56,7 @@ if ( is_admin() ) :
 	function cr_post_actions() {
 		global $post;
 
-		// Ensure the post type has support.
-		if ( ! in_array( $post->post_type, cr_get_post_types(), true ) ) {
+		if ( ! cr_post_type_supports( $post->post_type ) ) {
 			return;
 		}
 
@@ -194,4 +193,14 @@ add_action( 'init', 'cr_register_default_post_type_support', 50 );
  */
 function cr_get_post_types() {
 	return get_post_types_by_support( 'clone-replace' );
+}
+
+/**
+ * Whether a post type supports clone and replace operations.
+ *
+ * @param string $post_type Post type.
+ * @return bool
+ */
+function cr_post_type_supports( $post_type ) {
+	return in_array( $post_type, cr_get_post_types(), true );
 }
