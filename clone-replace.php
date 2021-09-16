@@ -178,7 +178,7 @@ function cr_register_meta() {
 add_action( 'init', 'cr_register_meta' );
 
 /**
- * Register the default post type support for Clone & Replace.
+ * Register the default post type support for clone and replace operations.
  */
 function cr_register_default_post_type_support() {
 	foreach ( array_keys( get_post_types( [ 'public' => true ] ) ) as $post_type ) {
@@ -188,7 +188,7 @@ function cr_register_default_post_type_support() {
 add_action( 'init', 'cr_register_default_post_type_support', 50 );
 
 /**
- * Get the available post types for clone & replace.
+ * Get the post types supporting clone and replace operations.
  *
  * @return string[]
  */
