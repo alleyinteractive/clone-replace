@@ -1,7 +1,7 @@
 {
   "name": "alleyinteractive/clone-replace",
   "description": "Clone & Replace",
-  "type": "project",
+  "type": "wordpress-plugin",
   "authors": [
     {
       "name": "Alley",

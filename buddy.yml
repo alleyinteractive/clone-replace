@@ -27,7 +27,7 @@
       docker_image_name: "alleyops/ci-resources"
       docker_image_tag: "7.4-fpm-wp"
       execute_commands:
-        - "! git grep -E '<<<<<<< HEAD|=======.*>>>>>>>' \":!$0\""
+        - "! git grep -E '<<<<<<< |>>>>>>> ' -- './*' ':(exclude)buddy.yml' ':(exclude).buddy/*'"
       volume_mappings:
         - "/:/buddy/clone-replace"
       trigger_condition: "ALWAYS"
