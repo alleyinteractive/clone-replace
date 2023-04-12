@@ -147,7 +147,7 @@ if ( ! class_exists( 'CR_Clone' ) ) :
 					<?php endif ?>
 					<a href="<?php echo esc_url( $this->get_url( intval( $_GET['post'] ) ) ); ?>"><?php esc_html_e( 'Clone to a new draft', 'clone-replace' ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended ?></a>
 				</div>
-			<?php
+				<?php
 			endif;
 		}
 
@@ -179,7 +179,7 @@ if ( ! class_exists( 'CR_Clone' ) ) :
 		 * @return int|bool The ID of the new post or false on failure.
 		 */
 		public function clone_post( $old_post_id, $args = [] ) {
-			$post_type = get_post_type( $old_post_id );
+			$post_type        = get_post_type( $old_post_id );
 			$post_type_object = get_post_type_object( $post_type );
 
 			if ( ! cr_post_type_supports( $post_type ) ) {
@@ -225,7 +225,7 @@ if ( ! class_exists( 'CR_Clone' ) ) :
 				$post_args['post_date']     = $args['post_date'];
 				$post_args['post_date_gmt'] = get_gmt_from_date( $args['post_date'] );
 			}
-			$post_args = apply_filters( 'CR_Clone_post_args', $post_args, $old_post, $args ); // phpcs:ignore WordPress.NamingConventions.ValidHookName.NotLowercase
+			$post_args                 = apply_filters( 'CR_Clone_post_args', $post_args, $old_post, $args ); // phpcs:ignore WordPress.NamingConventions.ValidHookName.NotLowercase
 			$post_args['post_content'] = wp_slash( $post_args['post_content'] );
 
 			$post_id = wp_insert_post( $post_args );
