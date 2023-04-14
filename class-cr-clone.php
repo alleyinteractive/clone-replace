@@ -141,14 +141,14 @@ if ( ! class_exists( 'CR_Clone' ) ) :
 			if ( isset( $_GET['post'] ) && intval( $_GET['post'] ) ) : // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 				global $post;
 				?>
-			<div id="clone-action">
-				<?php if ( 'publish' !== $post->post_status ) : ?>
-					<h4 style="margin-bottom:0.33em"><?php esc_html_e( 'Clone', 'clone-replace' ); ?></h4>
-				<?php endif ?>
-				<a href="<?php echo esc_url( $this->get_url( intval( $_GET['post'] ) ) ); ?>"><?php esc_html_e( 'Clone to a new draft', 'clone-replace' ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended ?></a>
-			</div>
+				<div id="clone-action">
+					<?php if ( 'publish' !== $post->post_status ) : ?>
+						<h4 style="margin-bottom:0.33em"><?php esc_html_e( 'Clone', 'clone-replace' ); ?></h4>
+					<?php endif ?>
+					<a href="<?php echo esc_url( $this->get_url( intval( $_GET['post'] ) ) ); ?>"><?php esc_html_e( 'Clone to a new draft', 'clone-replace' ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended ?></a>
+				</div>
 				<?php
-		endif;
+			endif;
 		}
 
 		/**
@@ -179,7 +179,7 @@ if ( ! class_exists( 'CR_Clone' ) ) :
 		 * @return int|bool The ID of the new post or false on failure.
 		 */
 		public function clone_post( $old_post_id, $args = [] ) {
-			$post_type = get_post_type( $old_post_id );
+			$post_type        = get_post_type( $old_post_id );
 			$post_type_object = get_post_type_object( $post_type );
 
 			if ( ! cr_post_type_supports( $post_type ) ) {
@@ -212,7 +212,7 @@ if ( ! class_exists( 'CR_Clone' ) ) :
 				'comment_status' => $old_post->comment_status,
 				'ping_status'    => $old_post->ping_status,
 				'post_author'    => get_current_user_id(),
-				'post_content'   => wp_slash( $old_post->post_content ),
+				'post_content'   => $old_post->post_content,
 				'post_excerpt'   => $old_post->post_excerpt,
 				'post_mime_type' => $old_post->post_mime_type,
 				'post_parent'    => $old_post->post_parent,
@@ -225,7 +225,8 @@ if ( ! class_exists( 'CR_Clone' ) ) :
 				$post_args['post_date']     = $args['post_date'];
 				$post_args['post_date_gmt'] = get_gmt_from_date( $args['post_date'] );
 			}
-			$post_args = apply_filters( 'CR_Clone_post_args', $post_args, $old_post, $args ); // phpcs:ignore WordPress.NamingConventions.ValidHookName.NotLowercase
+			$post_args                 = apply_filters( 'CR_Clone_post_args', $post_args, $old_post, $args ); // phpcs:ignore WordPress.NamingConventions.ValidHookName.NotLowercase
+			$post_args['post_content'] = wp_slash( $post_args['post_content'] );
 
 			$post_id = wp_insert_post( $post_args );
 

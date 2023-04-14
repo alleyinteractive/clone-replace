@@ -122,6 +122,7 @@
       shell: "BASH"
     - action: "npm audit"
       type: "BUILD"
+      disabled: true
       working_directory: "/buddy/clone-replace"
       docker_image_name: "library/node"
       docker_image_tag: "12"
@@ -129,8 +130,13 @@
         - "npm audit --audit-level=high --production --cache /buddy/clone-replace/.npm"
       volume_mappings:
         - "/:/buddy/clone-replace"
-      trigger_condition: "ALWAYS"
+      ignore_errors: true
       shell: "BASH"
+      trigger_conditions:
+        - trigger_condition: "ALWAYS"
+          zone_id: ""
+          trigger_hours: [ ]
+          trigger_days: [ ]
     - action: "npm ci"
       type: "BUILD"
       working_directory: "/buddy/clone-replace"

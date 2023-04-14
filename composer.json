@@ -10,11 +10,18 @@
   ],
   "require-dev": {
     "alleyinteractive/alley-coding-standards": "^0.3.0",
-    "phpunit/phpunit": "7.5.*"
+    "phpunit/phpunit": "^9.5",
+    "yoast/phpunit-polyfills": "^1.0"
   },
   "scripts": {
     "phpcbf": "phpcbf .",
     "phpcs": "phpcs . --basepath=.",
     "phpunit": "phpunit"
+  },
+  "config": {
+    "sort-packages": true,
+    "allow-plugins": {
+      "dealerdirect/phpcodesniffer-composer-installer": true
+    }
   }
 }

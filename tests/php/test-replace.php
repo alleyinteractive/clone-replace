@@ -6,7 +6,7 @@
 
 class Test_Replace extends WP_UnitTestCase {
 
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 
 		// Set the current user to an editor so we can check permissions correctly.
@@ -16,7 +16,7 @@ class Test_Replace extends WP_UnitTestCase {
 		add_filter( 'wp_redirect', '__return_false' );
 	}
 
-	public function tearDown() {
+	public function tearDown(): void {
 		parent::tearDown();
 
 		remove_filter( 'wp_redirect', '__return_false' );
