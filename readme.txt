@@ -7,6 +7,9 @@ Stable tag: 0.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
+**Deprecated Plugin**
+This plugin is deprecated and is no longer maintained. Alley recommends Yoast Duplicate Post as a replacement. https://wordpress.org/plugins/duplicate-post/
+
 Gives you the ability to clone posts, and replace posts. Together, you have a very powerful tool for a fork/merge editing model.
 
 == Description ==
